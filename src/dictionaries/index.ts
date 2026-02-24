@@ -1,23 +1,21 @@
-// src/dictionaries/index.ts
-// ============================================================
-//  CONTRAT TYPESCRIPT DES DICTIONNAIRES
-//  DictionaryType est la source de vérité de la structure i18n.
-//  Si une clé est ajoutée ici, TypeScript forcera son ajout
-//  dans TOUS les fichiers de langue (fr.ts, en.ts, ...).
-// ============================================================
-
-import { fr } from "@/dictionaries/fr";
-import { en } from "@/dictionaries/en";
+import { fr } from "./fr";
+import { en } from "./en";
 import type { Locale } from "@/config/i18n";
 
-// ── Le type est inféré depuis `fr` (référence de langue) ──
-export type DictionaryType = typeof fr;
+// Utilitaire pour transformer les types "littéraux" (as const) en type "string"
+// Cela permet d'avoir des textes différents entre FR et EN tout en gardant la même structure
+type DeepString<T> = {
+  [K in keyof T]: T[K] extends object ? DeepString<T[K]> : string;
+};
 
-// ── Registre des dictionnaires disponibles ──
-// Pour ajouter une langue : importer son fichier et l'ajouter ici
+// On définit le type global basé sur la structure de FR
+export type DictionaryType = DeepString<typeof fr>;
+
+// Registre des dictionnaires
+// On utilise "as DictionaryType" pour assouplir la vérification des valeurs textuelles
 const dictionaries: Record<Locale, DictionaryType> = {
-  fr,
-  en,
+  fr: fr as DictionaryType,
+  en: en as DictionaryType,
 };
 
 export function getDictionary(locale: Locale): DictionaryType {
