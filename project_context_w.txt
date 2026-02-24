@@ -1,165 +1,247 @@
 ﻿Next.js Project Context
-Generated On: 2026-02-24 14:36:59
+Generated On: 2026-02-24 16:18:33
 Root: C:\Users\hp\Documents\stage gabriel\SALMA\salma-frontend
 ===============================================
+
+// FILE: docs/vision-project.md
+-----------------------------------------------
+# 🌍 Vision Stratégique & Architecture — Plateforme SALMA
+
+Ce document définit les piliers techniques et fonctionnels de la plateforme SALMA (by AG Technologies) pour répondre aux exigences de performance, de conversion et de prestige de l'agence.
+
+## 1. Quelle est la particularité de ce site ?
+Contrairement aux sites de voyage classiques, SALMA se positionne comme une **plateforme de confiance et de réussite**. 
+- **Focus Résultat :** Mise en avant de la garantie "Satisfait ou Remboursé" et des preuves sociales (Success Stories).
+- **Spécialisation :** Une expérience utilisateur (UX) segmentée spécifiquement pour les corridors **Chine** et **Allemagne**, respectant les codes académiques de ces deux pays.
+
+## 2. Interface & UX (Expérience Utilisateur)
+L'interface est conçue pour réduire la charge cognitive et maximiser l'engagement :
+- **Mobile-First :** 80% des étudiants consultent sur smartphone. L'interface est pensée comme une application mobile native.
+- **Design Émotionnel :** Utilisation de la charte Bordeaux Royal et Or pour instaurer un sentiment de prestige et d'accessibilité au succès.
+- **Micro-interactions :** Animations fluides pour guider l'œil vers les actions prioritaires (CTAs).
+
+## 3. Structure de la Plateforme
+Le site est structuré selon un **entonnoir de conversion** :
+1. **Découverte (Home) :** Rassurer sur l'expertise d'AG Technologies.
+2. **Exploration (Catalogue) :** Permettre un choix rapide via des filtres intelligents.
+3. **Information (Détail Bourse) :** Lever tous les doutes (conditions, avantages, délais).
+4. **Action (Conversion) :** Formulaire de contact simplifié et lien direct WhatsApp.
+
+## 4. Architecture Technique (Stack Ingénieur)
+Nous utilisons une architecture **"Headless"** pour une séparation totale des responsabilités :
+- **Frontend :** Next.js 15 (App Router). Permet un référencement (SEO) optimal et une vitesse de navigation instantanée grâce au rendu hybride.
+- **Backend :** Django REST Framework. Garantit une sécurité bancaire des données et une gestion robuste des bourses en interne.
+- **API :** Communication via JSON, permettant de faire évoluer le site ou de créer une application mobile future sans changer le backend.
+
+## 5. Gestion des Données (Data Management)
+- **Centralisation :** Toutes les bourses sont gérées en un seul endroit par l'administrateur.
+- **Performance :** Utilisation d'un système de mise en cache intelligent (ISR) : le site se met à jour instantanément dès qu'une bourse est modifiée en admin, sans ralentir l'utilisateur.
+
+## 6. Fluidité & Optimisation
+- **Zéro Latence :** Optimisation des images (Next/Image) et des scripts pour obtenir un score de performance proche de 100 sur Google Lighthouse.
+- **Accessibilité :** Site fluide même avec une connexion internet instable (optimisation des paquets de données).
+
+## 7. Chatbot & Assistance
+- **WhatsApp Intelligent :** Intégration d'un bouton flottant qui pré-remplit le message en fonction de la page consultée (ex: *"Bonjour SALMA, je suis intéressé par la bourse Master en Allemagne..."*).
+- **Assistant IA (Évolutif) :** Structure prête pour l'intégration d'un agent IA capable de répondre aux questions sur les procédures de visa 24h/24.
+
+## 8. Caractère Innovateur & Conversion
+L'innovation majeure est le **"Scholarship Matcher"** :
+- Un outil interactif qui permet à l'étudiant de trouver sa bourse idéale en 3 clics (Niveau, Budget, Pays). 
+- **Impact :** Transforme un visiteur passif en un prospect qualifié, augmentant radicalement le taux de conversion par rapport à une simple liste statique.
+
+---
+**AG Technologies — L'excellence au service de votre mobilité internationale.**
+
+// END OF FILE: docs/vision-project.md
+
+
+// FILE: src/admin/dashboard/page.tsx
+-----------------------------------------------
+"use client";
+
+export default function AdminDashboard() {
+  return (
+    <div className="p-8">
+      <header className="flex justify-between items-center mb-8">
+        <h1 className="text-2xl font-bold font-sans">Gestion des Bourses</h1>
+        <button className="bg-salma-primary text-white px-4 py-2 rounded-lg">
+          + Ajouter une bourse
+        </button>
+      </header>
+
+      {/* Tableau vide pour collaborateur B */}
+      <div className="bg-salma-surface border border-salma-border rounded-xl overflow-hidden">
+        <table className="w-full text-left">
+          <thead className="bg-salma-bg border-b border-salma-border">
+            <tr>
+              <th className="p-4">Titre</th>
+              <th className="p-4">Pays</th>
+              <th className="p-4">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td className="p-4 text-salma-text-muted italic" colSpan={3}>
+                Aucune donnée (En attente du backend Django)
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+}
+
+// END OF FILE: src/admin/dashboard/page.tsx
+
+
+// FILE: src/app/(admin)/admin/dashboard/page.tsx
+-----------------------------------------------
+export default function AdminDashboard() {
+  return (
+    <div className="p-8">
+      <h1 className="text-2xl font-bold font-sans text-gray-800">
+        Tableau de bord SALMA
+      </h1>
+      <div className="mt-6 p-10 border-2 border-dashed border-gray-200 rounded-xl text-center text-gray-400">
+        Espace de gestion des bourses (Collaborateur B)
+      </div>
+    </div>
+  );
+}
+
+// END OF FILE: src/app/(admin)/admin/dashboard/page.tsx
+
+
+// FILE: src/app/(admin)/admin/layout.tsx
+-----------------------------------------------
+export default function AdminLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  return (
+    <div className="min-h-screen bg-gray-50 flex">
+      {/* Ici on pourra ajouter une Sidebar plus tard */}
+      <main className="flex-1">
+        <header className="h-16 bg-white border-b border-gray-200 px-8 flex items-center justify-between">
+          <span className="font-bold text-salma-primary">SALMA ADMIN</span>
+          <button className="text-sm text-red-600">Déconnexion</button>
+        </header>
+        {children}
+      </main>
+    </div>
+  );
+}
+
+// END OF FILE: src/app/(admin)/admin/layout.tsx
+
+
+// FILE: src/app/(visitor)/bourses/page.tsx
+-----------------------------------------------
+"use client";
+import { useLanguage } from "@/hooks/useLanguage";
+
+export default function BoursesPage() {
+  const { dictionary } = useLanguage();
+  return (
+    <div className="py-20 max-w-7xl mx-auto px-6">
+      <h1 className="text-4xl font-serif font-bold text-salma-primary mb-8">
+        {dictionary.services["bourse-etude"].name}
+      </h1>
+      <p className="text-salma-text-muted">
+        Contenu en attente de la liste des bourses...
+      </p>
+    </div>
+  );
+}
+
+// END OF FILE: src/app/(visitor)/bourses/page.tsx
+
 
 // FILE: src/app/globals.css
 -----------------------------------------------
 /* src/app/globals.css */
 @import "tailwindcss";
 
-/* ============================================================
-   TAILWIND v4 — CONFIGURATION DU THÈME SALMA
-   Remplace tailwind.config.ts dans Tailwind v4
-   Pour ajouter une couleur : ajouter dans @theme + dans :root/.dark
-   ============================================================ */
 @theme inline {
-
   /* --- Polices --- */
   --font-serif: var(--font-cormorant), Georgia, serif;
   --font-sans: var(--font-inter), system-ui, sans-serif;
 
-  /* --- Couleurs de marque SALMA --- */
-  --color-salma-primary:       #6B1E2E;
-  --color-salma-primary-dark:  #4A1220;
-  --color-salma-primary-light: #8C2D40;
+  /* --- Couleurs SALMA (Inspirées de la bannière Facebook) --- */
+  /* Bleu Marine (Confiance/Banque) */
+  --color-salma-primary:       #1B365D; 
+  --color-salma-primary-dark:  #11243D;
+  --color-salma-primary-light: #2D5284;
+
+  /* Bleu Azur (Voyage/Action) */
+  --color-salma-accent:        #00AEEF; 
+
+  /* Or (Excellence/Bourses) */
   --color-salma-gold:          #C9A84C;
   --color-salma-gold-light:    #E8C97A;
   --color-salma-gold-dark:     #A68635;
 
-  /* --- Tokens sémantiques (résolus via var CSS) --- */
+  /* --- Tokens sémantiques --- */
   --color-bg:         var(--bg);
   --color-surface:    var(--surface);
   --color-border:     var(--border);
   --color-text:       var(--text);
   --color-text-muted: var(--text-muted);
 
-  /* --- Ombres personnalisées --- */
-  --shadow-salma-sm:  0 2px 8px rgba(107, 30, 46, 0.08);
-  --shadow-salma-md:  0 4px 20px rgba(107, 30, 46, 0.12);
-  --shadow-salma-lg:  0 8px 40px rgba(107, 30, 46, 0.18);
-  --shadow-gold-glow: 0 0 20px rgba(201, 168, 76, 0.3);
-
-  /* --- Animations --- */
-  --animate-fade-in: fade-in 0.4s ease-out forwards;
-  --animate-shimmer: shimmer 2s linear infinite;
+  /* --- Ombres (plus légères et aériennes) --- */
+  --shadow-salma-sm:  0 2px 10px rgba(0, 174, 239, 0.05);
+  --shadow-salma-md:  0 10px 30px rgba(27, 54, 93, 0.1);
+  --shadow-salma-lg:  0 20px 50px rgba(27, 54, 93, 0.15);
 }
 
-/* ============================================================
-   VARIABLES CSS — THÈME CLAIR (défaut)
-   ============================================================ */
 :root {
-  --bg:         #FAFAF8;
-  --surface:    #FFFFFF;
-  --border:     #E8E0D5;
-  --text:       #1C1010;
-  --text-muted: #7A6570;
+  /* Fond CLAIR demandé (Pure White) */
+  --bg:         #FFFFFF;
+  --surface:    #F8FAFC;
+  --border:     #E2E8F0;
+  --text:       #0F172A;
+  --text-muted: #64748B;
+   --heading:    #1B365D; 
 }
 
-/* ============================================================
-   VARIABLES CSS — THÈME SOMBRE
-   Activé via la classe .dark sur le <html>
-   ============================================================ */
 .dark {
-  --bg:         #1A1014;
-  --surface:    #2A1A20;
-  --border:     #3D2530;
-  --text:       #F5EEF0;
-  --text-muted: #A08890;
+  /* Mode Sombre (Bleu Nuit Profond) */
+  --bg:         #0A0F1A;
+  --surface:    #151D2E;
+  --border:     #1E293B;
+  --text:       #F1F5F9;
+  --text-muted: #94A3B8;
+   --heading:    #F1F5F9;
 }
 
-/* ============================================================
-   KEYFRAMES
-   ============================================================ */
-@keyframes fade-in {
-  0%   { opacity: 0; transform: translateY(8px); }
-  100% { opacity: 1; transform: translateY(0); }
-}
-
-@keyframes shimmer {
-  0%   { background-position: -200% 0; }
-  100% { background-position: 200% 0; }
-}
-
-/* ============================================================
-   RESET & BASE
-   ============================================================ */
-*,
-*::before,
-*::after {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
-}
-
-html {
-  scroll-behavior: smooth;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
-
+/* --- Reset & Base --- */
 body {
   background-color: var(--bg);
   color: var(--text);
-  font-family: var(--font-inter), system-ui, sans-serif;
-  line-height: 1.6;
-  transition: background-color 0.3s ease, color 0.3s ease;
+  font-family: var(--font-sans);
+  transition: background-color 0.4s ease, color 0.4s ease;
 }
 
 h1, h2, h3, h4, h5, h6 {
-  font-family: var(--font-cormorant), Georgia, serif;
-  font-weight: 600;
-  line-height: 1.2;
-  color: var(--text);
+  font-family: var(--font-serif);
+  font-weight: 700;
+ color: var(--heading); 
+  transition: color 0.4s ease;
 }
 
-/* ============================================================
-   UTILITAIRES SALMA
-   ============================================================ */
-
-/* Trait décoratif doré */
+/* --- Utilitaires de test visuel --- */
 .gold-divider {
-  width: 60px;
-  height: 2px;
-  background: linear-gradient(90deg, #C9A84C, #E8C97A);
-  border-radius: 2px;
+  width: 50px;
+  height: 3px;
+  background-color: var(--color-salma-gold);
+  border-radius: 10px;
 }
 
-/* Texte dégradé or */
-.text-gold-gradient {
-  background: linear-gradient(135deg, #A68635, #E8C97A);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-}
-
-/* Surface de carte */
-.card-surface {
-  background-color: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 0.75rem;
-  transition: box-shadow 0.2s ease, transform 0.2s ease;
-}
-
-.card-surface:hover {
-  box-shadow: 0 4px 20px rgba(107, 30, 46, 0.12);
-  transform: translateY(-2px);
-}
-
-/* ============================================================
-   SCROLLBAR PERSONNALISÉE
-   ============================================================ */
-::-webkit-scrollbar       { width: 6px; }
-::-webkit-scrollbar-track { background: var(--bg); }
-::-webkit-scrollbar-thumb { background: #6B1E2E; border-radius: 3px; }
-::-webkit-scrollbar-thumb:hover { background: #C9A84C; }
-
-/* ============================================================
-   SÉLECTION DE TEXTE
-   ============================================================ */
-::selection {
-  background-color: #C9A84C;
-  color: #6B1E2E;
+.blue-gradient {
+  background: linear-gradient(135deg, var(--color-salma-primary) 0%, var(--color-salma-accent) 100%);
 }
 
 // END OF FILE: src/app/globals.css
@@ -167,16 +249,14 @@ h1, h2, h3, h4, h5, h6 {
 
 // FILE: src/app/layout.tsx
 -----------------------------------------------
-// src/app/layout.tsx
 import type { Metadata } from "next";
 import { Cormorant_Garamond, Inter } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "@/contexts/ThemeContext";
 import { LanguageProvider } from "@/contexts/LanguageContext";
+import Navbar from "@/components/Navbar";
 
-// ============================================================
-//  POLICES
-// ============================================================
+// Polices configurées comme dans ton portfolio
 const cormorant = Cormorant_Garamond({
   subsets: ["latin"],
   variable: "--font-cormorant",
@@ -190,36 +270,11 @@ const inter = Inter({
   display: "swap",
 });
 
-// ============================================================
-//  MÉTADONNÉES SEO
-// ============================================================
 export const metadata: Metadata = {
-  title: {
-    default: "SALMA Travel Agency — Votre visa Chine en 3 semaines",
-    template: "%s | SALMA Travel Agency",
-  },
-  description:
-    "SALMA est une agence professionnelle spécialisée dans l'obtention de visas pour la Chine. Visa Étude, Touriste, Travail et Bourse d'Étude.",
-  keywords: [
-    "agence voyage Cameroun",
-    "visa Chine",
-    "bourse étude Chine",
-    "SALMA travel",
-    "Yaoundé",
-  ],
-  icons: { icon: "/favicon.ico" },
-  openGraph: {
-    title: "SALMA Travel Agency",
-    description: "Votre visa Chine en 3 semaines.",
-    siteName: "SALMA Travel Agency",
-    locale: "fr_FR",
-    type: "website",
-  },
+  title: "SALMA — Agence de Voyage & Bourses d'études",
+  description: "Spécialiste des bourses d'études en Chine et en Allemagne.",
 };
 
-// ============================================================
-//  LAYOUT RACINE
-// ============================================================
 export default function RootLayout({
   children,
 }: {
@@ -231,10 +286,11 @@ export default function RootLayout({
       className={`${cormorant.variable} ${inter.variable}`}
       suppressHydrationWarning
     >
-      <body className="antialiased" suppressHydrationWarning>
+      <body className="antialiased bg-salma-bg text-salma-text transition-colors duration-300">
         <ThemeProvider>
           <LanguageProvider>
-            {children}
+            <Navbar />
+            <main>{children}</main>
           </LanguageProvider>
         </ThemeProvider>
       </body>
@@ -247,135 +303,205 @@ export default function RootLayout({
 
 // FILE: src/app/page.tsx
 -----------------------------------------------
+"use client";
+
+import { useLanguage } from "@/hooks/useLanguage";
 
 export default function Home() {
+  const { dictionary, locale } = useLanguage();
+
   return (
-    <main className="min-h-screen" style={{ backgroundColor: "var(--bg)", color: "var(--text)" }}>
+    <div className="min-h-[calc(100vh-80px)] flex flex-col items-center justify-center p-6 text-center">
+      {/* Test de la police Serif (Cormorant) */}
+      <h1 className="text-5xl md:text-7xl font-serif font-bold text-salma-primary mb-4">
+        {dictionary.hero.title}
+      </h1>
+      
+      {/* Test de la police Sans (Inter) et de la couleur Or */}
+      <p className="text-xl md:text-2xl font-sans text-salma-gold font-medium mb-8 uppercase tracking-widest">
+        {dictionary.hero.tagline}
+      </p>
 
-      {/* ── HEADER TEST ── */}
-      <header style={{ backgroundColor: "var(--salma-primary)" }} className="px-8 py-6 flex items-center justify-between">
-        <div>
-          <h1 className="text-white text-3xl" style={{ fontFamily: "var(--font-cormorant)" }}>
-            SALMA
-          </h1>
-          <p className="text-xs tracking-widest uppercase" style={{ color: "var(--salma-gold)" }}>
-            Travel Agency
-          </p>
-        </div>
-        <nav className="flex gap-6">
-          {["Accueil", "Services", "Visa", "Contact"].map((item) => (
-            <a key={item} href="#" className="text-sm text-white/80 hover:text-white transition-colors" style={{ fontFamily: "var(--font-inter)" }}>
-              {item}
-            </a>
-          ))}
-        </nav>
-      </header>
-
-      {/* ── HERO TEST ── */}
-      <section className="px-8 py-24 text-center" style={{ background: "linear-gradient(135deg, var(--salma-primary) 0%, var(--salma-primary-light) 100%)" }}>
-        <p className="text-sm tracking-[0.3em] uppercase mb-4" style={{ color: "var(--salma-gold)" }}>
-          Agence professionnelle de voyage
-        </p>
-        <h2 className="text-6xl font-light text-white mb-6" style={{ fontFamily: "var(--font-cormorant)" }}>
-          Votre visa Chine
-          <br />
-          <span style={{ color: "var(--salma-gold-light)" }}>en 3 semaines</span>
+      {/* Test de la charte graphique et i18n */}
+      <div className="max-w-2xl p-8 rounded-2xl border border-salma-border bg-salma-surface shadow-salma-md">
+        <h2 className="text-2xl font-serif mb-4">
+          {locale === "fr" ? "Test d'Intégration" : "Integration Test"}
         </h2>
-        <p className="text-white/70 text-lg max-w-xl mx-auto mb-10" style={{ fontFamily: "var(--font-inter)" }}>
-          SALMA accompagne chaque client avec professionnalisme et transparence dans toutes vos démarches de voyage.
+        <p className="text-salma-text-muted mb-6">
+          {dictionary.hero.description}
         </p>
+        
         <div className="flex gap-4 justify-center">
-          <button className="px-8 py-3 text-sm font-medium tracking-wide transition-all hover:opacity-90" style={{ backgroundColor: "var(--salma-gold)", color: "var(--salma-primary)", fontFamily: "var(--font-inter)", borderRadius: "4px" }}>
-            Démarrer ma demande
+          <button className="px-6 py-3 bg-salma-primary text-white rounded-lg font-bold hover:opacity-90 transition-all">
+            {dictionary.hero.ctaPrimary}
           </button>
-          <button className="px-8 py-3 text-sm font-medium tracking-wide border text-white transition-all hover:bg-white/10" style={{ borderColor: "rgba(255,255,255,0.4)", fontFamily: "var(--font-inter)", borderRadius: "4px" }}>
-            En savoir plus
+          <button className="px-6 py-3 border border-salma-gold text-salma-gold rounded-lg font-bold hover:bg-salma-gold hover:text-white transition-all">
+            {dictionary.hero.ctaSecondary}
           </button>
         </div>
-      </section>
+      </div>
 
-      {/* ── PALETTE ── */}
-      <section className="px-8 py-16 max-w-5xl mx-auto">
-        <h3 className="text-3xl mb-2" style={{ fontFamily: "var(--font-cormorant)", color: "var(--salma-primary)" }}>Palette de couleurs</h3>
-        <div className="gold-divider mb-8" />
-        <div className="grid grid-cols-3 gap-4 md:grid-cols-6">
-          {[
-            { label: "Primary", bg: "var(--salma-primary)", text: "#fff" },
-            { label: "Primary Dark", bg: "var(--salma-primary-dark)", text: "#fff" },
-            { label: "Primary Light", bg: "var(--salma-primary-light)", text: "#fff" },
-            { label: "Gold", bg: "var(--salma-gold)", text: "#1C1010" },
-            { label: "Gold Light", bg: "var(--salma-gold-light)", text: "#1C1010" },
-            { label: "Gold Dark", bg: "var(--salma-gold-dark)", text: "#fff" },
-            { label: "BG", bg: "var(--bg)", text: "var(--text)", border: true },
-            { label: "Surface", bg: "var(--surface)", text: "var(--text)", border: true },
-            { label: "Border", bg: "var(--border)", text: "var(--text)" },
-            { label: "Text", bg: "var(--text)", text: "var(--bg)" },
-            { label: "Muted", bg: "var(--text-muted)", text: "#fff" },
-          ].map(({ label, bg, text, border }) => (
-            <div key={label} className="rounded-lg p-4 text-xs font-medium text-center" style={{ backgroundColor: bg, color: text, border: border ? "1px solid var(--border)" : "none", fontFamily: "var(--font-inter)" }}>
-              {label}
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {/* ── TYPOGRAPHIE ── */}
-      <section className="px-8 py-16 max-w-5xl mx-auto" style={{ borderTop: "1px solid var(--border)" }}>
-        <h3 className="text-3xl mb-2" style={{ fontFamily: "var(--font-cormorant)", color: "var(--salma-primary)" }}>Typographie</h3>
-        <div className="gold-divider mb-8" />
-        <div className="space-y-4">
-          <p style={{ fontFamily: "var(--font-cormorant)", fontSize: "3.5rem", lineHeight: 1.1, color: "var(--text)" }}>Cormorant Garamond — Titres</p>
-          <p style={{ fontFamily: "var(--font-cormorant)", fontSize: "2rem", color: "var(--salma-primary)" }}>Voyage & Découverte — H2 Bordeaux</p>
-          <p style={{ fontFamily: "var(--font-cormorant)", fontSize: "1.5rem", color: "var(--salma-gold)" }}>Live your Travel Dream — H3 Or</p>
-          <p style={{ fontFamily: "var(--font-inter)", fontSize: "1rem", color: "var(--text)", lineHeight: 1.7 }}>
-            Inter — Corps de texte. SALMA est une agence professionnelle de voyage spécialisée dans l&apos;obtention de visas pour la Chine.
-          </p>
-          <p style={{ fontFamily: "var(--font-inter)", fontSize: "0.875rem", color: "var(--text-muted)" }}>Inter Small / Muted — Sous-titres, légendes, informations secondaires</p>
-          <p className="text-gold-gradient" style={{ fontFamily: "var(--font-cormorant)", fontSize: "2rem" }}>Texte dégradé or — .text-gold-gradient</p>
-        </div>
-      </section>
-
-      {/* ── CARTES ── */}
-      <section className="px-8 py-16 max-w-5xl mx-auto" style={{ borderTop: "1px solid var(--border)" }}>
-        <h3 className="text-3xl mb-2" style={{ fontFamily: "var(--font-cormorant)", color: "var(--salma-primary)" }}>Composants — Cartes</h3>
-        <div className="gold-divider mb-8" />
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {[
-            { title: "Visa Étude", desc: "Obtenez votre visa étudiant pour intégrer les meilleures universités chinoises.", badge: "Populaire" },
-            { title: "Visa Touriste", desc: "Explorez la Chine en toute sérénité avec un visa touriste obtenu rapidement.", badge: "Rapide" },
-            { title: "Bourse d'Étude", desc: "Nous vous accompagnons dans l'obtention de bourses d'étude complètes.", badge: "Premium" },
-          ].map(({ title, desc, badge }) => (
-            <div key={title} className="card-surface p-6">
-              <span className="inline-block text-xs px-3 py-1 rounded-full mb-4 font-medium" style={{ backgroundColor: "rgba(107,30,46,0.08)", color: "var(--salma-primary)", fontFamily: "var(--font-inter)" }}>{badge}</span>
-              <h4 className="text-xl mb-3" style={{ fontFamily: "var(--font-cormorant)", color: "var(--salma-primary)" }}>{title}</h4>
-              <p className="text-sm" style={{ color: "var(--text-muted)", fontFamily: "var(--font-inter)" }}>{desc}</p>
-              <div className="gold-divider mt-4" />
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {/* ── BOUTONS ── */}
-      <section className="px-8 py-16 max-w-5xl mx-auto" style={{ borderTop: "1px solid var(--border)" }}>
-        <h3 className="text-3xl mb-2" style={{ fontFamily: "var(--font-cormorant)", color: "var(--salma-primary)" }}>Boutons</h3>
-        <div className="gold-divider mb-8" />
-        <div className="flex flex-wrap gap-4 items-center">
-          <button className="px-6 py-3 text-sm font-medium transition-all hover:opacity-90" style={{ backgroundColor: "var(--salma-primary)", color: "#fff", borderRadius: "4px", fontFamily: "var(--font-inter)" }}>Primary — Bordeaux</button>
-          <button className="px-6 py-3 text-sm font-medium transition-all hover:opacity-90" style={{ backgroundColor: "var(--salma-gold)", color: "var(--salma-primary)", borderRadius: "4px", fontFamily: "var(--font-inter)" }}>Secondary — Or</button>
-          <button className="px-6 py-3 text-sm font-medium border transition-all" style={{ borderColor: "var(--salma-primary)", color: "var(--salma-primary)", borderRadius: "4px", fontFamily: "var(--font-inter)" }}>Ghost — Outline</button>
-          <button className="px-6 py-3 text-sm font-medium" style={{ color: "var(--text-muted)", fontFamily: "var(--font-inter)" }}>Text only →</button>
-        </div>
-      </section>
-
-      {/* ── FOOTER ── */}
-      <footer className="px-8 py-8 text-center text-sm" style={{ backgroundColor: "var(--salma-primary-dark)", color: "rgba(255,255,255,0.5)", fontFamily: "var(--font-inter)" }}>
-        © 2026 SALMA Travel Agency — Page de test charte graphique
-      </footer>
-    </main>
+      <p className="mt-12 text-xs font-mono text-salma-text-muted uppercase tracking-tighter">
+        Stack: Next.js 15 + Tailwind v4 + Django REST
+      </p>
+    </div>
   );
 }
 
 // END OF FILE: src/app/page.tsx
+
+
+// FILE: src/components/LanguageSwitcher.tsx
+-----------------------------------------------
+"use client";
+
+import { useLanguage } from "@/hooks/useLanguage";
+
+export default function LanguageSwitcher() {
+  const { locale, setLocale } = useLanguage();
+
+  return (
+    <button
+      onClick={() => setLocale(locale === "fr" ? "en" : "fr")}
+      className="flex items-center gap-2 px-3 py-2 rounded-lg bg-salma-surface border border-salma-border hover:border-salma-gold transition-all group"
+    >
+      <span className="text-xs font-bold font-sans tracking-widest text-salma-text">
+        {locale === "fr" ? "EN" : "FR"}
+      </span>
+      <svg className="w-4 h-4 text-salma-gold group-hover:rotate-180 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+      </svg>
+    </button>
+  );
+}
+
+// END OF FILE: src/components/LanguageSwitcher.tsx
+
+
+// FILE: src/components/Navbar.tsx
+-----------------------------------------------
+"use client";
+
+import Link from "next/link";
+import { useState } from "react";
+import { useLanguage } from "@/hooks/useLanguage";
+import ThemeSwitcher from "./ThemeSwitcher";
+import LanguageSwitcher from "./LanguageSwitcher";
+
+export default function Navbar() {
+  const [isOpen, setIsOpen] = useState(false);
+  const { dictionary } = useLanguage();
+
+  const links = [
+    { name: dictionary.nav.home, href: "/" },
+    { name: dictionary.nav.services, href: "/services" },
+    { name: dictionary.nav.about, href: "/a-propos" },
+    { name: dictionary.nav.contact, href: "/contact" },
+  ];
+
+  return (
+    <nav className="sticky top-0 z-50 w-full bg-salma-bg/80 backdrop-blur-md border-b border-salma-border">
+      <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
+        {/* Logo */}
+        <Link href="/" className="flex flex-col">
+          <span className="text-2xl font-serif font-bold text-salma-primary leading-none">SALMA</span>
+          <span className="text-[10px] uppercase tracking-[0.3em] text-salma-gold font-sans font-bold">Travel Agency</span>
+        </Link>
+
+        {/* Desktop Links */}
+        <div className="hidden md:flex items-center gap-8">
+          {links.map((link) => (
+            <Link 
+              key={link.href} 
+              href={link.href}
+              className="text-sm font-medium text-salma-text hover:text-salma-primary transition-colors"
+            >
+              {link.name}
+            </Link>
+          ))}
+          <Link 
+            href="/admin/dashboard" 
+            className="text-xs font-bold px-3 py-1.5 rounded border border-salma-primary text-salma-primary hover:bg-salma-primary hover:text-white transition-all"
+          >
+            {dictionary.nav.admin}
+          </Link>
+          <div className="flex items-center gap-3 border-l border-salma-border pl-6">
+            <LanguageSwitcher />
+            <ThemeSwitcher />
+          </div>
+        </div>
+
+        {/* Mobile Toggle */}
+        <button className="md:hidden p-2 text-salma-primary" onClick={() => setIsOpen(!isOpen)}>
+          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={isOpen ? "M6 18L18 6M6 6l12 12" : "M4 6h16M4 12h16M4 18h16"} />
+          </svg>
+        </button>
+      </div>
+
+      {/* Mobile Menu */}
+      {isOpen && (
+        <div className="md:hidden absolute w-full bg-salma-surface border-b border-salma-border p-6 flex flex-col gap-4 animate-fade-in">
+          {links.map((link) => (
+            <Link key={link.href} href={link.href} onClick={() => setIsOpen(false)} className="text-lg font-medium">
+              {link.name}
+            </Link>
+          ))}
+          <Link href="/admin/dashboard" onClick={() => setIsOpen(false)} className="text-lg font-bold text-salma-primary">
+             {dictionary.nav.admin}
+          </Link>
+          <div className="flex justify-between items-center pt-4 border-t border-salma-border">
+            <LanguageSwitcher />
+            <ThemeSwitcher />
+          </div>
+        </div>
+      )}
+    </nav>
+  );
+}
+
+// END OF FILE: src/components/Navbar.tsx
+
+
+// FILE: src/components/ThemeSwitcher.tsx
+-----------------------------------------------
+"use client";
+
+import { useTheme } from "next-themes";
+import { useEffect, useState } from "react";
+
+export default function ThemeSwitcher() {
+  const { theme, setTheme, resolvedTheme } = useTheme();
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => setMounted(true), []);
+
+  if (!mounted) return <div className="w-9 h-9" />; 
+
+  const isDark = resolvedTheme === "dark";
+
+  return (
+    <button
+      onClick={() => setTheme(isDark ? "light" : "dark")}
+      className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-salma-primary-light transition-all border border-transparent hover:border-salma-border"
+      aria-label="Toggle Theme"
+    >
+      {isDark ? (
+        // Icône Soleil pour le mode Sombre
+        <svg className="w-5 h-5 text-salma-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+        </svg>
+      ) : (
+        // Icône Lune pour le mode Clair
+        <svg className="w-5 h-5 text-salma-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+        </svg>
+      )}
+    </button>
+  );
+}
+
+// END OF FILE: src/components/ThemeSwitcher.tsx
 
 
 // FILE: src/config/i18n.ts
@@ -580,6 +706,7 @@ export const en = {
     about: "About",
     contact: "Contact",
     getStarted: "Get Started",
+    admin: "Admin",
   },
 
   // ── Hero ──
@@ -702,6 +829,7 @@ export const fr = {
     about: "À propos",
     contact: "Contact",
     getStarted: "Commencer",
+    admin: "Admin",
   },
 
   // ── Hero ──
@@ -800,26 +928,24 @@ export const fr = {
 
 // FILE: src/dictionaries/index.ts
 -----------------------------------------------
-// src/dictionaries/index.ts
-// ============================================================
-//  CONTRAT TYPESCRIPT DES DICTIONNAIRES
-//  DictionaryType est la source de vérité de la structure i18n.
-//  Si une clé est ajoutée ici, TypeScript forcera son ajout
-//  dans TOUS les fichiers de langue (fr.ts, en.ts, ...).
-// ============================================================
-
-import { fr } from "@/dictionaries/fr";
-import { en } from "@/dictionaries/en";
+import { fr } from "./fr";
+import { en } from "./en";
 import type { Locale } from "@/config/i18n";
 
-// ── Le type est inféré depuis `fr` (référence de langue) ──
-export type DictionaryType = typeof fr;
+// Utilitaire pour transformer les types "littéraux" (as const) en type "string"
+// Cela permet d'avoir des textes différents entre FR et EN tout en gardant la même structure
+type DeepString<T> = {
+  [K in keyof T]: T[K] extends object ? DeepString<T[K]> : string;
+};
 
-// ── Registre des dictionnaires disponibles ──
-// Pour ajouter une langue : importer son fichier et l'ajouter ici
+// On définit le type global basé sur la structure de FR
+export type DictionaryType = DeepString<typeof fr>;
+
+// Registre des dictionnaires
+// On utilise "as DictionaryType" pour assouplir la vérification des valeurs textuelles
 const dictionaries: Record<Locale, DictionaryType> = {
-  fr,
-  en,
+  fr: fr as DictionaryType,
+  en: en as DictionaryType,
 };
 
 export function getDictionary(locale: Locale): DictionaryType {
@@ -894,6 +1020,37 @@ export function useTheme() {
 }
 
 // END OF FILE: src/hooks/useTheme.ts
+
+
+// FILE: src/sections/visitor/ExampleSection.tsx
+-----------------------------------------------
+"use client";
+
+import { useLanguage } from "@/hooks/useLanguage";
+
+// Rappel : Un composant de section doit être autonome et utiliser le dictionnaire
+export default function ExampleSection() {
+  const { dictionary } = useLanguage();
+
+  return (
+    <section className="py-16 px-6">
+      <div className="max-w-7xl mx-auto">
+        <h2 className="text-3xl font-serif text-salma-primary mb-4">
+          {/* Utiliser toujours le dictionnaire */}
+          {dictionary.services.sectionTitle}
+        </h2>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {/* Le contenu viendra ici */}
+          <div className="p-6 border border-salma-border rounded-xl">
+             Modèle vide pour collaborateur A
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+// END OF FILE: src/sections/visitor/ExampleSection.tsx
 
 
 // FILE: src/types/index.ts
@@ -1009,6 +1166,48 @@ next-env.d.ts
 
 
 // END OF FILE: .gitignore
+
+
+// FILE: collab.md
+-----------------------------------------------
+# 🤝 Guide de Collaboration - Équipe SALMA
+
+Bienvenue dans l'équipe ! Pour garantir un code de haute qualité (niveau ingénieur), nous suivons ces règles strictes.
+
+## 1. 🌍 Internationalisation (i18n)
+- **RÈGLE D'OR :** Interdiction d'écrire du texte en dur dans les fichiers `.tsx`.
+- Toute chaîne de caractère doit être ajoutée dans `src/dictionaries/fr.ts` et traduite dans `en.ts`.
+- Utilisation : `const { dictionary } = useLanguage();`.
+
+## 2. 🎨 Développement UI (Tailwind v4)
+- Avant de créer un nouveau composant, vérifiez s'il existe dans `src/components/ui/`.
+- Respectez la charte graphique : 
+  - Primaire : `#6B1E2E` (Bordeaux)
+  - Accent : `#C9A84C` (Or)
+
+## 3. 📝 Conventions de Nommage
+- **Fichiers Composants :** PascalCase (ex: `ScholarshipCard.tsx`).
+- **Dossiers Pages :** kebab-case (ex: `a-propos/`).
+- **Variables/Fonctions :** Anglais uniquement (ex: `const getScholarshipList = ...`).
+- **Commentaires :** Français (pour expliquer la logique métier).
+
+## 4. 🌳 Gestion Git (Workflow)
+- Ne jamais travailler directement sur `main`.
+- **Branches :** 
+  - `develop` : Intégration des fonctionnalités terminées.
+  - `feat/nom-feature` : Votre branche de travail.
+- **Commits :** Utilisez les prefixes :
+  - `feat:` (nouvelle fonctionnalité)
+  - `fix:` (correction de bug)
+  - `docs:` (documentation)
+
+## 🔄 Cycle de Validation
+Chaque tâche doit suivre ce cycle :
+1. **Conception** : Validation de l'approche avec le lead.
+2. **Implémentation** : Code propre et modulaire.
+3. **Test** : Vérification en mode sombre et en changement de langue.
+
+// END OF FILE: collab.md
 
 
 // FILE: eslint.config.mjs
@@ -1252,43 +1451,31 @@ export default config;
 
 // FILE: README.md
 -----------------------------------------------
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 🌍 SALMA — Plateforme de Bourses d'Études (by AG Technologies)
 
-## Getting Started
+> **Slogan :** "Bourse d'étude en Chine chez nous c'est Satisfait ou Remboursé…"
 
-First, run the development server:
+Ce projet est une plateforme web moderne permettant de gérer et de présenter des offres de bourses d'études en **Chine** et en **Allemagne**.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+## 🚀 Stack Technique
+- **Frontend :** Next.js 15 (App Router), Tailwind CSS v4, Shadcn UI.
+- **Backend :** Django, Django REST Framework (API).
+- **Base de données :** SQLite (Dev) / PostgreSQL (Prod).
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## 📂 Structure du Projet
+- `/salma-frontend` : Site vitrine et Dashboard administrateur.
+- `/salma-backend` : API REST Django et gestion des données.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## 🛠️ Installation Rapide (Frontend)
+1. `cd salma-frontend`
+2. `npm install`
+3. `npm run dev`
+Le site sera disponible sur `http://localhost:3000`.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
-
+## 📍 Contacts & Localisation
+- **Siège :** Montée Anne rouge, Immeuble Kadji (à côté de BGFI Bank), Yaoundé, Cameroun.
+- **Email :** secretariatagtechnologies@gmail.com
+- **Téléphones :** +237 6 99 45 09 84 / +237 6 51 74 03 28
 
 // END OF FILE: README.md
 
