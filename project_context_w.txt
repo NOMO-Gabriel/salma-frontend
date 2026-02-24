@@ -1,0 +1,1328 @@
+﻿Next.js Project Context
+Generated On: 2026-02-24 14:36:59
+Root: C:\Users\hp\Documents\stage gabriel\SALMA\salma-frontend
+===============================================
+
+// FILE: src/app/globals.css
+-----------------------------------------------
+/* src/app/globals.css */
+@import "tailwindcss";
+
+/* ============================================================
+   TAILWIND v4 — CONFIGURATION DU THÈME SALMA
+   Remplace tailwind.config.ts dans Tailwind v4
+   Pour ajouter une couleur : ajouter dans @theme + dans :root/.dark
+   ============================================================ */
+@theme inline {
+
+  /* --- Polices --- */
+  --font-serif: var(--font-cormorant), Georgia, serif;
+  --font-sans: var(--font-inter), system-ui, sans-serif;
+
+  /* --- Couleurs de marque SALMA --- */
+  --color-salma-primary:       #6B1E2E;
+  --color-salma-primary-dark:  #4A1220;
+  --color-salma-primary-light: #8C2D40;
+  --color-salma-gold:          #C9A84C;
+  --color-salma-gold-light:    #E8C97A;
+  --color-salma-gold-dark:     #A68635;
+
+  /* --- Tokens sémantiques (résolus via var CSS) --- */
+  --color-bg:         var(--bg);
+  --color-surface:    var(--surface);
+  --color-border:     var(--border);
+  --color-text:       var(--text);
+  --color-text-muted: var(--text-muted);
+
+  /* --- Ombres personnalisées --- */
+  --shadow-salma-sm:  0 2px 8px rgba(107, 30, 46, 0.08);
+  --shadow-salma-md:  0 4px 20px rgba(107, 30, 46, 0.12);
+  --shadow-salma-lg:  0 8px 40px rgba(107, 30, 46, 0.18);
+  --shadow-gold-glow: 0 0 20px rgba(201, 168, 76, 0.3);
+
+  /* --- Animations --- */
+  --animate-fade-in: fade-in 0.4s ease-out forwards;
+  --animate-shimmer: shimmer 2s linear infinite;
+}
+
+/* ============================================================
+   VARIABLES CSS — THÈME CLAIR (défaut)
+   ============================================================ */
+:root {
+  --bg:         #FAFAF8;
+  --surface:    #FFFFFF;
+  --border:     #E8E0D5;
+  --text:       #1C1010;
+  --text-muted: #7A6570;
+}
+
+/* ============================================================
+   VARIABLES CSS — THÈME SOMBRE
+   Activé via la classe .dark sur le <html>
+   ============================================================ */
+.dark {
+  --bg:         #1A1014;
+  --surface:    #2A1A20;
+  --border:     #3D2530;
+  --text:       #F5EEF0;
+  --text-muted: #A08890;
+}
+
+/* ============================================================
+   KEYFRAMES
+   ============================================================ */
+@keyframes fade-in {
+  0%   { opacity: 0; transform: translateY(8px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes shimmer {
+  0%   { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+/* ============================================================
+   RESET & BASE
+   ============================================================ */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  scroll-behavior: smooth;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  background-color: var(--bg);
+  color: var(--text);
+  font-family: var(--font-inter), system-ui, sans-serif;
+  line-height: 1.6;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-cormorant), Georgia, serif;
+  font-weight: 600;
+  line-height: 1.2;
+  color: var(--text);
+}
+
+/* ============================================================
+   UTILITAIRES SALMA
+   ============================================================ */
+
+/* Trait décoratif doré */
+.gold-divider {
+  width: 60px;
+  height: 2px;
+  background: linear-gradient(90deg, #C9A84C, #E8C97A);
+  border-radius: 2px;
+}
+
+/* Texte dégradé or */
+.text-gold-gradient {
+  background: linear-gradient(135deg, #A68635, #E8C97A);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Surface de carte */
+.card-surface {
+  background-color: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 0.75rem;
+  transition: box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+.card-surface:hover {
+  box-shadow: 0 4px 20px rgba(107, 30, 46, 0.12);
+  transform: translateY(-2px);
+}
+
+/* ============================================================
+   SCROLLBAR PERSONNALISÉE
+   ============================================================ */
+::-webkit-scrollbar       { width: 6px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: #6B1E2E; border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: #C9A84C; }
+
+/* ============================================================
+   SÉLECTION DE TEXTE
+   ============================================================ */
+::selection {
+  background-color: #C9A84C;
+  color: #6B1E2E;
+}
+
+// END OF FILE: src/app/globals.css
+
+
+// FILE: src/app/layout.tsx
+-----------------------------------------------
+// src/app/layout.tsx
+import type { Metadata } from "next";
+import { Cormorant_Garamond, Inter } from "next/font/google";
+import "./globals.css";
+import { ThemeProvider } from "@/contexts/ThemeContext";
+import { LanguageProvider } from "@/contexts/LanguageContext";
+
+// ============================================================
+//  POLICES
+// ============================================================
+const cormorant = Cormorant_Garamond({
+  subsets: ["latin"],
+  variable: "--font-cormorant",
+  weight: ["300", "400", "500", "600", "700"],
+  display: "swap",
+});
+
+const inter = Inter({
+  subsets: ["latin"],
+  variable: "--font-inter",
+  display: "swap",
+});
+
+// ============================================================
+//  MÉTADONNÉES SEO
+// ============================================================
+export const metadata: Metadata = {
+  title: {
+    default: "SALMA Travel Agency — Votre visa Chine en 3 semaines",
+    template: "%s | SALMA Travel Agency",
+  },
+  description:
+    "SALMA est une agence professionnelle spécialisée dans l'obtention de visas pour la Chine. Visa Étude, Touriste, Travail et Bourse d'Étude.",
+  keywords: [
+    "agence voyage Cameroun",
+    "visa Chine",
+    "bourse étude Chine",
+    "SALMA travel",
+    "Yaoundé",
+  ],
+  icons: { icon: "/favicon.ico" },
+  openGraph: {
+    title: "SALMA Travel Agency",
+    description: "Votre visa Chine en 3 semaines.",
+    siteName: "SALMA Travel Agency",
+    locale: "fr_FR",
+    type: "website",
+  },
+};
+
+// ============================================================
+//  LAYOUT RACINE
+// ============================================================
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  return (
+    <html
+      lang="fr"
+      className={`${cormorant.variable} ${inter.variable}`}
+      suppressHydrationWarning
+    >
+      <body className="antialiased" suppressHydrationWarning>
+        <ThemeProvider>
+          <LanguageProvider>
+            {children}
+          </LanguageProvider>
+        </ThemeProvider>
+      </body>
+    </html>
+  );
+}
+
+// END OF FILE: src/app/layout.tsx
+
+
+// FILE: src/app/page.tsx
+-----------------------------------------------
+
+export default function Home() {
+  return (
+    <main className="min-h-screen" style={{ backgroundColor: "var(--bg)", color: "var(--text)" }}>
+
+      {/* ── HEADER TEST ── */}
+      <header style={{ backgroundColor: "var(--salma-primary)" }} className="px-8 py-6 flex items-center justify-between">
+        <div>
+          <h1 className="text-white text-3xl" style={{ fontFamily: "var(--font-cormorant)" }}>
+            SALMA
+          </h1>
+          <p className="text-xs tracking-widest uppercase" style={{ color: "var(--salma-gold)" }}>
+            Travel Agency
+          </p>
+        </div>
+        <nav className="flex gap-6">
+          {["Accueil", "Services", "Visa", "Contact"].map((item) => (
+            <a key={item} href="#" className="text-sm text-white/80 hover:text-white transition-colors" style={{ fontFamily: "var(--font-inter)" }}>
+              {item}
+            </a>
+          ))}
+        </nav>
+      </header>
+
+      {/* ── HERO TEST ── */}
+      <section className="px-8 py-24 text-center" style={{ background: "linear-gradient(135deg, var(--salma-primary) 0%, var(--salma-primary-light) 100%)" }}>
+        <p className="text-sm tracking-[0.3em] uppercase mb-4" style={{ color: "var(--salma-gold)" }}>
+          Agence professionnelle de voyage
+        </p>
+        <h2 className="text-6xl font-light text-white mb-6" style={{ fontFamily: "var(--font-cormorant)" }}>
+          Votre visa Chine
+          <br />
+          <span style={{ color: "var(--salma-gold-light)" }}>en 3 semaines</span>
+        </h2>
+        <p className="text-white/70 text-lg max-w-xl mx-auto mb-10" style={{ fontFamily: "var(--font-inter)" }}>
+          SALMA accompagne chaque client avec professionnalisme et transparence dans toutes vos démarches de voyage.
+        </p>
+        <div className="flex gap-4 justify-center">
+          <button className="px-8 py-3 text-sm font-medium tracking-wide transition-all hover:opacity-90" style={{ backgroundColor: "var(--salma-gold)", color: "var(--salma-primary)", fontFamily: "var(--font-inter)", borderRadius: "4px" }}>
+            Démarrer ma demande
+          </button>
+          <button className="px-8 py-3 text-sm font-medium tracking-wide border text-white transition-all hover:bg-white/10" style={{ borderColor: "rgba(255,255,255,0.4)", fontFamily: "var(--font-inter)", borderRadius: "4px" }}>
+            En savoir plus
+          </button>
+        </div>
+      </section>
+
+      {/* ── PALETTE ── */}
+      <section className="px-8 py-16 max-w-5xl mx-auto">
+        <h3 className="text-3xl mb-2" style={{ fontFamily: "var(--font-cormorant)", color: "var(--salma-primary)" }}>Palette de couleurs</h3>
+        <div className="gold-divider mb-8" />
+        <div className="grid grid-cols-3 gap-4 md:grid-cols-6">
+          {[
+            { label: "Primary", bg: "var(--salma-primary)", text: "#fff" },
+            { label: "Primary Dark", bg: "var(--salma-primary-dark)", text: "#fff" },
+            { label: "Primary Light", bg: "var(--salma-primary-light)", text: "#fff" },
+            { label: "Gold", bg: "var(--salma-gold)", text: "#1C1010" },
+            { label: "Gold Light", bg: "var(--salma-gold-light)", text: "#1C1010" },
+            { label: "Gold Dark", bg: "var(--salma-gold-dark)", text: "#fff" },
+            { label: "BG", bg: "var(--bg)", text: "var(--text)", border: true },
+            { label: "Surface", bg: "var(--surface)", text: "var(--text)", border: true },
+            { label: "Border", bg: "var(--border)", text: "var(--text)" },
+            { label: "Text", bg: "var(--text)", text: "var(--bg)" },
+            { label: "Muted", bg: "var(--text-muted)", text: "#fff" },
+          ].map(({ label, bg, text, border }) => (
+            <div key={label} className="rounded-lg p-4 text-xs font-medium text-center" style={{ backgroundColor: bg, color: text, border: border ? "1px solid var(--border)" : "none", fontFamily: "var(--font-inter)" }}>
+              {label}
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* ── TYPOGRAPHIE ── */}
+      <section className="px-8 py-16 max-w-5xl mx-auto" style={{ borderTop: "1px solid var(--border)" }}>
+        <h3 className="text-3xl mb-2" style={{ fontFamily: "var(--font-cormorant)", color: "var(--salma-primary)" }}>Typographie</h3>
+        <div className="gold-divider mb-8" />
+        <div className="space-y-4">
+          <p style={{ fontFamily: "var(--font-cormorant)", fontSize: "3.5rem", lineHeight: 1.1, color: "var(--text)" }}>Cormorant Garamond — Titres</p>
+          <p style={{ fontFamily: "var(--font-cormorant)", fontSize: "2rem", color: "var(--salma-primary)" }}>Voyage & Découverte — H2 Bordeaux</p>
+          <p style={{ fontFamily: "var(--font-cormorant)", fontSize: "1.5rem", color: "var(--salma-gold)" }}>Live your Travel Dream — H3 Or</p>
+          <p style={{ fontFamily: "var(--font-inter)", fontSize: "1rem", color: "var(--text)", lineHeight: 1.7 }}>
+            Inter — Corps de texte. SALMA est une agence professionnelle de voyage spécialisée dans l&apos;obtention de visas pour la Chine.
+          </p>
+          <p style={{ fontFamily: "var(--font-inter)", fontSize: "0.875rem", color: "var(--text-muted)" }}>Inter Small / Muted — Sous-titres, légendes, informations secondaires</p>
+          <p className="text-gold-gradient" style={{ fontFamily: "var(--font-cormorant)", fontSize: "2rem" }}>Texte dégradé or — .text-gold-gradient</p>
+        </div>
+      </section>
+
+      {/* ── CARTES ── */}
+      <section className="px-8 py-16 max-w-5xl mx-auto" style={{ borderTop: "1px solid var(--border)" }}>
+        <h3 className="text-3xl mb-2" style={{ fontFamily: "var(--font-cormorant)", color: "var(--salma-primary)" }}>Composants — Cartes</h3>
+        <div className="gold-divider mb-8" />
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {[
+            { title: "Visa Étude", desc: "Obtenez votre visa étudiant pour intégrer les meilleures universités chinoises.", badge: "Populaire" },
+            { title: "Visa Touriste", desc: "Explorez la Chine en toute sérénité avec un visa touriste obtenu rapidement.", badge: "Rapide" },
+            { title: "Bourse d'Étude", desc: "Nous vous accompagnons dans l'obtention de bourses d'étude complètes.", badge: "Premium" },
+          ].map(({ title, desc, badge }) => (
+            <div key={title} className="card-surface p-6">
+              <span className="inline-block text-xs px-3 py-1 rounded-full mb-4 font-medium" style={{ backgroundColor: "rgba(107,30,46,0.08)", color: "var(--salma-primary)", fontFamily: "var(--font-inter)" }}>{badge}</span>
+              <h4 className="text-xl mb-3" style={{ fontFamily: "var(--font-cormorant)", color: "var(--salma-primary)" }}>{title}</h4>
+              <p className="text-sm" style={{ color: "var(--text-muted)", fontFamily: "var(--font-inter)" }}>{desc}</p>
+              <div className="gold-divider mt-4" />
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* ── BOUTONS ── */}
+      <section className="px-8 py-16 max-w-5xl mx-auto" style={{ borderTop: "1px solid var(--border)" }}>
+        <h3 className="text-3xl mb-2" style={{ fontFamily: "var(--font-cormorant)", color: "var(--salma-primary)" }}>Boutons</h3>
+        <div className="gold-divider mb-8" />
+        <div className="flex flex-wrap gap-4 items-center">
+          <button className="px-6 py-3 text-sm font-medium transition-all hover:opacity-90" style={{ backgroundColor: "var(--salma-primary)", color: "#fff", borderRadius: "4px", fontFamily: "var(--font-inter)" }}>Primary — Bordeaux</button>
+          <button className="px-6 py-3 text-sm font-medium transition-all hover:opacity-90" style={{ backgroundColor: "var(--salma-gold)", color: "var(--salma-primary)", borderRadius: "4px", fontFamily: "var(--font-inter)" }}>Secondary — Or</button>
+          <button className="px-6 py-3 text-sm font-medium border transition-all" style={{ borderColor: "var(--salma-primary)", color: "var(--salma-primary)", borderRadius: "4px", fontFamily: "var(--font-inter)" }}>Ghost — Outline</button>
+          <button className="px-6 py-3 text-sm font-medium" style={{ color: "var(--text-muted)", fontFamily: "var(--font-inter)" }}>Text only →</button>
+        </div>
+      </section>
+
+      {/* ── FOOTER ── */}
+      <footer className="px-8 py-8 text-center text-sm" style={{ backgroundColor: "var(--salma-primary-dark)", color: "rgba(255,255,255,0.5)", fontFamily: "var(--font-inter)" }}>
+        © 2026 SALMA Travel Agency — Page de test charte graphique
+      </footer>
+    </main>
+  );
+}
+
+// END OF FILE: src/app/page.tsx
+
+
+// FILE: src/config/i18n.ts
+-----------------------------------------------
+// src/config/i18n.ts
+// ============================================================
+//  SOURCE DE VÉRITÉ POUR L'INTERNATIONALISATION
+//  Pour ajouter une nouvelle langue :
+//    1. Ajouter son code dans le tableau `locales` ci-dessous
+//    2. Créer le fichier src/dictionaries/{code}.ts
+//    3. L'importer dans src/dictionaries/index.ts
+//  C'est tout — aucun autre fichier à modifier.
+// ============================================================
+
+export const locales = ["en", "fr"] as const;
+
+export type Locale = (typeof locales)[number];
+
+/** Langue affichée par défaut si la détection système échoue */
+export const defaultLocale: Locale = "en";
+
+/** Noms affichables dans le sélecteur de langue */
+export const localeLabels: Record<Locale, string> = {
+  en: "English",
+  fr: "Français",
+};
+
+/**
+ * Détecte la langue préférée du navigateur.
+ * Retourne une Locale supportée, ou defaultLocale en fallback.
+ * Doit être appelée côté client uniquement.
+ */
+export function detectLocale(): Locale {
+  if (typeof window === "undefined") return defaultLocale;
+
+  // Cherche dans localStorage (préférence sauvegardée)
+  try {
+    const saved = localStorage.getItem("salma-locale") as Locale | null;
+    if (saved && locales.includes(saved)) return saved;
+  } catch {
+    // localStorage indisponible
+  }
+
+  // Détecte la langue du navigateur
+  const browserLang = navigator.language?.split("-")[0] as Locale;
+  if (locales.includes(browserLang)) return browserLang;
+
+  return defaultLocale;
+}
+
+// END OF FILE: src/config/i18n.ts
+
+
+// FILE: src/contexts/LanguageContext.tsx
+-----------------------------------------------
+// src/contexts/LanguageContext.tsx
+"use client";
+
+import { createContext, useState, useEffect, ReactNode } from "react";
+import { type Locale, detectLocale } from "@/config/i18n";
+import { getDictionary, type DictionaryType } from "@/dictionaries";
+
+// ============================================================
+//  TYPES
+// ============================================================
+interface LanguageContextType {
+  locale: Locale;
+  dictionary: DictionaryType;
+  setLocale: (locale: Locale) => void;
+}
+
+// ============================================================
+//  CONTEXTE
+// ============================================================
+export const LanguageContext = createContext<LanguageContextType | undefined>(
+  undefined
+);
+
+// ============================================================
+//  PROVIDER
+// ============================================================
+export function LanguageProvider({ children }: { children: ReactNode }) {
+  const [locale, setLocaleState] = useState<Locale>("en");
+  const [dictionary, setDictionary] = useState<DictionaryType>(
+    getDictionary("en")
+  );
+
+  // Détection de la langue au montage (côté client uniquement)
+  useEffect(() => {
+    const detected = detectLocale();
+    setLocaleState(detected);
+    setDictionary(getDictionary(detected));
+  }, []);
+
+  const setLocale = (newLocale: Locale) => {
+    setLocaleState(newLocale);
+    setDictionary(getDictionary(newLocale));
+    try {
+      localStorage.setItem("salma-locale", newLocale);
+    } catch {
+      // localStorage indisponible
+    }
+  };
+
+  return (
+    <LanguageContext.Provider value={{ locale, dictionary, setLocale }}>
+      {children}
+    </LanguageContext.Provider>
+  );
+}
+
+// END OF FILE: src/contexts/LanguageContext.tsx
+
+
+// FILE: src/contexts/ThemeContext.tsx
+-----------------------------------------------
+// src/contexts/ThemeContext.tsx
+"use client";
+
+import { ThemeProvider as NextThemesProvider } from "next-themes";
+import type { ThemeProviderProps } from "next-themes";
+
+// ============================================================
+//  THEME PROVIDER
+//  Wrapper autour de next-themes.
+//  Branché dans src/app/layout.tsx autour de tout l'arbre.
+//
+//  Usage dans un composant :
+//  import { useTheme } from "@/hooks/useTheme";
+//  const { theme, toggleTheme } = useTheme();
+// ============================================================
+export function ThemeProvider({ children, ...props }: ThemeProviderProps) {
+  return (
+    <NextThemesProvider
+      attribute="class"       // Ajoute/retire la classe .dark sur <html>
+      defaultTheme="system"   // Suit le thème système par défaut
+      enableSystem            // Active la détection système
+      disableTransitionOnChange={false}
+      {...props}
+    >
+      {children}
+    </NextThemesProvider>
+  );
+}
+
+// END OF FILE: src/contexts/ThemeContext.tsx
+
+
+// FILE: src/data/index.ts
+-----------------------------------------------
+// src/data/index.ts
+// Point d'entrée central des données statiques de SALMA
+// Toutes les données sont ici — les composants importent depuis @/data
+
+import { Service, VisaType } from "@/types";
+
+// ============================================================
+//  SERVICES
+// ============================================================
+export const services: Service[] = [
+  { id: "visa-etude",    category: "visa",   icon: "graduation-cap", isActive: true },
+  { id: "visa-touriste", category: "visa",   icon: "plane",          isActive: true },
+  { id: "visa-travail",  category: "visa",   icon: "briefcase",      isActive: true },
+  { id: "bourse-etude",  category: "bourse", icon: "star",           isActive: true },
+];
+
+// ============================================================
+//  TYPES DE VISA
+// ============================================================
+export const visaTypes: VisaType[] = [
+  { id: "visa-etude",    processingTime: "3 semaines", isActive: true },
+  { id: "visa-touriste", processingTime: "3 semaines", isActive: true },
+  { id: "visa-travail",  processingTime: "3 semaines", isActive: true },
+];
+
+// END OF FILE: src/data/index.ts
+
+
+// FILE: src/dictionaries/en.ts
+-----------------------------------------------
+// src/dictionaries/en.ts
+// ============================================================
+//  DICTIONNAIRE ANGLAIS
+//  Miroir exact de fr.ts — toutes les clés doivent être présentes.
+//  TypeScript signalera toute clé manquante à la compilation.
+// ============================================================
+
+export const en = {
+
+  // ── Métadonnées SEO ──
+  metadata: {
+    title: "SALMA Travel Agency — Your China Visa in 3 Weeks",
+    description:
+      "SALMA is a professional agency specializing in China visa processing. Study, Tourist, Work Visas and Scholarships.",
+  },
+
+  // ── Navigation ──
+  nav: {
+    home: "Home",
+    services: "Services",
+    visa: "Visa",
+    about: "About",
+    contact: "Contact",
+    getStarted: "Get Started",
+  },
+
+  // ── Hero ──
+  hero: {
+    tagline: "Professional Travel Agency",
+    title: "Your China Visa",
+    titleHighlight: "in 3 Weeks",
+    description:
+      "SALMA guides you with professionalism and transparency through every step of your journey to China.",
+    ctaPrimary: "Start My Application",
+    ctaSecondary: "Learn More",
+    guarantee: "Satisfaction Guaranteed",
+  },
+
+  // ── Services ──
+  services: {
+    sectionTitle: "Our Services",
+    sectionSubtitle: "Everything you need for your trip to China",
+    "visa-etude": {
+      name: "Study Visa",
+      description:
+        "Get your student visa to join the best Chinese universities.",
+    },
+    "visa-touriste": {
+      name: "Tourist Visa",
+      description:
+        "Explore China with peace of mind with a tourist visa processed quickly.",
+    },
+    "visa-travail": {
+      name: "Work Visa",
+      description:
+        "Grow your career in China with a work visa tailored to your profile.",
+    },
+    "bourse-etude": {
+      name: "Study Scholarship",
+      description:
+        "We guide you through obtaining full scholarships to study in China.",
+    },
+  },
+
+  // ── À propos ──
+  about: {
+    sectionTitle: "About SALMA",
+    description:
+      "SALMA is a professional travel and tourism agency based in Yaoundé, Cameroon. Specializing in China visa processing, we support our clients with transparency and efficiency.",
+    mission: "Our Mission",
+    missionText:
+      "To make China accessible to all Cameroonians, whether to study, work or travel.",
+    values: "Our Values",
+    location: "Yaoundé, Cameroon",
+  },
+
+  // ── Contact ──
+  contact: {
+    sectionTitle: "Contact Us",
+    sectionSubtitle: "Our team responds within 24 hours",
+    name: "Full Name",
+    email: "Email Address",
+    phone: "Phone Number",
+    message: "Your Message",
+    subject: "Subject",
+    send: "Send Message",
+    sending: "Sending...",
+    successMessage: "Message sent successfully!",
+    errorMessage: "An error occurred. Please try again.",
+    address: "Montée Anne Rouge, Immeuble Kadji, next to BGFI Bank, Yaoundé",
+    whatsapp: "Contact on WhatsApp",
+  },
+
+  // ── Commun ──
+  common: {
+    loading: "Loading...",
+    error: "An error occurred",
+    retry: "Retry",
+    learnMore: "Learn More",
+    close: "Close",
+    back: "Back",
+    next: "Next",
+    previous: "Previous",
+    seeAll: "See All",
+    processingTime: "Processing Time",
+    weeks: "weeks",
+    guarantee: "Satisfaction Guaranteed",
+  },
+
+  // ── Footer ──
+  footer: {
+    tagline: "Live your Travel Dream",
+    rights: "All rights reserved.",
+    followUs: "Follow Us",
+  },
+} as const;
+
+// END OF FILE: src/dictionaries/en.ts
+
+
+// FILE: src/dictionaries/fr.ts
+-----------------------------------------------
+// src/dictionaries/fr.ts
+// ============================================================
+//  DICTIONNAIRE FRANÇAIS — RÉFÉRENCE
+//  Ce fichier définit la structure de TOUS les dictionnaires.
+//  Toute nouvelle clé ajoutée ici DOIT être ajoutée dans en.ts.
+// ============================================================
+
+export const fr = {
+
+  // ── Métadonnées SEO ──
+  metadata: {
+    title: "SALMA Travel Agency — Votre visa Chine en 3 semaines",
+    description:
+      "SALMA est une agence professionnelle spécialisée dans l'obtention de visas pour la Chine. Visa Étude, Touriste, Travail et Bourse d'Étude.",
+  },
+
+  // ── Navigation ──
+  nav: {
+    home: "Accueil",
+    services: "Services",
+    visa: "Visa",
+    about: "À propos",
+    contact: "Contact",
+    getStarted: "Commencer",
+  },
+
+  // ── Hero ──
+  hero: {
+    tagline: "Agence professionnelle de voyage",
+    title: "Votre visa Chine",
+    titleHighlight: "en 3 semaines",
+    description:
+      "SALMA vous accompagne avec professionnalisme et transparence dans toutes vos démarches de voyage vers la Chine.",
+    ctaPrimary: "Démarrer ma demande",
+    ctaSecondary: "En savoir plus",
+    guarantee: "Satisfait ou remboursé",
+  },
+
+  // ── Services ──
+  services: {
+    sectionTitle: "Nos services",
+    sectionSubtitle: "Tout ce dont vous avez besoin pour votre voyage en Chine",
+    "visa-etude": {
+      name: "Visa Étude",
+      description:
+        "Obtenez votre visa étudiant pour intégrer les meilleures universités chinoises.",
+    },
+    "visa-touriste": {
+      name: "Visa Touriste",
+      description:
+        "Explorez la Chine en toute sérénité avec un visa touriste obtenu rapidement.",
+    },
+    "visa-travail": {
+      name: "Visa Travail",
+      description:
+        "Développez votre carrière en Chine avec un visa travail adapté à votre profil.",
+    },
+    "bourse-etude": {
+      name: "Bourse d'Étude",
+      description:
+        "Nous vous accompagnons dans l'obtention de bourses d'étude complètes en Chine.",
+    },
+  },
+
+  // ── À propos ──
+  about: {
+    sectionTitle: "À propos de SALMA",
+    description:
+      "SALMA est une agence professionnelle de voyage et tourisme basée à Yaoundé, Cameroun. Spécialisée dans les démarches de visa pour la Chine, nous accompagnons nos clients avec transparence et efficacité.",
+    mission: "Notre mission",
+    missionText:
+      "Faciliter l'accès à la Chine pour tous les Camerounais, que ce soit pour étudier, travailler ou voyager.",
+    values: "Nos valeurs",
+    location: "Yaoundé, Cameroun",
+  },
+
+  // ── Contact ──
+  contact: {
+    sectionTitle: "Nous contacter",
+    sectionSubtitle: "Notre équipe répond dans les 24h",
+    name: "Nom complet",
+    email: "Adresse email",
+    phone: "Téléphone",
+    message: "Votre message",
+    subject: "Sujet",
+    send: "Envoyer le message",
+    sending: "Envoi en cours...",
+    successMessage: "Message envoyé avec succès !",
+    errorMessage: "Une erreur est survenue. Veuillez réessayer.",
+    address: "Montée Anne Rouge, Immeuble Kadji, à côté de BGFI Bank, Yaoundé",
+    whatsapp: "Contacter sur WhatsApp",
+  },
+
+  // ── Commun ──
+  common: {
+    loading: "Chargement...",
+    error: "Une erreur est survenue",
+    retry: "Réessayer",
+    learnMore: "En savoir plus",
+    close: "Fermer",
+    back: "Retour",
+    next: "Suivant",
+    previous: "Précédent",
+    seeAll: "Voir tout",
+    processingTime: "Délai de traitement",
+    weeks: "semaines",
+    guarantee: "Satisfait ou remboursé",
+  },
+
+  // ── Footer ──
+  footer: {
+    tagline: "Live your Travel Dream",
+    rights: "Tous droits réservés.",
+    followUs: "Suivez-nous",
+  },
+} as const;
+
+// END OF FILE: src/dictionaries/fr.ts
+
+
+// FILE: src/dictionaries/index.ts
+-----------------------------------------------
+// src/dictionaries/index.ts
+// ============================================================
+//  CONTRAT TYPESCRIPT DES DICTIONNAIRES
+//  DictionaryType est la source de vérité de la structure i18n.
+//  Si une clé est ajoutée ici, TypeScript forcera son ajout
+//  dans TOUS les fichiers de langue (fr.ts, en.ts, ...).
+// ============================================================
+
+import { fr } from "@/dictionaries/fr";
+import { en } from "@/dictionaries/en";
+import type { Locale } from "@/config/i18n";
+
+// ── Le type est inféré depuis `fr` (référence de langue) ──
+export type DictionaryType = typeof fr;
+
+// ── Registre des dictionnaires disponibles ──
+// Pour ajouter une langue : importer son fichier et l'ajouter ici
+const dictionaries: Record<Locale, DictionaryType> = {
+  fr,
+  en,
+};
+
+export function getDictionary(locale: Locale): DictionaryType {
+  return dictionaries[locale];
+}
+
+// END OF FILE: src/dictionaries/index.ts
+
+
+// FILE: src/hooks/useLanguage.ts
+-----------------------------------------------
+// src/hooks/useLanguage.ts
+"use client";
+
+import { useContext } from "react";
+import { LanguageContext } from "@/contexts/LanguageContext";
+
+// ============================================================
+//  HOOK useLanguage
+//  Usage dans n'importe quel composant :
+//
+//  const { locale, dictionary, setLocale } = useLanguage();
+//  <h1>{dictionary.hero.title}</h1>
+//  <button onClick={() => setLocale("fr")}>FR</button>
+// ============================================================
+export function useLanguage() {
+  const context = useContext(LanguageContext);
+  if (!context) {
+    throw new Error("useLanguage doit être utilisé dans un <LanguageProvider>");
+  }
+  return context;
+}
+
+// END OF FILE: src/hooks/useLanguage.ts
+
+
+// FILE: src/hooks/useTheme.ts
+-----------------------------------------------
+// src/hooks/useTheme.ts
+"use client";
+
+import { useTheme as useNextTheme } from "next-themes";
+
+// ============================================================
+//  HOOK useTheme
+//  Wrapper autour de next-themes pour une API plus simple.
+//
+//  Usage dans n'importe quel composant :
+//
+//  const { theme, isDark, toggleTheme, setTheme } = useTheme();
+//
+//  <button onClick={toggleTheme}>
+//    {isDark ? "Mode clair" : "Mode sombre"}
+//  </button>
+// ============================================================
+export function useTheme() {
+  const { theme, setTheme, resolvedTheme } = useNextTheme();
+
+  const isDark = resolvedTheme === "dark";
+
+  const toggleTheme = () => {
+    setTheme(isDark ? "light" : "dark");
+  };
+
+  return {
+    theme,           // "light" | "dark" | "system"
+    resolvedTheme,   // "light" | "dark" (jamais "system")
+    isDark,          // boolean — pratique pour les conditions
+    toggleTheme,     // bascule light ↔ dark
+    setTheme,        // contrôle direct si besoin
+  };
+}
+
+// END OF FILE: src/hooks/useTheme.ts
+
+
+// FILE: src/types/index.ts
+-----------------------------------------------
+// src/types/index.ts
+// Point d'entrée central des types TypeScript de SALMA
+// Ajouter ici toutes les interfaces métier du projet
+
+// ============================================================
+//  TYPES MÉTIER SALMA
+// ============================================================
+
+/**
+ * Langues supportées par l'application
+ * Pour ajouter une langue : ajouter une entrée ici + dans src/config/i18n.ts
+ */
+export type Locale = "fr" | "en";
+
+/**
+ * Catégories de services proposés par SALMA
+ */
+export type ServiceCategory = "visa" | "bourse" | "hebergement" | "autre";
+
+/**
+ * Représente un service proposé par l'agence
+ * Le contenu textuel est géré via i18n en utilisant l'id
+ */
+export interface Service {
+  id: string;          // Clé unique, liée aux dictionnaires i18n
+  category: ServiceCategory;
+  icon: string;        // Nom d'icône
+  isActive: boolean;   // Affichage conditionnel
+}
+
+/**
+ * Représente un type de visa
+ * Le contenu textuel (nom, description) est géré via i18n
+ */
+export interface VisaType {
+  id: string;             // Clé unique, liée aux dictionnaires i18n
+  processingTime: string; // ex: "3 semaines"
+  price?: number;
+  currency?: string;
+  isActive: boolean;
+}
+
+/**
+ * Représente un témoignage client
+ */
+export interface Testimonial {
+  id: string;
+  authorName: string;
+  authorCountry: string;
+  avatarUrl?: string;
+  rating: number;      // 1 à 5
+}
+
+/**
+ * Représente une FAQ
+ * Le contenu (question, réponse) est géré via i18n
+ */
+export interface FaqItem {
+  id: string;
+  category: string;
+}
+
+// END OF FILE: src/types/index.ts
+
+
+// FILE: .gitignore
+-----------------------------------------------
+# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+
+# dependencies
+/node_modules
+/.pnp
+.pnp.*
+.yarn/*
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/versions
+
+# testing
+/coverage
+
+# next.js
+/.next/
+/out/
+
+# production
+/build
+
+# misc
+.DS_Store
+*.pem
+
+# debug
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+
+# env files (can opt-in for committing if needed)
+.env*
+
+# vercel
+.vercel
+
+# typescript
+*.tsbuildinfo
+next-env.d.ts
+
+
+// END OF FILE: .gitignore
+
+
+// FILE: eslint.config.mjs
+-----------------------------------------------
+import { dirname } from "path";
+import { fileURLToPath } from "url";
+import { FlatCompat } from "@eslint/eslintrc";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+
+const compat = new FlatCompat({
+  baseDirectory: __dirname,
+});
+
+const eslintConfig = [
+  ...compat.extends("next/core-web-vitals", "next/typescript"),
+  {
+    ignores: [
+      "node_modules/**",
+      ".next/**",
+      "out/**",
+      "build/**",
+      "next-env.d.ts",
+    ],
+  },
+];
+
+export default eslintConfig;
+
+
+// END OF FILE: eslint.config.mjs
+
+
+// FILE: extract-context.ps1
+-----------------------------------------------
+<#
+.SYNOPSIS
+Extrait le code source d'un projet Next.js pour l'utiliser comme contexte IA.
+#>
+
+param (
+    [string]$ProjectPath = "."
+)
+
+$OutputFilename = "project_context_w.txt"
+
+# Résolution du chemin absolu
+try {
+    $ResolvedPath = (Resolve-Path $ProjectPath -ErrorAction Stop).Path
+} catch {
+    Write-Error "Erreur: Répertoire invalide ($ProjectPath)."
+    exit 1
+}
+
+$OutputFile = Join-Path $ResolvedPath $OutputFilename
+
+# Suppression de l'ancien fichier s'il existe
+if (Test-Path $OutputFile) {
+    Remove-Item $OutputFile -Force
+}
+
+# Dossiers à ignorer (optimisation : on n'y entre même pas)
+$ExcludeDirs = @(
+    ".git", ".vscode", ".idea", "node_modules", ".next", 
+    "out", "build", "coverage", "public", "dist", ".vercel"
+)
+
+# Fichiers à ignorer (accepte les wildcards *)
+$ExcludeFiles = @(
+    "*.log", "package-lock.json", "yarn.lock", "pnpm-lock.yaml", "bun.lockb",
+    ".env*", "*.ico", "*.png", "*.jpg", "*.jpeg", "*.svg", "*.webp", 
+    "*.pdf", "*.map", "*.ttf", "*.woff", "*.woff2", "*.eot", "*.mp4",
+    $OutputFilename
+)
+
+# Fonction pour vérifier si un fichier est binaire (contient des octets nuls)
+function Test-IsBinary {
+    param ([string]$FilePath)
+    try {
+        $bytes = [System.IO.File]::ReadAllBytes($FilePath)
+        $checkLength = [math]::Min(1024, $bytes.Length)
+        for ($i = 0; $i -lt $checkLength; $i++) {
+            if ($bytes[$i] -eq 0) { return $true }
+        }
+        return $false
+    } catch {
+        return $true # En cas d'erreur de lecture, on ignore par sécurité
+    }
+}
+
+$foundFiles = [System.Collections.Generic.List[string]]::new()
+
+# Fonction récursive pour lister les fichiers valides
+function Get-ValidFiles {
+    param ([string]$CurrentDir)
+    
+    $items = Get-ChildItem -Path $CurrentDir -Force -ErrorAction SilentlyContinue
+    
+    foreach ($item in $items) {
+        if ($item.PSIsContainer) {
+            # Si c'est un dossier et qu'il n'est pas dans la liste d'exclusion
+            if ($ExcludeDirs -notcontains $item.Name) {
+                Get-ValidFiles -CurrentDir $item.FullName
+            }
+        } else {
+            # Si c'est un fichier, on vérifie son extension/nom
+            $skip = $false
+            foreach ($pattern in $ExcludeFiles) {
+                if ($item.Name -like $pattern) {
+                    $skip = $true
+                    break
+                }
+            }
+            if (-not $skip) {
+                $foundFiles.Add($item.FullName)
+            }
+        }
+    }
+}
+
+Write-Host "Recherche des fichiers en cours..." -ForegroundColor Cyan
+Get-ValidFiles -CurrentDir $ResolvedPath
+
+# Écriture de l'en-tête
+$dateStr = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
+$header = @"
+Next.js Project Context
+Generated On: $dateStr
+Root: $ResolvedPath
+===============================================
+"@
+
+Set-Content -Path $OutputFile -Value $header -Encoding UTF8
+
+Write-Host "Génération du fichier de contexte en cours..." -ForegroundColor Cyan
+
+foreach ($file in $foundFiles) {
+    # Calcul du chemin relatif
+    $relativePath = $file.Substring($ResolvedPath.Length).TrimStart('\')
+    $relativePath = $relativePath -replace '\\', '/' # Formatage type UNIX pour l'IA
+    
+    $fileHeader = "`n// FILE: $relativePath`n-----------------------------------------------"
+    Add-Content -Path $OutputFile -Value $fileHeader -Encoding UTF8
+    
+    if (Test-IsBinary -FilePath $file) {
+        Add-Content -Path $OutputFile -Value "[Fichier binaire ou asset omis]" -Encoding UTF8
+    } else {
+        try {
+            # Lecture du contenu brut
+            $content = Get-Content -Path $file -Raw -Encoding UTF8 -ErrorAction Stop
+            if ($null -ne $content) {
+                Add-Content -Path $OutputFile -Value $content -Encoding UTF8
+            }
+        } catch {
+            Add-Content -Path $OutputFile -Value "[Erreur lors de la lecture du fichier]" -Encoding UTF8
+        }
+    }
+    
+    Add-Content -Path $OutputFile -Value "`n// END OF FILE: $relativePath`n" -Encoding UTF8
+}
+
+Write-Host "Succès ! Ton contexte Next.js est prêt dans : $OutputFile" -ForegroundColor Green
+
+// END OF FILE: extract-context.ps1
+
+
+// FILE: next-env.d.ts
+-----------------------------------------------
+/// <reference types="next" />
+/// <reference types="next/image-types/global" />
+/// <reference path="./.next/types/routes.d.ts" />
+
+// NOTE: This file should not be edited
+// see https://nextjs.org/docs/app/api-reference/config/typescript for more information.
+
+
+// END OF FILE: next-env.d.ts
+
+
+// FILE: next.config.ts
+-----------------------------------------------
+import type { NextConfig } from "next";
+
+const nextConfig: NextConfig = {
+  /* config options here */
+};
+
+export default nextConfig;
+
+
+// END OF FILE: next.config.ts
+
+
+// FILE: package.json
+-----------------------------------------------
+{
+  "name": "salma-frontend",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "eslint"
+  },
+  "dependencies": {
+    "next": "15.5.12",
+    "next-themes": "^0.4.6",
+    "react": "19.1.0",
+    "react-dom": "19.1.0"
+  },
+  "devDependencies": {
+    "@eslint/eslintrc": "^3",
+    "@tailwindcss/postcss": "^4",
+    "@types/node": "^20",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "eslint": "^9",
+    "eslint-config-next": "15.5.12",
+    "tailwindcss": "^4",
+    "typescript": "^5"
+  }
+}
+
+
+// END OF FILE: package.json
+
+
+// FILE: postcss.config.mjs
+-----------------------------------------------
+const config = {
+  plugins: ["@tailwindcss/postcss"],
+};
+
+export default config;
+
+
+// END OF FILE: postcss.config.mjs
+
+
+// FILE: README.md
+-----------------------------------------------
+This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+
+## Getting Started
+
+First, run the development server:
+
+```bash
+npm run dev
+# or
+yarn dev
+# or
+pnpm dev
+# or
+bun dev
+```
+
+Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+
+You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+
+This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+
+## Learn More
+
+To learn more about Next.js, take a look at the following resources:
+
+- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
+- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+
+You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+
+## Deploy on Vercel
+
+The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+
+Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+
+
+// END OF FILE: README.md
+
+
+// FILE: tsconfig.json
+-----------------------------------------------
+{
+  "compilerOptions": {
+    "target": "ES2017",
+    "lib": ["dom", "dom.iterable", "esnext"],
+    "allowJs": true,
+    "skipLibCheck": true,
+    "strict": true,
+    "noEmit": true,
+    "esModuleInterop": true,
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "jsx": "preserve",
+    "incremental": true,
+    "plugins": [
+      {
+        "name": "next"
+      }
+    ],
+    "paths": {
+      "@/*": ["./src/*"]
+    }
+  },
+  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
+  "exclude": ["node_modules"]
+}
+
+
+// END OF FILE: tsconfig.json
+
