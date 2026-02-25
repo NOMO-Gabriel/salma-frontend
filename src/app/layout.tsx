@@ -4,6 +4,8 @@ import "./globals.css";
 import { ThemeProvider } from "@/contexts/ThemeContext";
 import { LanguageProvider } from "@/contexts/LanguageContext";
 import Navbar from "@/components/Navbar";
+import WhatsAppButton from "@/components/ui/WhatsAppButton";
+import Footer from "@/components/Footer";
 
 // Polices configurées comme dans ton portfolio
 const cormorant = Cormorant_Garamond({
@@ -40,6 +42,8 @@ export default function RootLayout({
           <LanguageProvider>
             <Navbar />
             <main>{children}</main>
+            <Footer /> 
+            <WhatsAppButton />
           </LanguageProvider>
         </ThemeProvider>
       </body>
