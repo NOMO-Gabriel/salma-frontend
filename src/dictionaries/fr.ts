@@ -114,4 +114,60 @@ export const fr = {
     rights: "Tous droits réservés.",
     followUs: "Suivez-nous",
   },
+
+  // ── Admin ──
+  admin: {
+    sidebar: {
+      dashboard: "Tableau de bord",
+      scholarships: "Gestion des Bourses",
+      applications: "Candidatures",
+      settings: "Paramètres",
+      logout: "Déconnexion",
+    },
+    scholarships: {
+      title: "Bourses d'études",
+      addBtn: "+ Ajouter une bourse",
+      searchPlaceholder: "Rechercher une bourse...",
+      table: {
+        title: "Titre de la bourse",
+        country: "Pays",
+        level: "Niveau",
+        deadline: "Date limite",
+        status: "Statut",
+        actions: "Actions",
+        edit: "Éditer",
+        delete: "Supprimer",
+        deleteConfirm: "Voulez-vous vraiment supprimer cette bourse ?",
+      },
+      status: {
+        open: "Ouvert",
+        closed: "Fermé",
+        pending: "En attente",
+      },
+      country: {
+        chine: "Chine",
+        allemagne: "Allemagne",
+        both: "Chine & Allemagne",
+      },
+      form: {
+        addTitle: "Ajouter une nouvelle bourse",
+        editTitle: "Modifier la bourse",
+        title: "Titre de la bourse",
+        organization: "Organisme financeur",
+        country: "Pays de destination",
+        description: "Description",
+        studyLevel: "Niveau d'études requis",
+        fieldOfStudy: "Domaine d'études",
+        ageLimit: "Âge limite",
+        languageReq: "Score de langue (ex: HSK 4, IELTS)",
+        status: "Statut de l'offre",
+        deadline: "Date limite",
+        coverageType: "Type de couverture",
+        officialLink: "Lien officiel",
+        cancel: "Annuler",
+        save: "Enregistrer",
+      }
+    }
+  }
+
 } as const;

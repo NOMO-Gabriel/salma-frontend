@@ -1,6 +1,6 @@
 ﻿Next.js Project Context
-Generated On: 2026-02-24 16:18:33
-Root: C:\Users\hp\Documents\stage gabriel\SALMA\salma-frontend
+Generated On: 2026-02-24 17:00:38
+Root: E:\AG_Technologie\Salma\salma-frontend
 ===============================================
 
 // FILE: docs/vision-project.md

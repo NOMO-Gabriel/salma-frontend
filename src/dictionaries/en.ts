@@ -114,4 +114,60 @@ export const en = {
     rights: "All rights reserved.",
     followUs: "Follow Us",
   },
+
+  // ── Admin ──
+  admin: {
+    sidebar: {
+      dashboard: "Dashboard",
+      scholarships: "Scholarships Management",
+      applications: "Applications",
+      settings: "Settings",
+      logout: "Logout",
+    },
+    scholarships: {
+      title: "Scholarships",
+      addBtn: "+ Add Scholarship",
+      searchPlaceholder: "Search scholarship...",
+      table: {
+        title: "Scholarship Title",
+        country: "Country",
+        level: "Level",
+        deadline: "Deadline",
+        status: "Status",
+        actions: "Actions",
+        edit: "Edit",
+        delete: "Delete",
+        deleteConfirm: "Are you sure you want to delete this scholarship?",
+      },
+      status: {
+        open: "Open",
+        closed: "Closed",
+        pending: "Pending",
+      },
+      country: {
+        chine: "China",
+        allemagne: "Germany",
+        both: "China & Germany",
+      },
+      form: {
+        addTitle: "Add New Scholarship",
+        editTitle: "Edit Scholarship",
+        title: "Scholarship Title",
+        organization: "Funding Organization",
+        country: "Destination Country",
+        description: "Description",
+        studyLevel: "Required Study Level",
+        fieldOfStudy: "Field of Study",
+        ageLimit: "Age Limit",
+        languageReq: "Language Score (e.g. HSK 4, IELTS)",
+        status: "Offer Status",
+        deadline: "Deadline",
+        coverageType: "Coverage Type",
+        officialLink: "Official Link",
+        cancel: "Cancel",
+        save: "Save",
+      }
+    }
+  }
+
 } as const;
