@@ -1,5 +1,5 @@
 ﻿Next.js Project Context
-Generated On: 2026-02-24 17:39:08
+Generated On: 2026-02-25 09:35:28
 Root: C:\Users\hp\Documents\stage gabriel\SALMA\salma-frontend
 ===============================================
 
@@ -138,6 +138,42 @@ export default function AdminLayout({
 // END OF FILE: src/app/(admin)/admin/layout.tsx
 
 
+// FILE: src/app/(visitor)/a-propos/page.tsx
+-----------------------------------------------
+"use client";
+import { useLanguage } from "@/hooks/useLanguage";
+import SectionTitle from "@/components/ui/SectionTitle";
+import Image from "next/image";
+
+export default function AboutPage() {
+  const { dictionary } = useLanguage();
+  const a = dictionary.aboutPage;
+
+  return (
+    <div className="py-20 bg-white dark:bg-salma-bg min-h-screen">
+      <div className="container mx-auto px-6">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center mb-24">
+          <div className="relative h-[500px] rounded-3xl overflow-hidden shadow-salma-lg border-8 border-salma-surface">
+            <Image src="/image.jpg" alt="AG Technologies" fill className="object-cover" />
+          </div>
+          <div className="space-y-8">
+            <SectionTitle title={a.title} subtitle={a.subtitle} />
+            <div className="space-y-6 text-salma-text-muted leading-relaxed">
+              <h3 className="text-xl font-serif font-bold text-salma-primary dark:text-white">{a.missionTitle}</h3>
+              <p>{a.missionDesc}</p>
+              <h3 className="text-xl font-serif font-bold text-salma-primary dark:text-white">{a.visionTitle}</h3>
+              <p>{a.visionDesc}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// END OF FILE: src/app/(visitor)/a-propos/page.tsx
+
+
 // FILE: src/app/(visitor)/bourses/page.tsx
 -----------------------------------------------
 "use client";
@@ -249,6 +285,85 @@ export default function BoursesPage() {
 }
 
 // END OF FILE: src/app/(visitor)/bourses/page.tsx
+
+
+// FILE: src/app/(visitor)/contact/page.tsx
+-----------------------------------------------
+"use client";
+import ContactForm from "@/sections/visitor/ContactForm";
+import SectionTitle from "@/components/ui/SectionTitle";
+import { useLanguage } from "@/hooks/useLanguage";
+
+export default function ContactPage() {
+  const { dictionary } = useLanguage();
+
+  return (
+    <div className="bg-salma-bg min-h-screen">
+      {/* On peut ajouter une bannière ou une carte Google Maps ici plus tard */}
+      <div className="pt-20">
+        <ContactForm />
+      </div>
+      
+      {/* Section FAQ intégrée pour réduire le nombre de pages */}
+      <div className="container mx-auto px-6 pb-20">
+        <SectionTitle title={dictionary.faq.title} subtitle={dictionary.faq.subtitle} align="center" />
+        <div className="max-w-3xl mx-auto space-y-4">
+          {dictionary.faq.items.map((item, i) => (
+            <details key={i} className="group bg-white dark:bg-salma-surface border border-salma-border rounded-2xl p-6 cursor-pointer">
+              <summary className="font-bold text-salma-primary dark:text-white flex justify-between items-center list-none">
+                {item.q}
+                <span className="text-salma-gold group-open:rotate-180 transition-transform">▼</span>
+              </summary>
+              <p className="mt-4 text-salma-text-muted text-sm">{item.a}</p>
+            </details>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// END OF FILE: src/app/(visitor)/contact/page.tsx
+
+
+// FILE: src/app/(visitor)/services/page.tsx
+-----------------------------------------------
+"use client";
+import { useLanguage } from "@/hooks/useLanguage";
+import SectionTitle from "@/components/ui/SectionTitle";
+
+export default function ServicesPage() {
+  const { dictionary } = useLanguage();
+  const s = dictionary.servicesPage;
+
+  const cards = [
+    { title: s.items.study.title, desc: s.items.study.desc, icon: "🎓" },
+    { title: s.items.tourist.title, desc: s.items.tourist.desc, icon: "✈️" },
+    { title: s.items.work.title, desc: s.items.work.desc, icon: "💼" },
+    { title: s.items.insurance.title, desc: s.items.insurance.desc, icon: "🛡️" },
+  ];
+
+  return (
+    <div className="py-20 bg-salma-bg min-h-screen">
+      <div className="container mx-auto px-6">
+        <SectionTitle title={s.title} subtitle={s.subtitle} align="center" />
+        <p className="max-w-2xl mx-auto text-center text-salma-text-muted mb-16">{s.description}</p>
+        
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+          {cards.map((card, i) => (
+            <div key={i} className="p-8 bg-white dark:bg-salma-surface border border-salma-border rounded-3xl shadow-salma-sm hover:shadow-salma-md transition-all">
+              <span className="text-4xl mb-6 block">{card.icon}</span>
+              <h3 className="text-xl font-serif font-bold text-salma-primary dark:text-salma-gold mb-4">{card.title}</h3>
+              <p className="text-sm text-salma-text-muted leading-relaxed">{card.desc}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// END OF FILE: src/app/(visitor)/services/page.tsx
 
 
 // FILE: src/app/globals.css
@@ -843,6 +958,7 @@ import { useState } from "react";
 import { useLanguage } from "@/hooks/useLanguage";
 import ThemeSwitcher from "./ThemeSwitcher";
 import LanguageSwitcher from "./LanguageSwitcher";
+import SalmaButton from "./ui/SalmaButton";
 
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
@@ -850,66 +966,91 @@ export default function Navbar() {
 
   const links = [
     { name: dictionary.nav.home, href: "/" },
-     { name: dictionary.nav.bourses, href: "/bourses" },  
+    { name: dictionary.nav.bourses, href: "/bourses" },
     { name: dictionary.nav.services, href: "/services" },
     { name: dictionary.nav.about, href: "/a-propos" },
-    { name: dictionary.nav.contact, href: "/contact" },
   ];
 
   return (
-    <nav className="sticky top-0 z-50 w-full bg-salma-bg/80 backdrop-blur-md border-b border-salma-border">
+    <nav className="sticky top-0 z-50 w-full bg-white/90 dark:bg-salma-bg/90 backdrop-blur-md border-b border-salma-border">
       <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
-        {/* Logo */}
-        <Link href="/" className="flex flex-col">
-          <span className="text-2xl font-serif font-bold text-salma-primary leading-none">SALMA</span>
-          <span className="text-[10px] uppercase tracking-[0.3em] text-salma-gold font-sans font-bold">Travel Agency</span>
+        
+        {/* LOGO */}
+        <Link href="/" className="flex flex-col group">
+          <span className="text-2xl font-serif font-bold text-salma-primary dark:text-white leading-none group-hover:text-salma-accent transition-colors">
+            SALMA
+          </span>
+          <span className="text-[10px] uppercase tracking-[0.3em] text-salma-gold font-sans font-bold">
+            Travel Agency
+          </span>
         </Link>
 
-        {/* Desktop Links */}
-        <div className="hidden md:flex items-center gap-8">
+        {/* LINKS DESKTOP */}
+        <div className="hidden lg:flex items-center gap-8">
           {links.map((link) => (
             <Link 
               key={link.href} 
               href={link.href}
-              className="text-sm font-medium text-salma-text hover:text-salma-primary transition-colors"
+              className="text-xs font-bold uppercase tracking-widest text-salma-primary dark:text-gray-300 hover:text-salma-accent transition-colors"
             >
               {link.name}
             </Link>
           ))}
-          <Link 
-            href="/admin/dashboard" 
-            className="text-xs font-bold px-3 py-1.5 rounded border border-salma-primary text-salma-primary hover:bg-salma-primary hover:text-white transition-all"
-          >
-            {dictionary.nav.admin}
-          </Link>
-          <div className="flex items-center gap-3 border-l border-salma-border pl-6">
+          
+          <div className="h-6 w-px bg-salma-border mx-2" />
+
+          {/* ACTIONS */}
+          <div className="flex items-center gap-4">
             <LanguageSwitcher />
             <ThemeSwitcher />
+            
+            {/* CONTACT EN BOUTON POUR LA CONVERSION */}
+            <Link href="/contact">
+              <SalmaButton variant="primary" size="sm">
+                {dictionary.nav.contact}
+              </SalmaButton>
+            </Link>
+
+            {/* LIEN ADMIN DISCRET */}
+            <Link 
+              href="/admin/dashboard" 
+              className="p-2 text-salma-text-muted hover:text-salma-primary transition-colors"
+              title={dictionary.nav.admin}
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5.121 17.804A13.937 13.937 0 0112 16c2.5 0 4.847.655 6.879 1.804M15 10a3 3 0 11-6 0 3 3 0 016 0zm6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+            </Link>
           </div>
         </div>
 
-        {/* Mobile Toggle */}
-        <button className="md:hidden p-2 text-salma-primary" onClick={() => setIsOpen(!isOpen)}>
+        {/* MOBILE TOGGLE */}
+        <button className="lg:hidden p-2 text-salma-primary" onClick={() => setIsOpen(!isOpen)}>
           <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={isOpen ? "M6 18L18 6M6 6l12 12" : "M4 6h16M4 12h16M4 18h16"} />
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={isOpen ? "M6 18L18 6" : "M4 6h16M4 12h16M4 18h16"} />
           </svg>
         </button>
       </div>
 
-      {/* Mobile Menu */}
+      {/* MOBILE MENU */}
       {isOpen && (
-        <div className="md:hidden absolute w-full bg-salma-surface border-b border-salma-border p-6 flex flex-col gap-4 animate-fade-in">
+        <div className="lg:hidden absolute w-full bg-white dark:bg-salma-surface border-b border-salma-border p-6 flex flex-col gap-6 animate-fade-in shadow-xl">
           {links.map((link) => (
-            <Link key={link.href} href={link.href} onClick={() => setIsOpen(false)} className="text-lg font-medium">
+            <Link key={link.href} href={link.href} onClick={() => setIsOpen(false)} className="text-sm font-bold uppercase tracking-widest">
               {link.name}
             </Link>
           ))}
-          <Link href="/admin/dashboard" onClick={() => setIsOpen(false)} className="text-lg font-bold text-salma-primary">
-             {dictionary.nav.admin}
+          <Link href="/contact" onClick={() => setIsOpen(false)} className="text-sm font-bold text-salma-accent uppercase tracking-widest">
+             {dictionary.nav.contact}
           </Link>
-          <div className="flex justify-between items-center pt-4 border-t border-salma-border">
-            <LanguageSwitcher />
-            <ThemeSwitcher />
+          <div className="flex justify-between items-center pt-6 border-t border-salma-border">
+            <div className="flex gap-4">
+              <LanguageSwitcher />
+              <ThemeSwitcher />
+            </div>
+            <Link href="/admin/dashboard" onClick={() => setIsOpen(false)} className="text-xs font-bold text-salma-primary">
+              {dictionary.nav.admin}
+            </Link>
           </div>
         </div>
       )}
@@ -1481,9 +1622,7 @@ catalog: {
   },
 
   // ── Contact ──
-// src/dictionaries/en.ts
 
-// ... (reste du fichier)
 contact: {
   title: "Let's talk about your project",
   subtitle: "Contact us",
@@ -1511,7 +1650,6 @@ faq: {
     { q: "Which countries do you cover?", a: "We specialize in China and Germany." }
   ]
 },
-// ...
   // ── Commun ──
   common: {
     loading: "Loading...",
@@ -1547,6 +1685,40 @@ faq: {
     email: "secretariatagtechnologies@gmail.com"
   },
   rights: "© 2026 SALMA by AG Technologies. All rights reserved."
+},
+// src/dictionaries/en.ts
+
+servicesPage: {
+  title: "Our Mobility Services",
+  subtitle: "Comprehensive expertise for your journey",
+  description: "Whether you are traveling to study, work, or visit, AG Technologies guarantees a simplified and secured process.",
+  items: {
+    study: { 
+      title: "Study Visa", 
+      desc: "Guaranteed admission to the top-tier universities in China and Germany." 
+    },
+    tourist: { 
+      title: "Tourist Visa", 
+      desc: "Explore the world with a fast 3-week processing time." 
+    },
+    work: { 
+      title: "Work Visa", 
+      desc: "Professional opportunities and complete administrative and legal support." 
+    },
+    insurance: { 
+      title: "Travel Insurance", 
+      desc: "International health protection compliant with all consular requirements." 
+    }
+  }
+},
+aboutPage: {
+  title: "About SALMA",
+  subtitle: "AG Technologies' Expertise",
+  missionTitle: "Our Mission",
+  missionDesc: "To facilitate access to international education and mobility for all Cameroonian talents. We serve as a strategic bridge between Africa, China, and Germany.",
+  visionTitle: "Why Trust Us?",
+  visionDesc: "Located in Yaoundé, Kadji Building, we operate with total transparency. Our 'Satisfied or Refunded' slogan is not just a promise; it is our core work ethic.",
+  partners: "Our University Partnerships",
 },
 } as const;
 
@@ -1692,44 +1864,26 @@ catalog: {
   found: "bourses trouvées"
 },
 
-  // ── Services ──
-  services: {
-    sectionTitle: "Nos services",
-    sectionSubtitle: "Tout ce dont vous avez besoin pour votre voyage en Chine",
-    "visa-etude": {
-      name: "Visa Étude",
-      description:
-        "Obtenez votre visa étudiant pour intégrer les meilleures universités chinoises.",
-    },
-    "visa-touriste": {
-      name: "Visa Touriste",
-      description:
-        "Explorez la Chine en toute sérénité avec un visa touriste obtenu rapidement.",
-    },
-    "visa-travail": {
-      name: "Visa Travail",
-      description:
-        "Développez votre carrière en Chine avec un visa travail adapté à votre profil.",
-    },
-    "bourse-etude": {
-      name: "Bourse d'Étude",
-      description:
-        "Nous vous accompagnons dans l'obtention de bourses d'étude complètes en Chine.",
-    },
-  },
-
-  // ── À propos ──
-  about: {
-    sectionTitle: "À propos de SALMA",
-    description:
-      "SALMA est une agence professionnelle de voyage et tourisme basée à Yaoundé, Cameroun. Spécialisée dans les démarches de visa pour la Chine, nous accompagnons nos clients avec transparence et efficacité.",
-    mission: "Notre mission",
-    missionText:
-      "Faciliter l'accès à la Chine pour tous les Camerounais, que ce soit pour étudier, travailler ou voyager.",
-    values: "Nos valeurs",
-    location: "Yaoundé, Cameroun",
-  },
-
+ servicesPage: {
+  title: "Nos Services de Mobilité",
+  subtitle: "Une expertise complète pour votre voyage",
+  description: "Que vous partiez pour étudier, travailler ou visiter, AG Technologies vous garantit une procédure simplifiée et sécurisée.",
+  items: {
+    study: { title: "Visa Étude", desc: "Admission garantie dans les meilleures universités de Chine et d'Allemagne." },
+    tourist: { title: "Visa Touriste", desc: "Partez à la découverte du monde avec une procédure rapide en 3 semaines." },
+    work: { title: "Visa Travail", desc: "Opportunités professionnelles et accompagnement administratif complet." },
+    insurance: { title: "Assurance Voyage", desc: "Protection santé internationale conforme aux exigences consulaires." }
+  }
+},
+aboutPage: {
+  title: "À propos de SALMA",
+  subtitle: "L'expertise d'AG Technologies",
+  missionTitle: "Notre Mission",
+  missionDesc: "Faciliter l'accès à l'éducation internationale et à la mobilité pour tous les talents camerounais. Nous servons de pont entre l'Afrique, la Chine et l'Allemagne.",
+  visionTitle: "Pourquoi nous faire confiance ?",
+  visionDesc: "Installés à Yaoundé, Immeuble Kadji, nous opérons avec une transparence totale. Notre slogan 'Satisfait ou Remboursé' n'est pas qu'une promesse, c'est notre éthique de travail.",
+  partners: "Nos Partenariats Universitaires",
+},
   // ── Contact ──
   // src/dictionaries/fr.ts
 
@@ -2498,35 +2652,6 @@ Chaque tâche doit suivre ce cycle :
 
 // FILE: eslint.config.mjs
 -----------------------------------------------
-import { dirname } from "path";
-import { fileURLToPath } from "url";
-import { FlatCompat } from "@eslint/eslintrc";
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
-
-const compat = new FlatCompat({
-  baseDirectory: __dirname,
-});
-
-const eslintConfig = [
-  ...compat.extends("next/core-web-vitals", "next/typescript"),
-  {
-    ignores: [
-      "node_modules/**",
-      ".next/**",
-      "out/**",
-      "build/**",
-      "next-env.d.ts",
-    ],
-  },
-];
-
-export default eslintConfig;
-
-
-// END OF FILE: eslint.config.mjs
-
 
 // FILE: extract-context.ps1
 -----------------------------------------------
