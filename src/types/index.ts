@@ -59,3 +59,32 @@ export interface FaqItem {
   id: string;
   category: string;
 }
+
+// src/types/index.ts (à ajouter à la fin)
+
+export type ScholarshipStatus = "open" | "closed" | "pending";
+export type CountryDestination = "chine" | "allemagne" | "both";
+export type StudyLevel = "licence" | "master" | "doctorat" | "post-doc";
+export type CoverageType = "totale" | "partielle" | "frais_scolarite" | "allocation";
+
+export interface Scholarship {
+  id: string;
+  // Général
+  title: string;
+  organization: string;
+  country: CountryDestination;
+  description: string;
+  // Éligibilité
+  studyLevel: StudyLevel;
+  fieldOfStudy: string;
+  ageLimit: number;
+  languageReq: string;
+  // Logistique
+  status: ScholarshipStatus;
+  deadline: string; // Format ISO (YYYY-MM-DD)
+  coverageType: CoverageType;
+  // Admin
+  officialLink: string;
+  createdAt?: string;
+  updatedAt?: string;
+}

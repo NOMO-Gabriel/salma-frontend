@@ -1,3 +1,4 @@
+// src/admin/dashboard/page.tsx
 "use client";
 
 export default function AdminDashboard() {

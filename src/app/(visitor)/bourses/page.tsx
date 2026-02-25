@@ -5,7 +5,7 @@ import { useLanguage } from "@/hooks/useLanguage";
 import { MOCK_SCHOLARSHIPS } from "@/data/mock-scholarships";
 import ScholarshipCard from "@/components/ui/ScholarshipCard";
 import SectionTitle from "@/components/ui/SectionTitle";
-import ContactForm from "@/sections/visitor/ContactForm";
+
 
 export default function BoursesPage() {
   const { dictionary, locale } = useLanguage();

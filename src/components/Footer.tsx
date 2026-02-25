@@ -22,7 +22,7 @@ export default function Footer() {
             </p>
             <div className="p-4 border-l-2 border-salma-gold bg-white/5">
               <p className="text-xs italic text-salma-gold-light font-medium">
-                "{dictionary.footer.slogan}"
+                &quot;{dictionary.footer.slogan}&quot;
               </p>
             </div>
           </div>

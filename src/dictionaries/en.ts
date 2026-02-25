@@ -1,20 +1,10 @@
 // src/dictionaries/en.ts
-// ============================================================
-//  DICTIONNAIRE ANGLAIS
-//  Miroir exact de fr.ts — toutes les clés doivent être présentes.
-//  TypeScript signalera toute clé manquante à la compilation.
-// ============================================================
-
 export const en = {
-
-  // ── Métadonnées SEO ──
   metadata: {
     title: "SALMA Travel Agency — Your China Visa in 3 Weeks",
-    description:
-      "SALMA is a professional agency specializing in China visa processing. Study, Tourist, Work Visas and Scholarships.",
+    description: "SALMA is a professional agency specializing in China visa processing. Study, Tourist, Work Visas and Scholarships.",
   },
 
-  // ── Navigation ──
   nav: {
     home: "Home",
     services: "Services",
@@ -26,7 +16,6 @@ export const en = {
     admin: "Admin",
   },
 
-  // ── Scholarships (même structure que fr.ts) ──
   scholarships: {
     sectionTitle: "Available Scholarships",
     deadline: "Deadline",
@@ -46,7 +35,6 @@ export const en = {
     },
   },
 
-  // ── Scholarship Detail (NIVEAU RACINE, comme fr.ts) ──
   scholarshipDetail: {
     backToList: "Back to list",
     organization: "Funding Organization",
@@ -59,12 +47,10 @@ export const en = {
     btnForm: "Fill the form",
   },
 
-  // ── Hero ──
   hero: {
     badge: "AG Technologies Expertise",
     title: "Achieve Your Dream of Studying in China & Germany",
-    description:
-      "Full support, visa processing in 3 weeks, and a satisfaction guarantee. Join top-tier global universities today.",
+    description: "Full support, visa processing in 3 weeks, and a satisfaction guarantee. Join top-tier global universities today.",
     ctaPrimary: "Find my scholarship",
     ctaSecondary: "Our visa services",
     trustIndicator: {
@@ -78,7 +64,6 @@ export const en = {
     },
   },
 
-  // ── Trust ──
   trust: {
     expertise: {
       title: "AGT Expertise",
@@ -94,7 +79,6 @@ export const en = {
     },
   },
 
-  // ── Stats ──
   stats: {
     visas: { value: "500+", label: "Visas Obtained" },
     partners: { value: "25+", label: "Partner Universities" },
@@ -102,14 +86,12 @@ export const en = {
     satisfaction: { value: "100%", label: "Success Rate" },
   },
 
-  // ── Featured Scholarships ──
   featuredScholarships: {
     title: "Featured Scholarships",
     subtitle: "Outstanding Opportunities",
     viewAll: "View all scholarships",
   },
 
-  // ── Success Stories ──
   successStories: {
     title: "They succeeded with SALMA",
     subtitle: "Success Stories",
@@ -117,32 +99,27 @@ export const en = {
       {
         name: "Marcelle T.",
         destination: "Peking University, China",
-        quote:
-          "Thanks to AGT's support, I got my full scholarship in less than two months. A professional and attentive team!",
+        quote: "Thanks to AGT's support, I got my full scholarship in less than two months. A professional and attentive team!",
         program: "Master in AI",
       },
       {
         name: "Cédric M.",
         destination: "TU Berlin, Germany",
-        quote:
-          "The visa process seemed complex, but SALMA handled everything. Highly recommend for those aiming for Germany.",
+        quote: "The visa process seemed complex, but SALMA handled everything. Highly recommend for those aiming for Germany.",
         program: "BSc in Mechanics",
       },
       {
         name: "Awa B.",
         destination: "Fudan University, China",
-        quote:
-          "Satisfaction guaranteed is not just a slogan, it's a reality. My Chinese dream came true thanks to them.",
+        quote: "Satisfaction guaranteed is not just a slogan, it's a reality. My Chinese dream came true thanks to them.",
         program: "Master in Business",
       },
     ],
   },
 
-  // ── Catalog ──
   catalog: {
     title: "All Scholarships",
-    description:
-      "Find the scholarship that matches your study project in China or Germany.",
+    description: "Find the scholarship that matches your study project in China or Germany.",
     searchPlaceholder: "Search for a scholarship...",
     filterAll: "All",
     filterCountry: "Country",
@@ -151,46 +128,28 @@ export const en = {
     found: "scholarships found",
   },
 
-  // ── Services Page ──
   servicesPage: {
     title: "Our Mobility Services",
     subtitle: "Comprehensive expertise for your journey",
-    description:
-      "Whether you are traveling to study, work, or visit, AG Technologies guarantees a simplified and secured process.",
+    description: "Whether you are traveling to study, work, or visit, AG Technologies guarantees a simplified and secured process.",
     items: {
-      study: {
-        title: "Study Visa",
-        desc: "Guaranteed admission to the top-tier universities in China and Germany.",
-      },
-      tourist: {
-        title: "Tourist Visa",
-        desc: "Explore the world with a fast 3-week processing time.",
-      },
-      work: {
-        title: "Work Visa",
-        desc: "Professional opportunities and complete administrative and legal support.",
-      },
-      insurance: {
-        title: "Travel Insurance",
-        desc: "International health protection compliant with all consular requirements.",
-      },
-    },
+      study: { title: "Study Visa", desc: "Guaranteed admission to the top-tier universities in China and Germany." },
+      tourist: { title: "Tourist Visa", desc: "Explore the world with a fast 3-week processing time." },
+      work: { title: "Work Visa", desc: "Professional opportunities and complete administrative and legal support." },
+      insurance: { title: "Travel Insurance", desc: "International health protection compliant with all consular requirements." }
+    }
   },
 
-  // ── About Page ──
   aboutPage: {
     title: "About SALMA",
     subtitle: "AG Technologies' Expertise",
     missionTitle: "Our Mission",
-    missionDesc:
-      "To facilitate access to international education and mobility for all Cameroonian talents. We serve as a strategic bridge between Africa, China, and Germany.",
+    missionDesc: "To facilitate access to international education and mobility for all Cameroonian talents. We serve as a strategic bridge between Africa, China, and Germany.",
     visionTitle: "Why Trust Us?",
-    visionDesc:
-      "Located in Yaoundé, Kadji Building, we operate with total transparency. Our 'Satisfied or Refunded' slogan is not just a promise; it is our core work ethic.",
+    visionDesc: "Located in Yaoundé, Kadji Building, we operate with total transparency. Our 'Satisfied or Refunded' slogan is not just a promise; it is our core work ethic.",
     partners: "Our University Partnerships",
   },
 
-  // ── Contact ──
   contact: {
     title: "Let's talk about your project",
     subtitle: "Contact us",
@@ -206,32 +165,20 @@ export const en = {
     info: {
       address: "Montée Anne rouge, Kadji Building, Yaoundé",
       email: "secretariatagtechnologies@gmail.com",
-      whatsappMsg:
-        "Hello SALMA, I would like information about scholarships for...",
+      whatsappMsg: "Hello SALMA, I would like information about scholarships for...",
     },
   },
 
-  // ── FAQ ──
   faq: {
     title: "Frequently Asked Questions",
     subtitle: "Everything about our services",
     items: [
-      {
-        q: "What are the visa processing times?",
-        a: "Average of 03 weeks for China.",
-      },
-      {
-        q: "Is the refund guarantee real?",
-        a: "Yes, it is a contractual commitment from AG Technologies.",
-      },
-      {
-        q: "Which countries do you cover?",
-        a: "We specialize in China and Germany.",
-      },
+      { q: "What are the visa processing times?", a: "Average of 03 weeks for China." },
+      { q: "Is the refund guarantee real?", a: "Yes, it is a contractual commitment from AG Technologies." },
+      { q: "Which countries do you cover?", a: "We specialize in China and Germany." },
     ],
   },
 
-  // ── Commun ──
   common: {
     loading: "Loading...",
     error: "An error occurred",
@@ -247,10 +194,8 @@ export const en = {
     guarantee: "Satisfaction Guaranteed",
   },
 
-  // ── Footer ──
   footer: {
-    tagline:
-      "Your trusted partner for international mobility to China and Germany.",
+    tagline: "Your trusted partner for international mobility to China and Germany.",
     slogan: "Satisfied or Refunded — Excellence serving your future.",
     links: {
       title: "Navigation",
@@ -268,4 +213,58 @@ export const en = {
     },
     rights: "© 2026 SALMA by AG Technologies. All rights reserved.",
   },
+
+  admin: {
+    sidebar: {
+      dashboard: "Dashboard",
+      scholarships: "Scholarships Management",
+      applications: "Applications",
+      settings: "Settings",
+      logout: "Logout",
+    },
+    scholarships: {
+      title: "Scholarships",
+      addBtn: "+ Add Scholarship",
+      searchPlaceholder: "Search scholarship...",
+      table: {
+        title: "Scholarship Title",
+        country: "Country",
+        level: "Level",
+        deadline: "Deadline",
+        status: "Status",
+        actions: "Actions",
+        edit: "Edit",
+        delete: "Delete",
+        deleteConfirm: "Are you sure you want to delete this scholarship?",
+      },
+      status: {
+        open: "Open",
+        closed: "Closed",
+        pending: "Pending",
+      },
+      country: {
+        chine: "China",
+        allemagne: "Germany",
+        both: "China & Germany",
+      },
+      form: {
+        addTitle: "Add New Scholarship",
+        editTitle: "Edit Scholarship",
+        title: "Scholarship Title",
+        organization: "Funding Organization",
+        country: "Destination Country",
+        description: "Description",
+        studyLevel: "Required Study Level",
+        fieldOfStudy: "Field of Study",
+        ageLimit: "Age Limit",
+        languageReq: "Language Score (e.g. HSK 4, IELTS)",
+        status: "Offer Status",
+        deadline: "Deadline",
+        coverageType: "Coverage Type",
+        officialLink: "Official Link",
+        cancel: "Cancel",
+        save: "Save",
+      }
+    }
+  }
 } as const;

@@ -32,7 +32,7 @@ export default function SuccessStories() {
 
               <div className="relative z-10">
                 <p className="text-salma-text font-medium italic leading-relaxed mb-6">
-                  "{story.quote}"
+                  &quot;{story.quote}&quot;
                 </p>
                 
                 <div className="flex items-center gap-4">
