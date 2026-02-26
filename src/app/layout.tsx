@@ -38,7 +38,12 @@ export default function RootLayout({
       suppressHydrationWarning
     >
       <body className="antialiased bg-salma-bg text-salma-text transition-colors duration-300">
-        <ThemeProvider>
+        <ThemeProvider
+        attribute="class" 
+        defaultTheme="light" 
+        forcedTheme="light" // Force le mode clair
+        enableSystem={false}
+        >
           <LanguageProvider>
             <Navbar />
             <main>{children}</main>
