@@ -1,0 +1,146 @@
+@startuml SALMA_Class_Diagram_V4
+
+skinparam classAttributeIconSize 0
+skinparam classFontSize 12
+skinparam packageFontSize 13
+skinparam linetype polyline
+skinparam nodesep 70
+skinparam ranksep 60
+skinparam padding 5
+
+title **Diagramme de Classes — Projet SALMA v4**\nAG Technologies — Vue d'ensemble validée
+
+' ============================================================
+'  AUTH
+' ============================================================
+
+package "Authentification" {
+  class "Administrateur\n//(AdminUser)//" as Admin
+}
+
+' ============================================================
+'  MÉDIAS
+' ============================================================
+
+package "Médias" {
+  class "Fichier Média\n//(MediaAsset)//" as Media
+}
+
+' ============================================================
+'  BOURSES
+' ============================================================
+
+package "Gestion des Bourses" {
+  class "Bourse\n//(Scholarship)//" as Scholarship
+  class "Domaine d'Études\n//(ScholarshipField)//" as Field
+  class "Avantage\n//(ScholarshipBenefit)//" as Benefit
+  class "Critère d'Éligibilité\n//(ScholarshipEligibility)//" as Eligibility
+  class "Visibilité Champs\n//(FieldVisibility)//" as Visibility
+}
+
+Scholarship "1" -down-> "*" Field
+Scholarship "1" -down-> "*" Benefit
+Scholarship "1" -down-> "*" Eligibility
+Scholarship "1" -down-> "*" Visibility
+Scholarship "1" --> "1..*" Media : images\n(1 principale\n+ N optionnelles)
+
+' ============================================================
+'  DEMANDES DE CONTACT
+' ============================================================
+
+package "Demandes de Contact" {
+  class "Demande Contact\n//(ContactRequest)//" as Contact
+  class "Demande × Bourse\n//(ContactRequestScholarship)//" as ContactScholarship
+}
+
+Contact "1" -down-> "*" ContactScholarship
+ContactScholarship "*" --> "1" Scholarship
+
+' ============================================================
+'  NEWSLETTER & ANNONCES
+' ============================================================
+
+package "Newsletter & Annonces" {
+  class "Abonné Newsletter\n//(NewsletterSubscriber)//" as Newsletter
+  class "Annonce\n//(Announcement)//" as Announcement
+  class "Annonce × Bourse\n//(AnnouncementScholarship)//" as AnnouncementScholarship
+}
+
+Announcement "1" -down-> "*" AnnouncementScholarship
+AnnouncementScholarship "*" --> "1" Scholarship
+Announcement "*" --> "0..1" Media : image
+
+' ============================================================
+'  TÉMOIGNAGES
+' ============================================================
+
+package "Témoignages" {
+  class "Témoignage\n//(Testimonial)//" as Testimonial
+}
+
+Testimonial "*" --> "0..1" Media : photo client
+Testimonial "*" --> "0..1" Media : fichier joint
+
+' ============================================================
+'  CHATBOT
+' ============================================================
+
+package "Chatbot IA" {
+  class "Question FAQ\n//(FaqEntry)//" as Faq
+}
+
+' ============================================================
+'  CMS
+' ============================================================
+
+package "CMS — Contenu du Site" {
+  class "Page du Site\n//(SitePage)//" as Page
+  class "Bloc de Contenu\n//(ContentBlock)//" as Block
+  class "Config Globale\n//(SiteConfig)//" as Config
+  class "Vidéo de Pitch\n//(PitchVideo)//" as Video
+}
+
+Page "1" -down-> "*" Block
+Block "*" --> "0..1" Media : image du bloc
+Video "*" --> "0..1" Media : thumbnail
+
+' ============================================================
+'  SERVICES
+' ============================================================
+
+package "Services" {
+  class "Service\n//(Service)//" as Service
+}
+
+Service "1" --> "1..*" Media : images\n(1 principale\n+ N optionnelles)
+
+' ============================================================
+'  KPI
+' ============================================================
+
+package "KPI & Analytics" {
+  class "Événement Visiteur\n//(VisitorEvent)//" as Event
+  class "Snapshot KPI\n//(KpiSnapshot)//" as Kpi
+}
+
+Event "*" --> "0..1" Scholarship : bourse consultée
+
+' ============================================================
+'  RELATIONS ADMIN (pointillés)
+' ============================================================
+
+Admin ..> Scholarship : gère
+Admin ..> Contact : traite
+Admin ..> Testimonial : gère
+Admin ..> Faq : gère
+Admin ..> Block : modifie
+Admin ..> Config : configure
+Admin ..> Video : gère
+Admin ..> Service : gère
+Admin ..> Media : uploade
+Admin ..> Newsletter : consulte
+Admin ..> Visibility : contrôle
+Admin ..> Kpi : consulte
+Admin ..> Announcement : rédige
+
+@enduml

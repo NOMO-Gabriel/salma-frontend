@@ -1,5 +1,5 @@
 ﻿Next.js Project Context
-Generated On: 2026-02-25 15:22:39
+Generated On: 2026-02-26 08:40:28
 Root: C:\Users\hp\Documents\stage gabriel\SALMA\salma-frontend
 ===============================================
 
@@ -331,7 +331,7 @@ import { useLanguage } from "@/hooks/useLanguage";
 import { MOCK_SCHOLARSHIPS } from "@/data/mock-scholarships";
 import ScholarshipCard from "@/components/ui/ScholarshipCard";
 import SectionTitle from "@/components/ui/SectionTitle";
-import ContactForm from "@/sections/visitor/ContactForm";
+
 
 export default function BoursesPage() {
   const { dictionary, locale } = useLanguage();
@@ -794,7 +794,7 @@ export default function AddScholarshipModal({ isOpen, onClose, onSave, scholarsh
             </div>
 
             <div className="col-span-full mt-4">
-              <h3 className="font-serif text-salma-primary border-b border-salma-border pb-2 mb-4">Critères d'Éligibilité</h3>
+              <h3 className="font-serif text-salma-primary border-b border-salma-border pb-2 mb-4">Critères d&apos;Éligibilité</h3>
             </div>
             <div>
               <label className="block text-sm font-medium mb-1">{t.studyLevel}</label>
@@ -1108,7 +1108,7 @@ export default function WhatsAppButton() {
       className="fixed bottom-8 right-8 z-50 bg-[#25D366] text-white p-4 rounded-full shadow-2xl hover:scale-110 transition-transform active:scale-95 group"
     >
       <div className="absolute -top-12 right-0 bg-white text-black text-[10px] font-bold px-3 py-1 rounded shadow-lg opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
-        Besoin d'aide ?
+       Besoin d&apos;aide ?
       </div>
       <svg className="w-7 h-7" fill="currentColor" viewBox="0 0 24 24">
         <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L0 24l6.335-1.662c1.72.94 3.659 1.437 5.634 1.437h.005c6.558 0 11.895-5.335 11.898-11.893a11.821 11.821 0 00-3.48-8.413z" />
@@ -1146,7 +1146,7 @@ export default function Footer() {
             </p>
             <div className="p-4 border-l-2 border-salma-gold bg-white/5">
               <p className="text-xs italic text-salma-gold-light font-medium">
-                "{dictionary.footer.slogan}"
+                &quot;{dictionary.footer.slogan}&quot;
               </p>
             </div>
           </div>
@@ -1369,7 +1369,7 @@ import { useTheme } from "next-themes";
 import { useEffect, useState } from "react";
 
 export default function ThemeSwitcher() {
-  const { theme, setTheme, resolvedTheme } = useTheme();
+  const {setTheme, resolvedTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => setMounted(true), []);
@@ -1449,6 +1449,107 @@ export function detectLocale(): Locale {
 
   return defaultLocale;
 }
+
+// END OF FILE: src/config/i18n.ts
+
+
+// FILE: src/contexts/LanguageContext.tsx
+-----------------------------------------------
+// src/contexts/LanguageContext.tsx
+"use client";
+
+import { createContext, useState, useEffect, ReactNode } from "react";
+import { type Locale, detectLocale } from "@/config/i18n";
+import { getDictionary, type DictionaryType } from "@/dictionaries";
+
+// ============================================================
+//  TYPES
+// ============================================================
+interface LanguageContextType {
+  locale: Locale;
+  dictionary: DictionaryType;
+  setLocale: (locale: Locale) => void;
+}
+
+// ============================================================
+//  CONTEXTE
+// ============================================================
+export const LanguageContext = createContext<LanguageContextType | undefined>(
+  undefined
+);
+
+// ============================================================
+//  PROVIDER
+// ============================================================
+export function LanguageProvider({ children }: { children: ReactNode }) {
+  const [locale, setLocaleState] = useState<Locale>("en");
+  const [dictionary, setDictionary] = useState<DictionaryType>(
+    getDictionary("en")
+  );
+
+  // Détection de la langue au montage (côté client uniquement)
+  useEffect(() => {
+    const detected = detectLocale();
+    setLocaleState(detected);
+    setDictionary(getDictionary(detected));
+  }, []);
+
+  const setLocale = (newLocale: Locale) => {
+    setLocaleState(newLocale);
+    setDictionary(getDictionary(newLocale));
+    try {
+      localStorage.setItem("salma-locale", newLocale);
+    } catch {
+      // localStorage indisponible
+    }
+  };
+
+  return (
+    <LanguageContext.Provider value={{ locale, dictionary, setLocale }}>
+      {children}
+    </LanguageContext.Provider>
+  );
+}
+
+// END OF FILE: src/contexts/LanguageContext.tsx
+
+
+// FILE: src/contexts/ThemeContext.tsx
+-----------------------------------------------
+// src/contexts/ThemeContext.tsx
+"use client";
+
+import { ThemeProvider as NextThemesProvider } from "next-themes";
+import type { ThemeProviderProps } from "next-themes";
+
+// ============================================================
+//  THEME PROVIDER
+//  Wrapper autour de next-themes.
+//  Branché dans src/app/layout.tsx autour de tout l'arbre.
+//
+//  Usage dans un composant :
+//  import { useTheme } from "@/hooks/useTheme";
+//  const { theme, toggleTheme } = useTheme();
+// ============================================================
+export function ThemeProvider({ children, ...props }: ThemeProviderProps) {
+  return (
+    <NextThemesProvider
+      attribute="class"       // Ajoute/retire la classe .dark sur <html>
+      defaultTheme="system"   // Suit le thème système par défaut
+      enableSystem            // Active la détection système
+      disableTransitionOnChange={false}
+      {...props}
+    >
+      {children}
+    </NextThemesProvider>
+  );
+}
+
+// END OF FILE: src/contexts/ThemeContext.tsx
+
+
+// FILE: src/data/index.ts
+-----------------------------------------------
 // src/data/index.ts
 // Point d'entrée central des données statiques de SALMA
 // Toutes les données sont ici — les composants importent depuis @/data
@@ -2574,7 +2675,7 @@ export default function SuccessStories() {
 
               <div className="relative z-10">
                 <p className="text-salma-text font-medium italic leading-relaxed mb-6">
-                  "{story.quote}"
+                  &quot;{story.quote}&quot;
                 </p>
                 
                 <div className="flex items-center gap-4">
@@ -2775,6 +2876,9 @@ export interface Scholarship {
 
 // END OF FILE: src/types/index.ts
 
+
+// FILE: src/types/scholarship.ts
+-----------------------------------------------
 /**
  * Type utilitaire pour les champs traduisibles
  */
@@ -2950,7 +3054,7 @@ export default eslintConfig;
 // END OF FILE: eslint.config.mjs
 
 
-// FILE: extract-context.ps1
+// FILE: extract_context.ps1
 -----------------------------------------------
 <#
 .SYNOPSIS
@@ -3080,7 +3184,7 @@ foreach ($file in $foundFiles) {
 
 Write-Host "Succès ! Ton contexte Next.js est prêt dans : $OutputFile" -ForegroundColor Green
 
-// END OF FILE: extract-context.ps1
+// END OF FILE: extract_context.ps1
 
 
 // FILE: next-env.d.ts

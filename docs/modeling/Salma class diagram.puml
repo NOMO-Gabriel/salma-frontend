@@ -1,0 +1,409 @@
+@startuml SALMA_Class_Diagram_V4_Detail
+
+skinparam classAttributeIconSize 0
+skinparam classFontSize 11
+skinparam packageFontSize 13
+skinparam linetype polyline
+skinparam nodesep 70
+skinparam ranksep 50
+skinparam padding 5
+
+title **Diagramme de Classes Détaillé — Projet SALMA v4**\nAG Technologies — Version finale
+
+' ============================================================
+'  ENUMS
+' ============================================================
+
+enum NiveauEtudes {
+  LICENCE
+  MASTER
+  DOCTORAT
+  POST_DOC
+}
+
+enum StatutBourse {
+  OUVERT
+  FERME
+  URGENT
+  EN_ATTENTE
+}
+
+enum TypeCouverture {
+  TOTALE
+  PARTIELLE
+  SCOLARITE
+  ALLOCATION
+}
+
+enum PaysDestination {
+  CHINE
+  ALLEMAGNE
+}
+
+enum TypeAction {
+  PAGE_VUE
+  CLIC_CTA
+  SOUMISSION_FORMULAIRE
+  INTERACTION_CHATBOT
+  INSCRIPTION_NEWSLETTER
+}
+
+enum StatutAnnonce {
+  BROUILLON
+  PROGRAMME
+  ENVOYE
+}
+
+enum SourceTemoignage {
+  SITE
+  WHATSAPP
+  EMAIL
+}
+
+enum TypeBloc {
+  HERO
+  TEXTE
+  IMAGE
+  CTA
+  STATS
+  BARRE_CONFIANCE
+  VIDEO
+  TEMOIGNAGES
+}
+
+' ============================================================
+'  AUTH
+' ============================================================
+
+package "Authentification" {
+  class "Administrateur\n//(AdminUser)//" as Admin {
+    + id : UUID
+    + email : String
+    + motDePasseHash : String
+    + nomComplet : String
+    + role : String
+    + estActif : Boolean
+    + derniereConnexion : DateTime
+    + dateCreation : DateTime
+  }
+}
+
+' ============================================================
+'  MÉDIAS
+' ============================================================
+
+package "Médias" {
+  class "Fichier Média\n//(MediaAsset)//" as Media {
+    + id : UUID
+    + nomFichier : String
+    + urlFichier : String
+    + texteAltFr : String {optionnel}
+    + texteAltEn : String {optionnel}
+    + typeMime : String
+    + tailleOctets : Integer
+    + dateUpload : DateTime
+  }
+}
+
+' ============================================================
+'  BOURSES
+' ============================================================
+
+package "Gestion des Bourses" {
+  class "Bourse\n//(Scholarship)//" as Scholarship {
+    + id : UUID
+    + titreFr : String
+    + titreEn : String
+    + organismeFr : String
+    + organismeEn : String
+    + descriptionFr : Text
+    + descriptionEn : Text
+    + paysDestination : PaysDestination
+    + niveau : NiveauEtudes
+    + statut : StatutBourse
+    + typeCouverture : TypeCouverture
+    + dateLimite : Date
+    + limiteAge : Integer {optionnel}
+    + exigenceLangueFr : String
+    + exigenceLangueEn : String
+    + detailsMontantFr : String
+    + detailsMontantEn : String
+    + lienOfficiel : URL {optionnel}
+    + estMiseEnAvant : Boolean
+    + ordreAffichage : Integer
+    + dateCreation : DateTime
+    + dateModification : DateTime
+  }
+
+  class "Domaine d'Études\n//(ScholarshipField)//" as Field {
+    + id : UUID
+    + idBourse : UUID
+    + nomFr : String
+    + nomEn : String
+    + icone : String
+  }
+
+  class "Avantage\n//(ScholarshipBenefit)//" as Benefit {
+    + id : UUID
+    + idBourse : UUID
+    + libelleFr : String
+    + libelleEn : String
+    + icone : String
+  }
+
+  class "Critère d'Éligibilité\n//(ScholarshipEligibility)//" as Eligibility {
+    + id : UUID
+    + idBourse : UUID
+    + libelleFr : String
+    + libelleEn : String
+    + icone : String
+  }
+
+  class "Visibilité Champs\n//(FieldVisibility)//" as Visibility {
+    + id : UUID
+    + idBourse : UUID
+    + nomDuChamp : String
+    + estVisible : Boolean
+  }
+}
+
+Scholarship "1" -down-> "*" Field
+Scholarship "1" -down-> "*" Benefit
+Scholarship "1" -down-> "*" Eligibility
+Scholarship "1" -down-> "*" Visibility
+Scholarship "1" --> "1..*" Media : images\n(1 principale\n+ N optionnelles)
+
+' ============================================================
+'  DEMANDES DE CONTACT
+' ============================================================
+
+package "Demandes de Contact" {
+  class "Demande Contact\n//(ContactRequest)//" as Contact {
+    + id : UUID
+    + nomComplet : String
+    + email : String
+    + telephone : String
+    + whatsapp : String
+    + message : Text
+    + accepteNewsletter : Boolean
+    + estLu : Boolean
+    + notesAdmin : Text {optionnel}
+    + dateCreation : DateTime
+  }
+
+  class "Demande × Bourse\n//(ContactRequestScholarship)//" as ContactScholarship {
+    + id : UUID
+    + idDemande : UUID
+    + idBourse : UUID
+  }
+}
+
+Contact "1" -down-> "*" ContactScholarship
+ContactScholarship "*" --> "1" Scholarship
+
+' ============================================================
+'  NEWSLETTER & ANNONCES
+' ============================================================
+
+package "Newsletter & Annonces" {
+  class "Abonné Newsletter\n//(NewsletterSubscriber)//" as Newsletter {
+    + id : UUID
+    + email : String
+    + nomComplet : String {optionnel}
+    + telephone : String {optionnel}
+    + pays : String {optionnel}
+    + niveauEtudes : NiveauEtudes {optionnel}
+    + destinationSouhaitee : PaysDestination {optionnel}
+    + source : String
+    + estActif : Boolean
+    + dateInscription : DateTime
+    + dateDesinscription : DateTime {optionnel}
+  }
+
+  class "Annonce\n//(Announcement)//" as Announcement {
+    + id : UUID
+    + titreFr : String
+    + titreEn : String
+    + contenuFr : Text
+    + contenuEn : Text
+    + statut : StatutAnnonce
+    + dateEnvoi : DateTime {optionnel}
+    + dateCreation : DateTime
+  }
+
+  class "Annonce × Bourse\n//(AnnouncementScholarship)//" as AnnouncementScholarship {
+    + id : UUID
+    + idAnnonce : UUID
+    + idBourse : UUID
+  }
+}
+
+Announcement "1" -down-> "*" AnnouncementScholarship
+AnnouncementScholarship "*" --> "1" Scholarship
+Announcement "*" --> "0..1" Media : image
+
+' ============================================================
+'  TÉMOIGNAGES
+' ============================================================
+
+package "Témoignages" {
+  class "Témoignage\n//(Testimonial)//" as Testimonial {
+    + id : UUID
+    + nomAuteur : String
+    + paysAuteur : String
+    + citationFr : Text
+    + citationEn : Text
+    + note : Integer
+    + source : SourceTemoignage
+    + estApprouve : Boolean
+    + estAfficheSurSite : Boolean
+    + ordreAffichage : Integer
+    + dateCreation : DateTime
+  }
+}
+
+Testimonial "*" --> "0..1" Media : photo client
+Testimonial "*" --> "0..1" Media : fichier joint
+
+' ============================================================
+'  CHATBOT
+' ============================================================
+
+package "Chatbot IA" {
+  class "Question FAQ\n//(FaqEntry)//" as Faq {
+    + id : UUID
+    + questionFr : String
+    + questionEn : String
+    + reponseFr : Text
+    + reponseEn : Text
+    + categorie : String
+    + ordreAffichage : Integer
+    + estActif : Boolean
+  }
+}
+
+' ============================================================
+'  CMS
+' ============================================================
+
+package "CMS — Contenu du Site" {
+  class "Page du Site\n//(SitePage)//" as Page {
+    + id : UUID
+    + slug : String
+    + titreFr : String
+    + titreEn : String
+    + estPubliee : Boolean
+    + ordreAffichage : Integer
+    + dateModification : DateTime
+  }
+
+  class "Bloc de Contenu\n//(ContentBlock)//" as Block {
+    + id : UUID
+    + idPage : UUID
+    + cleBloc : String
+    + typeBloc : TypeBloc
+    + contenuFr : Text
+    + contenuEn : Text
+    + lienCta : String {optionnel}
+    + estVisible : Boolean
+    + ordreAffichage : Integer
+    + dateModification : DateTime
+  }
+
+  class "Config Globale\n//(SiteConfig)//" as Config {
+    + id : UUID
+    + cleConfig : String
+    + valeurFr : Text
+    + valeurEn : Text
+    + dateModification : DateTime
+  }
+
+  class "Vidéo de Pitch\n//(PitchVideo)//" as Video {
+    + id : UUID
+    + titreFr : String
+    + titreEn : String
+    + urlVideo : String
+    + estActive : Boolean
+    + pageAffichage : String
+    + dateModification : DateTime
+  }
+}
+
+Page "1" -down-> "*" Block
+Block "*" --> "0..1" Media : image du bloc
+Video "*" --> "0..1" Media : thumbnail
+
+' ============================================================
+'  SERVICES
+' ============================================================
+
+package "Services" {
+  class "Service\n//(Service)//" as Service {
+    + id : UUID
+    + slug : String
+    + nomFr : String
+    + nomEn : String
+    + descriptionFr : Text
+    + descriptionEn : Text
+    + icone : String
+    + delaiTraitement : String {optionnel}
+    + estActif : Boolean
+    + ordreAffichage : Integer
+  }
+}
+
+Service "1" --> "1..*" Media : images\n(1 principale\n+ N optionnelles)
+
+' ============================================================
+'  KPI
+' ============================================================
+
+package "KPI & Analytics" {
+  class "Événement Visiteur\n//(VisitorEvent)//" as Event {
+    + id : UUID
+    + idSession : String
+    + typeAction : TypeAction
+    + slugPage : String {optionnel}
+    + idBourse : UUID {optionnel}
+    + referent : String {optionnel}
+    + userAgent : String {optionnel}
+    + paysIp : String {optionnel}
+    + horodatage : DateTime
+  }
+
+  class "Snapshot KPI\n//(KpiSnapshot)//" as Kpi {
+    + id : UUID
+    + date : Date
+    + totalVisiteurs : Integer
+    + visiteursUniques : Integer
+    + pagesVues : Integer
+    + clicsCta : Integer
+    + soumissionsFormulaire : Integer
+    + inscriptionsNewsletter : Integer
+    + sessionsChatbot : Integer
+    + tauxConversion : Decimal
+    + idBourseTop : UUID {optionnel}
+  }
+}
+
+Event "*" --> "0..1" Scholarship : bourse consultée
+
+' ============================================================
+'  RELATIONS ADMIN (pointillés)
+' ============================================================
+
+Admin ..> Scholarship : gère
+Admin ..> Contact : traite
+Admin ..> Testimonial : gère
+Admin ..> Faq : gère
+Admin ..> Block : modifie
+Admin ..> Config : configure
+Admin ..> Video : gère
+Admin ..> Service : gère
+Admin ..> Media : uploade
+Admin ..> Newsletter : consulte
+Admin ..> Visibility : contrôle
+Admin ..> Kpi : consulte
+Admin ..> Announcement : rédige
+
+@enduml
