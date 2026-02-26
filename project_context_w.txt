@@ -1,9 +1,981 @@
 ﻿Next.js Project Context
-Generated On: 2026-02-26 08:40:28
-Root: C:\Users\hp\Documents\stage gabriel\SALMA\salma-frontend
+Generated On: 2026-02-26 23:26:03
+Root: E:\AG_Technologie\Salma\salma-frontend
 ===============================================
 
-// FILE: docs/vision-project.md
+// FILE: docs/modeling/Salma class diagram detail.puml
+-----------------------------------------------
+@startuml SALMA_Class_Diagram_V4
+
+skinparam classAttributeIconSize 0
+skinparam classFontSize 12
+skinparam packageFontSize 13
+skinparam linetype polyline
+skinparam nodesep 70
+skinparam ranksep 60
+skinparam padding 5
+
+title **Diagramme de Classes — Projet SALMA v4**\nAG Technologies — Vue d'ensemble validée
+
+' ============================================================
+'  AUTH
+' ============================================================
+
+package "Authentification" {
+  class "Administrateur\n//(AdminUser)//" as Admin
+}
+
+' ============================================================
+'  MÉDIAS
+' ============================================================
+
+package "Médias" {
+  class "Fichier Média\n//(MediaAsset)//" as Media
+}
+
+' ============================================================
+'  BOURSES
+' ============================================================
+
+package "Gestion des Bourses" {
+  class "Bourse\n//(Scholarship)//" as Scholarship
+  class "Domaine d'Études\n//(ScholarshipField)//" as Field
+  class "Avantage\n//(ScholarshipBenefit)//" as Benefit
+  class "Critère d'Éligibilité\n//(ScholarshipEligibility)//" as Eligibility
+  class "Visibilité Champs\n//(FieldVisibility)//" as Visibility
+}
+
+Scholarship "1" -down-> "*" Field
+Scholarship "1" -down-> "*" Benefit
+Scholarship "1" -down-> "*" Eligibility
+Scholarship "1" -down-> "*" Visibility
+Scholarship "1" --> "1..*" Media : images\n(1 principale\n+ N optionnelles)
+
+' ============================================================
+'  DEMANDES DE CONTACT
+' ============================================================
+
+package "Demandes de Contact" {
+  class "Demande Contact\n//(ContactRequest)//" as Contact
+  class "Demande × Bourse\n//(ContactRequestScholarship)//" as ContactScholarship
+}
+
+Contact "1" -down-> "*" ContactScholarship
+ContactScholarship "*" --> "1" Scholarship
+
+' ============================================================
+'  NEWSLETTER & ANNONCES
+' ============================================================
+
+package "Newsletter & Annonces" {
+  class "Abonné Newsletter\n//(NewsletterSubscriber)//" as Newsletter
+  class "Annonce\n//(Announcement)//" as Announcement
+  class "Annonce × Bourse\n//(AnnouncementScholarship)//" as AnnouncementScholarship
+}
+
+Announcement "1" -down-> "*" AnnouncementScholarship
+AnnouncementScholarship "*" --> "1" Scholarship
+Announcement "*" --> "0..1" Media : image
+
+' ============================================================
+'  TÉMOIGNAGES
+' ============================================================
+
+package "Témoignages" {
+  class "Témoignage\n//(Testimonial)//" as Testimonial
+}
+
+Testimonial "*" --> "0..1" Media : photo client
+Testimonial "*" --> "0..1" Media : fichier joint
+
+' ============================================================
+'  CHATBOT
+' ============================================================
+
+package "Chatbot IA" {
+  class "Question FAQ\n//(FaqEntry)//" as Faq
+}
+
+' ============================================================
+'  CMS
+' ============================================================
+
+package "CMS — Contenu du Site" {
+  class "Page du Site\n//(SitePage)//" as Page
+  class "Bloc de Contenu\n//(ContentBlock)//" as Block
+  class "Config Globale\n//(SiteConfig)//" as Config
+  class "Vidéo de Pitch\n//(PitchVideo)//" as Video
+}
+
+Page "1" -down-> "*" Block
+Block "*" --> "0..1" Media : image du bloc
+Video "*" --> "0..1" Media : thumbnail
+
+' ============================================================
+'  SERVICES
+' ============================================================
+
+package "Services" {
+  class "Service\n//(Service)//" as Service
+}
+
+Service "1" --> "1..*" Media : images\n(1 principale\n+ N optionnelles)
+
+' ============================================================
+'  KPI
+' ============================================================
+
+package "KPI & Analytics" {
+  class "Événement Visiteur\n//(VisitorEvent)//" as Event
+  class "Snapshot KPI\n//(KpiSnapshot)//" as Kpi
+}
+
+Event "*" --> "0..1" Scholarship : bourse consultée
+
+' ============================================================
+'  RELATIONS ADMIN (pointillés)
+' ============================================================
+
+Admin ..> Scholarship : gère
+Admin ..> Contact : traite
+Admin ..> Testimonial : gère
+Admin ..> Faq : gère
+Admin ..> Block : modifie
+Admin ..> Config : configure
+Admin ..> Video : gère
+Admin ..> Service : gère
+Admin ..> Media : uploade
+Admin ..> Newsletter : consulte
+Admin ..> Visibility : contrôle
+Admin ..> Kpi : consulte
+Admin ..> Announcement : rédige
+
+@enduml
+
+
+// END OF FILE: docs/modeling/Salma class diagram detail.puml
+
+
+// FILE: docs/modeling/Salma class diagram.puml
+-----------------------------------------------
+@startuml SALMA_Class_Diagram_V4_Detail
+
+skinparam classAttributeIconSize 0
+skinparam classFontSize 11
+skinparam packageFontSize 13
+skinparam linetype polyline
+skinparam nodesep 70
+skinparam ranksep 50
+skinparam padding 5
+
+title **Diagramme de Classes Détaillé — Projet SALMA v4**\nAG Technologies — Version finale
+
+' ============================================================
+'  ENUMS
+' ============================================================
+
+enum NiveauEtudes {
+  LICENCE
+  MASTER
+  DOCTORAT
+  POST_DOC
+}
+
+enum StatutBourse {
+  OUVERT
+  FERME
+  URGENT
+  EN_ATTENTE
+}
+
+enum TypeCouverture {
+  TOTALE
+  PARTIELLE
+  SCOLARITE
+  ALLOCATION
+}
+
+enum PaysDestination {
+  CHINE
+  ALLEMAGNE
+}
+
+enum TypeAction {
+  PAGE_VUE
+  CLIC_CTA
+  SOUMISSION_FORMULAIRE
+  INTERACTION_CHATBOT
+  INSCRIPTION_NEWSLETTER
+}
+
+enum StatutAnnonce {
+  BROUILLON
+  PROGRAMME
+  ENVOYE
+}
+
+enum SourceTemoignage {
+  SITE
+  WHATSAPP
+  EMAIL
+}
+
+enum TypeBloc {
+  HERO
+  TEXTE
+  IMAGE
+  CTA
+  STATS
+  BARRE_CONFIANCE
+  VIDEO
+  TEMOIGNAGES
+}
+
+' ============================================================
+'  AUTH
+' ============================================================
+
+package "Authentification" {
+  class "Administrateur\n//(AdminUser)//" as Admin {
+    + id : UUID
+    + email : String
+    + motDePasseHash : String
+    + nomComplet : String
+    + role : String
+    + estActif : Boolean
+    + derniereConnexion : DateTime
+    + dateCreation : DateTime
+  }
+}
+
+' ============================================================
+'  MÉDIAS
+' ============================================================
+
+package "Médias" {
+  class "Fichier Média\n//(MediaAsset)//" as Media {
+    + id : UUID
+    + nomFichier : String
+    + urlFichier : String
+    + texteAltFr : String {optionnel}
+    + texteAltEn : String {optionnel}
+    + typeMime : String
+    + tailleOctets : Integer
+    + dateUpload : DateTime
+  }
+}
+
+' ============================================================
+'  BOURSES
+' ============================================================
+
+package "Gestion des Bourses" {
+  class "Bourse\n//(Scholarship)//" as Scholarship {
+    + id : UUID
+    + titreFr : String
+    + titreEn : String
+    + organismeFr : String
+    + organismeEn : String
+    + descriptionFr : Text
+    + descriptionEn : Text
+    + paysDestination : PaysDestination
+    + niveau : NiveauEtudes
+    + statut : StatutBourse
+    + typeCouverture : TypeCouverture
+    + dateLimite : Date
+    + limiteAge : Integer {optionnel}
+    + exigenceLangueFr : String
+    + exigenceLangueEn : String
+    + detailsMontantFr : String
+    + detailsMontantEn : String
+    + lienOfficiel : URL {optionnel}
+    + estMiseEnAvant : Boolean
+    + ordreAffichage : Integer
+    + dateCreation : DateTime
+    + dateModification : DateTime
+  }
+
+  class "Domaine d'Études\n//(ScholarshipField)//" as Field {
+    + id : UUID
+    + idBourse : UUID
+    + nomFr : String
+    + nomEn : String
+    + icone : String
+  }
+
+  class "Avantage\n//(ScholarshipBenefit)//" as Benefit {
+    + id : UUID
+    + idBourse : UUID
+    + libelleFr : String
+    + libelleEn : String
+    + icone : String
+  }
+
+  class "Critère d'Éligibilité\n//(ScholarshipEligibility)//" as Eligibility {
+    + id : UUID
+    + idBourse : UUID
+    + libelleFr : String
+    + libelleEn : String
+    + icone : String
+  }
+
+  class "Visibilité Champs\n//(FieldVisibility)//" as Visibility {
+    + id : UUID
+    + idBourse : UUID
+    + nomDuChamp : String
+    + estVisible : Boolean
+  }
+}
+
+Scholarship "1" -down-> "*" Field
+Scholarship "1" -down-> "*" Benefit
+Scholarship "1" -down-> "*" Eligibility
+Scholarship "1" -down-> "*" Visibility
+Scholarship "1" --> "1..*" Media : images\n(1 principale\n+ N optionnelles)
+
+' ============================================================
+'  DEMANDES DE CONTACT
+' ============================================================
+
+package "Demandes de Contact" {
+  class "Demande Contact\n//(ContactRequest)//" as Contact {
+    + id : UUID
+    + nomComplet : String
+    + email : String
+    + telephone : String
+    + whatsapp : String
+    + message : Text
+    + accepteNewsletter : Boolean
+    + estLu : Boolean
+    + notesAdmin : Text {optionnel}
+    + dateCreation : DateTime
+  }
+
+  class "Demande × Bourse\n//(ContactRequestScholarship)//" as ContactScholarship {
+    + id : UUID
+    + idDemande : UUID
+    + idBourse : UUID
+  }
+}
+
+Contact "1" -down-> "*" ContactScholarship
+ContactScholarship "*" --> "1" Scholarship
+
+' ============================================================
+'  NEWSLETTER & ANNONCES
+' ============================================================
+
+package "Newsletter & Annonces" {
+  class "Abonné Newsletter\n//(NewsletterSubscriber)//" as Newsletter {
+    + id : UUID
+    + email : String
+    + nomComplet : String {optionnel}
+    + telephone : String {optionnel}
+    + pays : String {optionnel}
+    + niveauEtudes : NiveauEtudes {optionnel}
+    + destinationSouhaitee : PaysDestination {optionnel}
+    + source : String
+    + estActif : Boolean
+    + dateInscription : DateTime
+    + dateDesinscription : DateTime {optionnel}
+  }
+
+  class "Annonce\n//(Announcement)//" as Announcement {
+    + id : UUID
+    + titreFr : String
+    + titreEn : String
+    + contenuFr : Text
+    + contenuEn : Text
+    + statut : StatutAnnonce
+    + dateEnvoi : DateTime {optionnel}
+    + dateCreation : DateTime
+  }
+
+  class "Annonce × Bourse\n//(AnnouncementScholarship)//" as AnnouncementScholarship {
+    + id : UUID
+    + idAnnonce : UUID
+    + idBourse : UUID
+  }
+}
+
+Announcement "1" -down-> "*" AnnouncementScholarship
+AnnouncementScholarship "*" --> "1" Scholarship
+Announcement "*" --> "0..1" Media : image
+
+' ============================================================
+'  TÉMOIGNAGES
+' ============================================================
+
+package "Témoignages" {
+  class "Témoignage\n//(Testimonial)//" as Testimonial {
+    + id : UUID
+    + nomAuteur : String
+    + paysAuteur : String
+    + citationFr : Text
+    + citationEn : Text
+    + note : Integer
+    + source : SourceTemoignage
+    + estApprouve : Boolean
+    + estAfficheSurSite : Boolean
+    + ordreAffichage : Integer
+    + dateCreation : DateTime
+  }
+}
+
+Testimonial "*" --> "0..1" Media : photo client
+Testimonial "*" --> "0..1" Media : fichier joint
+
+' ============================================================
+'  CHATBOT
+' ============================================================
+
+package "Chatbot IA" {
+  class "Question FAQ\n//(FaqEntry)//" as Faq {
+    + id : UUID
+    + questionFr : String
+    + questionEn : String
+    + reponseFr : Text
+    + reponseEn : Text
+    + categorie : String
+    + ordreAffichage : Integer
+    + estActif : Boolean
+  }
+}
+
+' ============================================================
+'  CMS
+' ============================================================
+
+package "CMS — Contenu du Site" {
+  class "Page du Site\n//(SitePage)//" as Page {
+    + id : UUID
+    + slug : String
+    + titreFr : String
+    + titreEn : String
+    + estPubliee : Boolean
+    + ordreAffichage : Integer
+    + dateModification : DateTime
+  }
+
+  class "Bloc de Contenu\n//(ContentBlock)//" as Block {
+    + id : UUID
+    + idPage : UUID
+    + cleBloc : String
+    + typeBloc : TypeBloc
+    + contenuFr : Text
+    + contenuEn : Text
+    + lienCta : String {optionnel}
+    + estVisible : Boolean
+    + ordreAffichage : Integer
+    + dateModification : DateTime
+  }
+
+  class "Config Globale\n//(SiteConfig)//" as Config {
+    + id : UUID
+    + cleConfig : String
+    + valeurFr : Text
+    + valeurEn : Text
+    + dateModification : DateTime
+  }
+
+  class "Vidéo de Pitch\n//(PitchVideo)//" as Video {
+    + id : UUID
+    + titreFr : String
+    + titreEn : String
+    + urlVideo : String
+    + estActive : Boolean
+    + pageAffichage : String
+    + dateModification : DateTime
+  }
+}
+
+Page "1" -down-> "*" Block
+Block "*" --> "0..1" Media : image du bloc
+Video "*" --> "0..1" Media : thumbnail
+
+' ============================================================
+'  SERVICES
+' ============================================================
+
+package "Services" {
+  class "Service\n//(Service)//" as Service {
+    + id : UUID
+    + slug : String
+    + nomFr : String
+    + nomEn : String
+    + descriptionFr : Text
+    + descriptionEn : Text
+    + icone : String
+    + delaiTraitement : String {optionnel}
+    + estActif : Boolean
+    + ordreAffichage : Integer
+  }
+}
+
+Service "1" --> "1..*" Media : images\n(1 principale\n+ N optionnelles)
+
+' ============================================================
+'  KPI
+' ============================================================
+
+package "KPI & Analytics" {
+  class "Événement Visiteur\n//(VisitorEvent)//" as Event {
+    + id : UUID
+    + idSession : String
+    + typeAction : TypeAction
+    + slugPage : String {optionnel}
+    + idBourse : UUID {optionnel}
+    + referent : String {optionnel}
+    + userAgent : String {optionnel}
+    + paysIp : String {optionnel}
+    + horodatage : DateTime
+  }
+
+  class "Snapshot KPI\n//(KpiSnapshot)//" as Kpi {
+    + id : UUID
+    + date : Date
+    + totalVisiteurs : Integer
+    + visiteursUniques : Integer
+    + pagesVues : Integer
+    + clicsCta : Integer
+    + soumissionsFormulaire : Integer
+    + inscriptionsNewsletter : Integer
+    + sessionsChatbot : Integer
+    + tauxConversion : Decimal
+    + idBourseTop : UUID {optionnel}
+  }
+}
+
+Event "*" --> "0..1" Scholarship : bourse consultée
+
+' ============================================================
+'  RELATIONS ADMIN (pointillés)
+' ============================================================
+
+Admin ..> Scholarship : gère
+Admin ..> Contact : traite
+Admin ..> Testimonial : gère
+Admin ..> Faq : gère
+Admin ..> Block : modifie
+Admin ..> Config : configure
+Admin ..> Video : gère
+Admin ..> Service : gère
+Admin ..> Media : uploade
+Admin ..> Newsletter : consulte
+Admin ..> Visibility : contrôle
+Admin ..> Kpi : consulte
+Admin ..> Announcement : rédige
+
+@enduml
+
+
+// END OF FILE: docs/modeling/Salma class diagram.puml
+
+
+// FILE: docs/modeling/Salma contrats api.md
+-----------------------------------------------
+# Contrats d'API — Projet SALMA
+## AG Technologies — Document de référence
+
+---
+
+## 1. AUTH — `/api/auth`
+
+| Méthode | Endpoint | Description | Auth |
+|---------|----------|-------------|------|
+| POST | `/api/auth/login` | Connexion → retourne le token | Non |
+| POST | `/api/auth/logout` | Déconnexion → invalide le token | Oui |
+| POST | `/api/auth/register` | Créer un compte admin | Oui (super admin) |
+| GET | `/api/auth/me` | Récupérer son profil | Oui |
+| PUT | `/api/auth/me` | Modifier son profil complet | Oui |
+| PATCH | `/api/auth/me` | Modifier partiellement son profil | Oui |
+| PUT | `/api/auth/change-password` | Modifier son mot de passe | Oui |
+| POST | `/api/auth/reset-password` | Demander réinitialisation par email | Non |
+| POST | `/api/auth/reset-password/confirm` | Confirmer nouveau mot de passe | Non |
+
+---
+
+## 2. BOURSES
+
+### 2.1 Publique — `/api/bourses`
+
+| Méthode | Endpoint | Description | Auth |
+|---------|----------|-------------|------|
+| GET | `/api/bourses` | Liste avec filtres (pays, niveau, couverture, statut, recherche) | Non |
+| GET | `/api/bourses/mise-en-avant` | Bourses à la une | Non |
+| GET | `/api/bourses/{id}` | Fiche détaillée (visibilité appliquée) | Non |
+
+### 2.2 Admin — `/api/admin/bourses`
+
+| Méthode | Endpoint | Description | Auth |
+|---------|----------|-------------|------|
+| GET | `/api/admin/bourses` | Liste complète (tous champs) | Oui |
+| GET | `/api/admin/bourses/{id}` | Détail complet | Oui |
+| POST | `/api/admin/bourses` | Créer une bourse | Oui |
+| PUT | `/api/admin/bourses/{id}` | Modifier complètement | Oui |
+| PATCH | `/api/admin/bourses/{id}` | Modifier partiellement | Oui |
+| DELETE | `/api/admin/bourses/{id}` | Supprimer | Oui |
+| PUT | `/api/admin/bourses/{id}/visibilite` | Modifier la visibilité complète | Oui |
+| PATCH | `/api/admin/bourses/{id}/visibilite` | Modifier partiellement la visibilité | Oui |
+| PUT | `/api/admin/bourses/{id}/mise-en-avant` | Activer/désactiver mise en avant | Oui |
+
+#### Domaines d'études
+
+| Méthode | Endpoint | Description | Auth |
+|---------|----------|-------------|------|
+| POST | `/api/admin/bourses/{id}/domaines` | Ajouter un domaine | Oui |
+| PUT | `/api/admin/bourses/{id}/domaines/{domId}` | Modifier complètement | Oui |
+| PATCH | `/api/admin/bourses/{id}/domaines/{domId}` | Modifier partiellement | Oui |
+| DELETE | `/api/admin/bourses/{id}/domaines/{domId}` | Supprimer | Oui |
+
+#### Avantages
+
+| Méthode | Endpoint | Description | Auth |
+|---------|----------|-------------|------|
+| POST | `/api/admin/bourses/{id}/avantages` | Ajouter un avantage | Oui |
+| PUT | `/api/admin/bourses/{id}/avantages/{avId}` | Modifier complètement | Oui |
+| PATCH | `/api/admin/bourses/{id}/avantages/{avId}` | Modifier partiellement | Oui |
+| DELETE | `/api/admin/bourses/{id}/avantages/{avId}` | Supprimer | Oui |
+
+#### Critères d'éligibilité
+
+| Méthode | Endpoint | Description | Auth |
+|---------|----------|-------------|------|
+| POST | `/api/admin/bourses/{id}/criteres` | Ajouter un critère | Oui |
+| PUT | `/api/admin/bourses/{id}/criteres/{crId}` | Modifier complètement | Oui |
+| PATCH | `/api/admin/bourses/{id}/criteres/{crId}` | Modifier partiellement | Oui |
+| DELETE | `/api/admin/bourses/{id}/criteres/{crId}` | Supprimer | Oui |
+
+#### Images
+
+| Méthode | Endpoint | Description | Auth |
+|---------|----------|-------------|------|
+| POST | `/api/admin/bourses/{id}/images` | Ajouter une image | Oui |
+| DELETE | `/api/admin/bourses/{id}/images/{imgId}` | Supprimer une image | Oui |
+| PUT | `/api/admin/bourses/{id}/images/{imgId}/principale` | Définir comme image principale | Oui |
+
+---
+
+## 3. DEMANDES DE CONTACT
+
+### 3.1 Publique — `/api/contact`
+
+| Méthode | Endpoint | Description | Auth |
+|---------|----------|-------------|------|
+| POST | `/api/contact` | Soumettre une demande (+ bourses optionnelles + accepte newsletter) | Non |
+
+### 3.2 Admin — `/api/admin/contacts`
+
+| Méthode | Endpoint | Description | Auth |
+|---------|----------|-------------|------|
+| GET | `/api/admin/contacts` | Liste des demandes (filtres : lu/non lu, date) | Oui |
+| GET | `/api/admin/contacts/{id}` | Détail avec bourses associées | Oui |
+| PATCH | `/api/admin/contacts/{id}` | Marquer lu, ajouter notes | Oui |
+| DELETE | `/api/admin/contacts/{id}` | Supprimer | Oui |
+
+---
+
+## 4. NEWSLETTER & ANNONCES
+
+### 4.1 Publique — `/api/newsletter`
+
+| Méthode | Endpoint | Description | Auth |
+|---------|----------|-------------|------|
+| POST | `/api/newsletter/inscription` | S'inscrire (email obligatoire, reste optionnel) | Non |
+| POST | `/api/newsletter/desinscription` | Se désinscrire | Non |
+
+### 4.2 Admin Abonnés — `/api/admin/newsletter`
+
+| Méthode | Endpoint | Description | Auth |
+|---------|----------|-------------|------|
+| GET | `/api/admin/newsletter/abonnes` | Liste des abonnés (filtres : actif, pays, niveau) | Oui |
+| GET | `/api/admin/newsletter/abonnes/{id}` | Détail d'un abonné | Oui |
+| DELETE | `/api/admin/newsletter/abonnes/{id}` | Supprimer un abonné | Oui |
+
+### 4.3 Admin Annonces — `/api/admin/annonces`
+
+| Méthode | Endpoint | Description | Auth |
+|---------|----------|-------------|------|
+| GET | `/api/admin/annonces` | Liste des annonces | Oui |
+| GET | `/api/admin/annonces/{id}` | Détail avec bourses liées | Oui |
+| POST | `/api/admin/annonces` | Créer une annonce (brouillon) | Oui |
+| PUT | `/api/admin/annonces/{id}` | Modifier complètement | Oui |
+| PATCH | `/api/admin/annonces/{id}` | Modifier partiellement | Oui |
+| DELETE | `/api/admin/annonces/{id}` | Supprimer | Oui |
+| POST | `/api/admin/annonces/{id}/envoyer` | Envoyer à tous les abonnés actifs | Oui |
+
+---
+
+## 5. TÉMOIGNAGES
+
+### 5.1 Publique — `/api/temoignages`
+
+| Méthode | Endpoint | Description | Auth |
+|---------|----------|-------------|------|
+| GET | `/api/temoignages` | Liste des témoignages approuvés et affichés | Non |
+| POST | `/api/temoignages` | Soumettre un témoignage (formulaire site ou lien email) | Non |
+
+### 5.2 Admin — `/api/admin/temoignages`
+
+| Méthode | Endpoint | Description | Auth |
+|---------|----------|-------------|------|
+| GET | `/api/admin/temoignages` | Liste complète (approuvés + en attente) | Oui |
+| GET | `/api/admin/temoignages/{id}` | Détail | Oui |
+| POST | `/api/admin/temoignages` | Créer manuellement (depuis WhatsApp/mail) | Oui |
+| PUT | `/api/admin/temoignages/{id}` | Modifier complètement | Oui |
+| PATCH | `/api/admin/temoignages/{id}` | Modifier partiellement | Oui |
+| DELETE | `/api/admin/temoignages/{id}` | Supprimer | Oui |
+
+---
+
+## 6. CHATBOT IA
+
+### 6.1 Publique — `/api/chatbot`
+
+| Méthode | Endpoint | Description | Auth |
+|---------|----------|-------------|------|
+| POST | `/api/chatbot/message` | Envoyer une question → Gemini répond via FAQ | Non |
+
+### 6.2 Admin FAQ — `/api/admin/faq`
+
+| Méthode | Endpoint | Description | Auth |
+|---------|----------|-------------|------|
+| GET | `/api/admin/faq` | Liste des FAQ | Oui |
+| GET | `/api/admin/faq/{id}` | Détail | Oui |
+| POST | `/api/admin/faq` | Créer une question/réponse | Oui |
+| PUT | `/api/admin/faq/{id}` | Modifier complètement | Oui |
+| PATCH | `/api/admin/faq/{id}` | Modifier partiellement | Oui |
+| DELETE | `/api/admin/faq/{id}` | Supprimer | Oui |
+
+---
+
+## 7. CMS — CONTENU DU SITE
+
+### 7.1 Publique — `/api`
+
+| Méthode | Endpoint | Description | Auth |
+|---------|----------|-------------|------|
+| GET | `/api/pages` | Liste des pages publiées | Non |
+| GET | `/api/pages/{slug}` | Contenu complet d'une page (blocs visibles) | Non |
+| GET | `/api/config` | Configurations globales | Non |
+| GET | `/api/videos` | Vidéos de pitch actives | Non |
+
+### 7.2 Admin Pages — `/api/admin/pages`
+
+| Méthode | Endpoint | Description | Auth |
+|---------|----------|-------------|------|
+| GET | `/api/admin/pages` | Liste de toutes les pages | Oui |
+| GET | `/api/admin/pages/{id}` | Détail avec tous les blocs | Oui |
+| POST | `/api/admin/pages` | Créer une page | Oui |
+| PUT | `/api/admin/pages/{id}` | Modifier complètement | Oui |
+| PATCH | `/api/admin/pages/{id}` | Modifier partiellement | Oui |
+| DELETE | `/api/admin/pages/{id}` | Supprimer | Oui |
+
+#### Blocs de contenu
+
+| Méthode | Endpoint | Description | Auth |
+|---------|----------|-------------|------|
+| POST | `/api/admin/pages/{id}/blocs` | Ajouter un bloc | Oui |
+| PUT | `/api/admin/pages/{id}/blocs/{blocId}` | Modifier complètement | Oui |
+| PATCH | `/api/admin/pages/{id}/blocs/{blocId}` | Modifier partiellement | Oui |
+| DELETE | `/api/admin/pages/{id}/blocs/{blocId}` | Supprimer | Oui |
+
+### 7.3 Admin Config — `/api/admin/config`
+
+| Méthode | Endpoint | Description | Auth |
+|---------|----------|-------------|------|
+| GET | `/api/admin/config` | Liste de toutes les configs | Oui |
+| POST | `/api/admin/config` | Créer une config | Oui |
+| PUT | `/api/admin/config/{cle}` | Modifier complètement | Oui |
+| PATCH | `/api/admin/config/{cle}` | Modifier partiellement | Oui |
+| DELETE | `/api/admin/config/{cle}` | Supprimer | Oui |
+
+### 7.4 Admin Vidéos — `/api/admin/videos`
+
+| Méthode | Endpoint | Description | Auth |
+|---------|----------|-------------|------|
+| GET | `/api/admin/videos` | Liste des vidéos | Oui |
+| GET | `/api/admin/videos/{id}` | Détail | Oui |
+| POST | `/api/admin/videos` | Ajouter une vidéo | Oui |
+| PUT | `/api/admin/videos/{id}` | Modifier complètement | Oui |
+| PATCH | `/api/admin/videos/{id}` | Modifier partiellement | Oui |
+| DELETE | `/api/admin/videos/{id}` | Supprimer | Oui |
+
+---
+
+## 8. SERVICES
+
+### 8.1 Publique — `/api/services`
+
+| Méthode | Endpoint | Description | Auth |
+|---------|----------|-------------|------|
+| GET | `/api/services` | Liste des services actifs | Non |
+| GET | `/api/services/{slug}` | Détail d'un service | Non |
+
+### 8.2 Admin — `/api/admin/services`
+
+| Méthode | Endpoint | Description | Auth |
+|---------|----------|-------------|------|
+| GET | `/api/admin/services` | Liste complète | Oui |
+| GET | `/api/admin/services/{id}` | Détail | Oui |
+| POST | `/api/admin/services` | Créer | Oui |
+| PUT | `/api/admin/services/{id}` | Modifier complètement | Oui |
+| PATCH | `/api/admin/services/{id}` | Modifier partiellement | Oui |
+| DELETE | `/api/admin/services/{id}` | Supprimer | Oui |
+
+#### Images
+
+| Méthode | Endpoint | Description | Auth |
+|---------|----------|-------------|------|
+| POST | `/api/admin/services/{id}/images` | Ajouter une image | Oui |
+| DELETE | `/api/admin/services/{id}/images/{imgId}` | Supprimer une image | Oui |
+| PUT | `/api/admin/services/{id}/images/{imgId}/principale` | Définir comme image principale | Oui |
+
+---
+
+## 9. MÉDIAS
+
+### Admin uniquement — `/api/admin/medias`
+
+| Méthode | Endpoint | Description | Auth |
+|---------|----------|-------------|------|
+| GET | `/api/admin/medias` | Bibliothèque de fichiers | Oui |
+| GET | `/api/admin/medias/{id}` | Détail d'un fichier | Oui |
+| POST | `/api/admin/medias` | Uploader un fichier | Oui |
+| PATCH | `/api/admin/medias/{id}` | Modifier les métadonnées | Oui |
+| DELETE | `/api/admin/medias/{id}` | Supprimer | Oui |
+
+---
+
+## 10. KPI & ANALYTICS
+
+### 10.1 Publique — `/api/evenements`
+
+| Méthode | Endpoint | Description | Auth |
+|---------|----------|-------------|------|
+| POST | `/api/evenements` | Enregistrer un événement visiteur | Non |
+
+### 10.2 Admin — `/api/admin/kpi`
+
+| Méthode | Endpoint | Description | Auth |
+|---------|----------|-------------|------|
+| GET | `/api/admin/kpi/snapshots` | Liste des snapshots (filtres : période) | Oui |
+| GET | `/api/admin/kpi/snapshots/{date}` | Snapshot d'une date | Oui |
+| GET | `/api/admin/kpi/temps-reel` | Stats en temps réel | Oui |
+| GET | `/api/admin/kpi/conversion` | Taux de conversion (global + par bourse) | Oui |
+| GET | `/api/admin/kpi/evenements` | Événements bruts (filtres : type, page, bourse, période) | Oui |
+
+---
+
+## Récapitulatif
+
+| Module | Endpoints publics | Endpoints admin | Total |
+|--------|:-:|:-:|:-:|
+| Auth | 2 | 7 | 9 |
+| Bourses | 3 | 22 | 25 |
+| Contact | 1 | 4 | 5 |
+| Newsletter & Annonces | 2 | 10 | 12 |
+| Témoignages | 2 | 6 | 8 |
+| Chatbot | 1 | 5 | 6 |
+| CMS | 3 | 17 | 20 |
+| Services | 2 | 9 | 11 |
+| Médias | 0 | 5 | 5 |
+| KPI | 1 | 5 | 6 |
+| **TOTAL** | **17** | **90** | **107** |
+
+// END OF FILE: docs/modeling/Salma contrats api.md
+
+
+// FILE: docs/specifications/remarques_clients_sur_le_prototype.md
+-----------------------------------------------
+# Remarques Client — Projet SALMA
+## AG Technologies — Liste complète
+
+---
+
+## 1. UI/UX & Design
+
+- [ ] Le mode thème sombre n'est pas encore fonctionnel
+- [ ] L'application doit être responsive
+- [ ] Les images doivent être de qualité supérieure
+- [ ] Améliorer les effets sur le site : animations, hover, descriptions au survol — bref l'expérience utilisateur
+- [ ] Changer la photo sur la page d'accueil pour une photo plus claire
+- [ ] Ce n'est pas une agence de voyage donc retirer "Travel Agency" sur la navbar
+
+---
+
+## 2. Modèle de Données & Bourses
+
+- [ ] Bien concevoir les infos d'une bourse afin que le modèle de données soit exhaustif et complet
+- [ ] Pour chaque champ d'une bourse, l'admin doit pouvoir dire si le champ s'affiche ou pas (tous les champs existent en BD)
+- [ ] Une bourse a une image principale
+- [ ] Pas de prix sur le site client — infos minimales — mais l'admin peut mettre s'il veut
+- [ ] On doit publier le minimum d'infos pour intéresser mais inciter les clients à contacter l'entreprise pour en savoir plus (le but est de vendre ces infos)
+
+---
+
+## 3. Administration & CMS
+
+- [ ] Chaque champ du frontend de chaque page doit être directement définissable via le dashboard admin, de sorte que le boss contrôle complètement chaque info du site et peut le mettre à jour sans avoir besoin du dev
+- [ ] Le dashboard admin doit permettre une administration complète
+
+---
+
+## 4. KPI & Analytics
+
+- [ ] Mettre en place des KPI dans le backend pour évaluer le taux de conversion et avoir les statistiques en temps réel
+
+---
+
+## 5. Cookies & Confidentialité
+
+- [ ] Mettre en place la gestion des cookies et la politique de confidentialité
+
+---
+
+## 6. Newsletter & Collecte de Prospects
+
+- [ ] Mettre en place une newsletter et un mécanisme pour récolter les emails et un maximum d'infos sur les visiteurs afin d'avoir une base de prospects à convertir
+
+---
+
+## 7. Retours Clients
+
+- [ ] Mettre en place un système pour les retours clients (témoignages)
+
+---
+
+## 8. Chatbot IA
+
+- [ ] Puisque le chatbot WhatsApp arrivera après, intégrer d'abord Gemini qui va simuler le chatbot
+- [ ] L'objectif du chatbot est de répondre en langage naturel à une suite de questions fournies en BD
+- [ ] Si le chatbot n'a pas la réponse → inciter le client à contacter l'entreprise
+- [ ] Le chatbot doit inciter à prendre rendez-vous
+
+---
+
+## 9. Vidéo de Pitch
+
+- [ ] Intégrer une vidéo de pitch sur le site — courte mais convaincante
+
+---
+
+## 10. Candidatures & Rendez-vous
+
+- [ ] Gestion des candidatures et demandes de contact
+- [ ] Après qu'un client ait programmé un rendez-vous avec l'agence, notifier l'agence par mail, WhatsApp et sur le site
+
+---
+
+## 11. Stratégie de Conversion
+
+- [ ] On doit intéresser les visiteurs puis les convertir — au rendez-vous on pourra vendre
+- [ ] Le site doit donner envie de contacter l'entreprise pour en savoir plus, pas tout dévoiler
+
+// END OF FILE: docs/specifications/remarques_clients_sur_le_prototype.md
+
+
+// FILE: docs/specifications/vision-project.md
 -----------------------------------------------
 # 🌍 Vision Stratégique & Architecture — Plateforme SALMA
 
@@ -53,7 +1025,7 @@ L'innovation majeure est le **"Scholarship Matcher"** :
 ---
 **AG Technologies — L'excellence au service de votre mobilité internationale.**
 
-// END OF FILE: docs/vision-project.md
+// END OF FILE: docs/specifications/vision-project.md
 
 
 // FILE: src/admin/dashboard/page.tsx
