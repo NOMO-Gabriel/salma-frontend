@@ -19,6 +19,7 @@ import type {
   ScholarshipField,
   ScholarshipBenefit,
   ScholarshipEligibility,
+  ScholarshipImage
 } from "@/types/api/scholarship.types";
 
 const PUBLIC = "/bourses";
@@ -167,12 +168,12 @@ export const scholarshipAdminRepository = {
    * POST /api/admin/bourses/{id}/visibilites/bulk
    * Mettre à jour plusieurs visibilités d'un coup
    */
-  bulkUpdateVisibility: (
-    bourseId: string,
-    visibilities: UpdateFieldVisibilityPayload[]
-  ) => {
-    return api.post(`${ADMIN}/${bourseId}/visibilites/bulk`, { visibilites: visibilities });
-  },
+ bulkUpdateVisibility: (
+  bourseId: string,
+  visibilities: UpdateFieldVisibilityPayload[]
+): Promise<void> => { // Ajoute le type de retour ici
+  return api.post<void>(`${ADMIN}/${bourseId}/visibilites/bulk`, { visibilities: visibilities });
+},
 
   // --- Images ---------------------------------------------------------------
 
@@ -187,8 +188,9 @@ export const scholarshipAdminRepository = {
    * POST /api/admin/bourses/{id}/images
    * Ajouter une image à une bourse
    */
-  addImage: (id: string, payload: AddScholarshipImagePayload) => {
-    return api.post(`${ADMIN}/${id}/images`, payload);
+ // FIX : Typage ScholarshipImage au lieu de any
+  addImage: (bourseId: string, payload: AddScholarshipImagePayload): Promise<ScholarshipImage> => {
+    return api.post<ScholarshipImage>(`${ADMIN}/${bourseId}/images`, payload);
   },
 
   /**

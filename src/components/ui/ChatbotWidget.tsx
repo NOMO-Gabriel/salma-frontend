@@ -1,11 +1,9 @@
-// src/components/ui/ChatbotWidget.tsx
 "use client";
 
 import { useState, useEffect, useRef } from "react";
 import { useLanguage } from "@/hooks/useLanguage";
 import { chatbotRepository } from "@/repositories/chatbot.repository";
 import { eventsRepository } from "@/repositories/events.repository";
-import SalmaButton from "./SalmaButton";
 
 interface Message {
   role: "user" | "bot";
@@ -13,14 +11,14 @@ interface Message {
 }
 
 export default function ChatbotWidget() {
-  const { dictionary, locale } = useLanguage();
+  // FIX : Retrait de dictionary
+  const { locale } = useLanguage(); 
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
 
-  // Message de bienvenue initial
   useEffect(() => {
     if (isOpen && messages.length === 0) {
       const welcome = locale === "fr" 
@@ -31,7 +29,6 @@ export default function ChatbotWidget() {
     }
   }, [isOpen, locale, messages.length]);
 
-  // Auto-scroll vers le bas
   useEffect(() => {
     if (scrollRef.current) scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
   }, [messages]);
@@ -47,13 +44,13 @@ export default function ChatbotWidget() {
     try {
       const response = await chatbotRepository.query({ message: userMsg, langue: locale });
       setMessages((prev) => [...prev, { role: "bot", text: response.reponse }]);
-    } catch (error) {
+    } catch {
+      // FIX : Retrait de 'error'
       setMessages((prev) => [...prev, { role: "bot", text: "Désolé, une erreur est survenue." }]);
     } finally {
       setIsLoading(false);
     }
   };
-
   return (
     <div className="fixed bottom-28 right-8 z-50 flex flex-col items-end">
       {/* Fenêtre de Chat */}

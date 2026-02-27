@@ -7,7 +7,7 @@ import { newsletterDictionary } from "@/dictionaries/data";
 import { eventsRepository } from "@/repositories/events.repository";
 
 export default function NewsletterForm() {
-  const { dictionary, locale } = useLanguage();
+  const {locale } = useLanguage();
   const [email, setEmail] = useState("");
   const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
 

@@ -33,7 +33,7 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
     setDictionary(getDictionary(newLocale));
     try {
       localStorage.setItem("salma-locale", newLocale);
-    } catch (e) {}
+    } catch {}
   };
 
   // IMPORTANT : Le Provider doit TOUJOURS être présent dans l'arbre

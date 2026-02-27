@@ -1,103 +1,96 @@
 "use client";
 
-import { useState } from "react";
-import { useLanguage } from "@/hooks/useLanguage";
+import { useState, useEffect, useCallback } from "react";
+import { scholarshipDictionary } from "@/dictionaries/data";
 import AddScholarshipModal from "@/components/admin/AddScholarshipModal";
-import type { Scholarship } from "@/types";
-
-const initialScholarships: Scholarship[] = [
-  {
-    id: "1",
-    title: "Bourse d'Excellence du CSC",
-    organization: "Gouvernement Chinois",
-    country: "chine",
-    description: "Bourse complète pour les étudiants internationaux.",
-    studyLevel: "master",
-    fieldOfStudy: "Ingénierie",
-    ageLimit: 30,
-    languageReq: "HSK 4",
-    status: "open",
-    deadline: "2026-04-15",
-    coverageType: "totale",
-    officialLink: "https://studyinchina.csc.edu.cn",
-  },
-];
+import type { ScholarshipAdmin, ScholarshipFilters, ScholarshipCountry } from "@/types";
 
 export default function AdminDashboard() {
-  const { dictionary } = useLanguage();
-  
-  const [scholarships, setScholarships] = useState<Scholarship[]>(initialScholarships);
+  // FIX : Retrait de 'dictionary' non utilisé
+  const [scholarships, setScholarships] = useState<ScholarshipAdmin[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [editingScholarship, setEditingScholarship] = useState<Scholarship | null>(null);
+  const [editingId, setEditingId] = useState<string | null>(null);
+  
+  const [filters, setFilters] = useState<ScholarshipFilters>({ search: "", pays_destination: undefined });
 
-  // --- CETTE FONCTION EST CELLE QUI MANQUE DANS TON ERREUR ---
-  const handleSaveScholarship = (data: Partial<Scholarship>) => {
-    if (editingScholarship) {
-      setScholarships(scholarships.map(s => 
-        s.id === editingScholarship.id ? { ...s, ...data } as Scholarship : s
-      ));
-    } else {
-      const newScholarship = { 
-        ...data, 
-        id: Math.random().toString(36).substring(2, 11) 
-      } as Scholarship;
-      setScholarships([...scholarships, newScholarship]);
+  const fetchScholarships = useCallback(async () => {
+    setIsLoading(true);
+    try {
+      const data = await scholarshipDictionary.admin.getList(filters);
+      setScholarships(data.results);
+    } catch (error) {
+      console.error("Erreur:", error);
+    } finally {
+      setIsLoading(false);
     }
-    setIsModalOpen(false);
-    setEditingScholarship(null);
-  };
+  }, [filters]);
 
-  const handleEditClick = (scholarship: Scholarship) => {
-    setEditingScholarship(scholarship);
-    setIsModalOpen(true);
-  };
-
-  const handleDeleteClick = (id: string) => {
-    if (window.confirm(dictionary.admin.scholarships.table.deleteConfirm)) {
-      setScholarships(scholarships.filter(s => s.id !== id));
-    }
-  };
+  useEffect(() => { fetchScholarships(); }, [fetchScholarships]);
 
   return (
-    <div className="space-y-6 animate-fade-in">
-      <div className="flex justify-between items-center">
-        <div>
-          <h2 className="text-2xl font-bold font-sans text-salma-text">
-            {dictionary.admin.scholarships.title}
-          </h2>
+    <div className="p-8 space-y-6 animate-fade-in">
+      <div className="flex justify-between items-end">
+        <div className="space-y-4">
+          <h2 className="text-2xl font-serif font-bold text-salma-primary">Gestion des Bourses</h2>
+          <div className="flex gap-4">
+            <input 
+              type="text" 
+              placeholder="Rechercher..." 
+              className="px-4 py-2 border border-salma-border rounded-lg bg-white text-sm outline-none focus:border-salma-gold w-64"
+              onChange={(e) => setFilters(f => ({ ...f, search: e.target.value }))}
+            />
+            <select 
+              className="px-4 py-2 border border-salma-border rounded-lg bg-white text-sm outline-none"
+              // FIX : Typage explicite du HTMLSelectElement et du cast de valeur
+              onChange={(e: React.ChangeEvent<HTMLSelectElement>) => 
+                setFilters(f => ({ ...f, pays_destination: (e.target.value as ScholarshipCountry) || undefined }))
+              }
+            >
+              <option value="">Tous les pays</option>
+              <option value="chine">Chine</option>
+              <option value="allemagne">Allemagne</option>
+            </select>
+          </div>
         </div>
-        
         <button 
-          onClick={() => { setEditingScholarship(null); setIsModalOpen(true); }}
-          className="bg-salma-primary text-white px-5 py-2.5 rounded-lg font-medium hover:opacity-90 transition-opacity shadow-salma-sm"
+          onClick={() => { setEditingId(null); setIsModalOpen(true); }}
+          className="bg-salma-primary text-white px-6 py-3 rounded-xl font-bold hover:bg-salma-primary-light transition-all shadow-salma-md"
         >
-          {dictionary.admin.scholarships.addBtn}
+          + Ajouter une bourse
         </button>
       </div>
 
-      {/* Tableau */}
-      <div className="bg-salma-surface border border-salma-border rounded-xl shadow-sm overflow-hidden">
+      <div className="bg-white border border-salma-border rounded-2xl shadow-sm overflow-hidden">
         <table className="w-full text-left text-sm">
-          <thead className="bg-salma-bg border-b border-salma-border text-salma-text-muted">
+          <thead className="bg-salma-bg border-b border-salma-border text-salma-text-muted uppercase text-[10px] font-bold tracking-widest">
             <tr>
-              <th className="p-4">{dictionary.admin.scholarships.table.title}</th>
-              <th className="p-4">{dictionary.admin.scholarships.table.country}</th>
-              <th className="p-4">{dictionary.admin.scholarships.table.status}</th>
-              <th className="p-4 text-right">{dictionary.admin.scholarships.table.actions}</th>
+              <th className="p-5">Titre (FR)</th>
+              <th className="p-5">Pays</th>
+              <th className="p-5">Niveau</th>
+              <th className="p-5">Visibilité</th>
+              <th className="p-5 text-right">Actions</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-salma-border">
-            {scholarships.map((s) => (
-              <tr key={s.id} className="hover:bg-salma-bg/50 transition-colors">
-                <td className="p-4 font-medium">{s.title}</td>
-                <td className="p-4 uppercase">{dictionary.admin.scholarships.country[s.country]}</td>
-                <td className="p-4 capitalize">{dictionary.admin.scholarships.status[s.status]}</td>
-                <td className="p-4 text-right space-x-3">
-                  <button onClick={() => handleEditClick(s)} className="text-salma-accent hover:underline">
-                    {dictionary.admin.scholarships.table.edit}
-                  </button>
-                  <button onClick={() => handleDeleteClick(s.id)} className="text-red-500 hover:underline">
-                    {dictionary.admin.scholarships.table.delete}
+            {isLoading ? (
+               <tr><td colSpan={5} className="p-10 text-center animate-pulse text-salma-text-muted">Synchronisation avec le serveur...</td></tr>
+            ) : scholarships.map((s) => (
+              <tr key={s.id} className="hover:bg-salma-bg/30 transition-colors group">
+                <td className="p-5 font-bold text-salma-primary">{s.titre_fr}</td>
+                <td className="p-5 uppercase text-xs">{s.pays_destination}</td>
+                <td className="p-5 capitalize">{s.niveau}</td>
+                <td className="p-5">
+                   <div className="flex gap-1">
+                      {s.visibilites.filter(v => v.est_visible).length} / {s.visibilites.length} champs
+                   </div>
+                </td>
+                <td className="p-5 text-right">
+                  <button 
+                    onClick={() => { setEditingId(s.id); setIsModalOpen(true); }}
+                    className="text-salma-gold hover:text-salma-primary font-bold mr-4 transition-colors"
+                  >
+                    Éditer
                   </button>
                 </td>
               </tr>
@@ -106,13 +99,14 @@ export default function AdminDashboard() {
         </table>
       </div>
 
-      {/* VERIFICATION : onSave DOIT être présent ici */}
-      <AddScholarshipModal 
-        isOpen={isModalOpen} 
-        onClose={() => setIsModalOpen(false)} 
-        onSave={handleSaveScholarship} 
-        scholarshipToEdit={editingScholarship}
-      />
+      {isModalOpen && (
+        <AddScholarshipModal 
+          isOpen={isModalOpen} 
+          onClose={() => { setIsModalOpen(false); setEditingId(null); }} 
+          onSave={fetchScholarships}
+          scholarshipId={editingId} 
+        />
+      )}
     </div>
   );
 }

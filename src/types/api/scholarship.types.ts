@@ -4,6 +4,8 @@
 //  Calque exact sur les modèles Django / sérialiseurs DRF
 // ==============================================================================
 
+// Imports
+import type { MediaAssetMinimal } from "./media.types";
 // --- Énumérations (correspondent aux choices Django) -------------------------
 
 export type ScholarshipStatus = "brouillon" | "publie" | "expire" | "archive";
@@ -44,12 +46,6 @@ export interface FieldVisibility {
 /** Dictionnaire pratique : { nom_du_champ: est_visible } */
 export type FieldVisibilityMap = Record<string, boolean>;
 
-export interface MediaAssetMinimal {
-  id: string;
-  url: string;
-  nom: string;
-  type_mime: string;
-}
 
 export interface ScholarshipImage {
   id: string;
@@ -114,10 +110,8 @@ export interface ScholarshipPublicDetail {
 
 // --- Modèle principal — Admin complet (CRUD) --------------------------------
 
-export interface ScholarshipAdmin extends ScholarshipPublicDetail {
-  // Admin voit tout, pas de restriction de visibilité
-  // Les champs identiques sont hérités
-}
+// FIX : Utilisation d'un type alias au lieu d'une interface vide pour ESLint
+export type ScholarshipAdmin = ScholarshipPublicDetail;
 
 // --- Payloads de création/modification (admin) ------------------------------
 

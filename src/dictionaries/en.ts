@@ -119,6 +119,7 @@ export const en = {
 
   catalog: {
     title: "All Scholarships",
+    subtitle: "China & Germany",
     description: "Find the scholarship that matches your study project in China or Germany.",
     searchPlaceholder: "Search for a scholarship...",
     filterAll: "All",

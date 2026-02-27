@@ -1,24 +1,35 @@
 "use client";
 
 import Image from "next/image";
-import { Scholarship } from "@/types/scholarship";
+import Link from "next/link";
 import { useLanguage } from "@/hooks/useLanguage";
+import { getMediaUrl } from "@/lib/api-client";
+import type { ScholarshipPublicListItem } from "@/types"; // Import depuis le nouveau barrel
 import SalmaBadge from "./SalmaBadge";
 import SalmaButton from "./SalmaButton";
-import Link from "next/link";
 
 interface ScholarshipCardProps {
-  scholarship: Scholarship;
+  scholarship: ScholarshipPublicListItem;
 }
 
 export default function ScholarshipCard({ scholarship }: ScholarshipCardProps) {
   const { locale, dictionary } = useLanguage();
 
-  // Mapping des drapeaux selon le pays
-  const countryFlags = {
-    CHINE: "🇨🇳",
-    ALLEMAGNE: "🇩🇪",
-    BOTH: "🌍",
+  // Mapping des textes selon la langue
+  const title = locale === "fr" ? scholarship.titre_fr : scholarship.titre_en;
+  const org = locale === "fr" ? scholarship.organisme_fr : scholarship.organisme_en;
+  const langReq = locale === "fr" ? scholarship.exigence_langue_fr : scholarship.exigence_langue_en;
+  
+  // URL de l'image via le helper
+  const imageUrl = getMediaUrl(scholarship.image_principale?.url_fichier);
+
+  // Mapping des drapeaux
+  const countryFlags: Record<string, string> = {
+    chine: "🇨🇳",
+    allemagne: "🇩🇪",
+    france: "🇫🇷",
+    canada: "🇨🇦",
+    autre: "🌍",
   };
 
   return (
@@ -26,60 +37,56 @@ export default function ScholarshipCard({ scholarship }: ScholarshipCardProps) {
       {/* --- HEADER : Image & Badges --- */}
       <div className="relative h-52 w-full overflow-hidden">
         <Image
-          src={scholarship.imageUrl || "/images/placeholder-scholarship.jpg"}
-          alt={scholarship.title[locale]}
+          src={imageUrl || "/image.jpg"}
+          alt={title}
           fill
           className="object-cover group-hover:scale-110 transition-transform duration-700"
         />
-        {/* Overlay dégradé pour la lisibilité */}
         <div className="absolute inset-0 bg-gradient-to-t from-salma-primary/60 to-transparent opacity-60" />
 
-        {/* Badge Pays (Top Right) */}
-        <div className="absolute top-4 right-4 bg-white/90 backdrop-blur-sm px-3 py-1 rounded-full text-[10px] font-black text-salma-primary flex items-center gap-2 shadow-sm">
-          <span>{countryFlags[scholarship.destinationCountry]}</span>
-          {scholarship.destinationCountry}
+        {/* Badge Pays */}
+        <div className="absolute top-4 right-4 bg-white/90 backdrop-blur-sm px-3 py-1 rounded-full text-[10px] font-black text-salma-primary flex items-center gap-2 shadow-sm uppercase">
+          <span>{countryFlags[scholarship.pays_destination] || "🌍"}</span>
+          {scholarship.pays_destination}
         </div>
 
-        {/* Badge Statut (Bottom Left) */}
+        {/* Badge Statut */}
         <div className="absolute bottom-4 left-4">
           <SalmaBadge 
-            status={scholarship.status === 'OUVERT' ? 'open' : scholarship.status === 'URGENT' ? 'urgent' : 'closed'} 
-            label={scholarship.status} 
+            status={scholarship.statut === 'publie' ? 'open' : scholarship.statut === 'expire' ? 'closed' : 'urgent'} 
+            label={scholarship.statut} 
           />
         </div>
       </div>
 
-      {/* --- BODY : Contenu textuel --- */}
+      {/* --- BODY : Contenu --- */}
       <div className="p-6 flex flex-col flex-1">
-        {/* Niveau & Type de couverture */}
         <div className="flex items-center gap-2 mb-2">
           <span className="text-salma-gold text-[10px] font-bold uppercase tracking-widest">
-            {dictionary.scholarships.levels[scholarship.level]}
+            {scholarship.niveau}
           </span>
           <span className="text-salma-text-muted text-[10px]">•</span>
           <span className="text-salma-gold text-[10px] font-bold uppercase tracking-widest">
-            {dictionary.scholarships.coverage[scholarship.coverageType]}
+            {scholarship.type_couverture}
           </span>
         </div>
 
-        {/* Titre (traduit) */}
         <h3 className="text-xl font-serif font-bold text-salma-primary dark:text-white leading-tight mb-3 line-clamp-2">
-          {scholarship.title[locale]}
+          {title}
         </h3>
 
-        {/* Description courte (traduite) */}
         <p className="text-sm text-salma-text-muted line-clamp-2 mb-6 font-sans">
-          {scholarship.description[locale]}
+          {org}
         </p>
 
-        {/* --- DETAILS : Langue & Deadline --- */}
+        {/* --- DETAILS --- */}
         <div className="mt-auto pt-4 border-t border-salma-border grid grid-cols-2 gap-4">
           <div>
             <span className="block text-[9px] text-salma-text-muted uppercase font-bold tracking-tighter">
               {dictionary.scholarships.language}
             </span>
             <span className="text-xs font-bold text-salma-primary dark:text-salma-gold">
-              {scholarship.languageRequirement[locale]}
+              {langReq}
             </span>
           </div>
           <div>
@@ -87,21 +94,16 @@ export default function ScholarshipCard({ scholarship }: ScholarshipCardProps) {
               {dictionary.scholarships.deadline}
             </span>
             <span className="text-xs font-bold text-red-500">
-              {new Date(scholarship.deadline).toLocaleDateString(locale, {
-                day: 'numeric',
-                month: 'short',
-                year: 'numeric'
-              })}
+              {scholarship.date_limite ? new Date(scholarship.date_limite).toLocaleDateString(locale) : "N/A"}
             </span>
           </div>
         </div>
 
-        {/* Bouton d'action */}
-       <Link href={`/bourses/${scholarship.id}`} className="w-full mt-6">
-        <SalmaButton variant="outline" size="sm" className="w-full">
-          {dictionary.scholarships.viewDetails}
-        </SalmaButton>
-      </Link>
+        <Link href={`/bourses/${scholarship.id}`} className="w-full mt-6">
+          <SalmaButton variant="outline" size="sm" className="w-full">
+            {dictionary.scholarships.viewDetails}
+          </SalmaButton>
+        </Link>
       </div>
     </div>
   );

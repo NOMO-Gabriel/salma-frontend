@@ -1,145 +1,143 @@
 "use client";
 
-import { useLanguage } from "@/hooks/useLanguage";
-import type { Scholarship } from "@/types";
+import { useState, useEffect } from "react";
+import { scholarshipDictionary } from "@/dictionaries/data";
+import { SCHOLARSHIP_VISIBILITY_FIELDS, type UpdateScholarshipPayload, type FieldVisibilityMap,type CreateScholarshipPayload } from "@/types";
+import SalmaButton from "../ui/SalmaButton";
 
-interface ModalProps {
+interface Props {
   isOpen: boolean;
   onClose: () => void;
-  onSave: (data: Partial<Scholarship>) => void;
-  scholarshipToEdit?: Scholarship | null;
+  onSave: () => void;
+  scholarshipId?: string | null;
 }
 
-export default function AddScholarshipModal({ isOpen, onClose, onSave, scholarshipToEdit }: ModalProps) {
-  const { dictionary } = useLanguage();
-  const t = dictionary.admin.scholarships.form;
+export default function AddScholarshipModal({ isOpen, onClose, onSave, scholarshipId }: Props) {
+  const [activeTab, setActiveTab] = useState<"content" | "visibility" | "media">("content");
+  const [loading, setLoading] = useState(false);
+  
+  // FIX : Typage UpdateScholarshipPayload au lieu de any
+  const [form, setForm] = useState<UpdateScholarshipPayload>({
+    titre_fr: "", titre_en: "", organisme_fr: "", organisme_en: "",
+    description_fr: "", description_en: "", pays_destination: "chine",
+    niveau: "master", statut: "publie", type_couverture: "complete"
+  });
+  const [visibility, setVisibility] = useState<FieldVisibilityMap>({});
+
+  useEffect(() => {
+    if (scholarshipId && isOpen) {
+      setLoading(true);
+      scholarshipDictionary.admin.getById(scholarshipId).then(data => {
+        setForm(data);
+        const vMap = data.visibilites.reduce((acc, v) => {
+          acc[v.nom_du_champ] = v.est_visible;
+          return acc;
+        }, {} as FieldVisibilityMap);
+        setVisibility(vMap);
+        setLoading(false);
+      });
+    }
+  }, [scholarshipId, isOpen]);
+
+  const handleFinalSave = async () => {
+    setLoading(true);
+    try {
+      if (scholarshipId) {
+        await scholarshipDictionary.admin.patch(scholarshipId, form);
+        await scholarshipDictionary.admin.saveVisibility(scholarshipId, visibility);
+      } else {
+        // En création, on cast en CreateScholarshipPayload (le type est compatible)
+        await scholarshipDictionary.admin.create(form as CreateScholarshipPayload); 
+      }
+      onSave();
+      onClose();
+    } catch {
+      // FIX : Retrait du 'e' non utilisé
+      alert("Erreur lors de la sauvegarde");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   if (!isOpen) return null;
 
-  // Intercepte la soumission du formulaire
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    const formData = new FormData(e.currentTarget);
-    const data = Object.fromEntries(formData.entries()) as Partial<Scholarship>;
-    
-    // Formatage spécial pour les nombres
-    if (data.ageLimit) data.ageLimit = Number(data.ageLimit);
-    
-    onSave(data);
-  };
-
-  const isEditing = !!scholarshipToEdit;
-
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-fade-in">
-      <div className="bg-salma-bg border border-salma-border rounded-xl w-full max-w-3xl max-h-[90vh] flex flex-col shadow-salma-lg">
-        
-        {/* Header */}
-        <div className="p-6 border-b border-salma-border flex justify-between items-center">
-          <h2 className="text-xl font-bold text-salma-text">
-            {isEditing ? t.editTitle : t.addTitle}
-          </h2>
-          <button onClick={onClose} className="text-salma-text-muted hover:text-salma-text">
-            ✕
-          </button>
+    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-salma-primary/40 backdrop-blur-md p-4">
+      <div className="bg-white rounded-[2rem] w-full max-w-5xl max-h-[90vh] flex flex-col shadow-2xl overflow-hidden border border-salma-border">
+        <div className="p-8 border-b border-salma-border bg-salma-bg/50">
+          <div className="flex justify-between items-center mb-6">
+            <h2 className="text-2xl font-serif font-bold text-salma-primary">
+              {scholarshipId ? "Édition Bourse" : "Nouvelle Bourse"}
+            </h2>
+            <button onClick={onClose} className="text-salma-text-muted hover:text-salma-primary text-2xl">✕</button>
+          </div>
+          
+          <div className="flex gap-8">
+            {["content", "visibility", "media"].map((tab) => (
+              <button
+                key={tab}
+                // FIX : Cast du tab pour le setter
+                onClick={() => setActiveTab(tab as "content" | "visibility" | "media")}
+                className={`pb-2 text-sm font-bold uppercase tracking-widest transition-all border-b-2 ${
+                  activeTab === tab ? "border-salma-gold text-salma-primary" : "border-transparent text-salma-text-muted"
+                }`}
+              >
+                {tab === "content" ? "Contenu" : tab === "visibility" ? "Visibilité" : "Images"}
+              </button>
+            ))}
+          </div>
         </div>
 
-        {/* Body / Formulaire */}
-        <div className="p-6 overflow-y-auto flex-1">
-          <form id="scholarship-form" onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            
-            <div className="col-span-full">
-              <h3 className="font-serif text-salma-primary border-b border-salma-border pb-2 mb-4">Informations Générales</h3>
-            </div>
-            <div>
-              <label className="block text-sm font-medium mb-1">{t.title}</label>
-              <input name="title" required defaultValue={scholarshipToEdit?.title} type="text" className="w-full p-2 border border-salma-border rounded bg-salma-surface" />
-            </div>
-            <div>
-              <label className="block text-sm font-medium mb-1">{t.organization}</label>
-              <input name="organization" required defaultValue={scholarshipToEdit?.organization} type="text" className="w-full p-2 border border-salma-border rounded bg-salma-surface" />
-            </div>
-            <div>
-              <label className="block text-sm font-medium mb-1">{t.country}</label>
-              <select name="country" required defaultValue={scholarshipToEdit?.country || "chine"} className="w-full p-2 border border-salma-border rounded bg-salma-surface">
-                <option value="chine">Chine</option>
-                <option value="allemagne">Allemagne</option>
-                <option value="both">Chine & Allemagne</option>
-              </select>
-            </div>
-            <div className="col-span-full">
-              <label className="block text-sm font-medium mb-1">{t.description}</label>
-              <textarea name="description" required defaultValue={scholarshipToEdit?.description} rows={4} className="w-full p-2 border border-salma-border rounded bg-salma-surface"></textarea>
-            </div>
+        <div className="flex-1 overflow-y-auto p-8">
+          {loading ? (
+            <div className="flex justify-center py-20 italic">Chargement des données...</div>
+          ) : (
+            <>
+              {activeTab === "content" && (
+                <div className="grid grid-cols-2 gap-8">
+                  <div className="space-y-4">
+                    <h3 className="text-xs font-black text-salma-gold uppercase">Français</h3>
+                    <input value={form.titre_fr} onChange={e => setForm({...form, titre_fr: e.target.value})} placeholder="Titre FR" className="w-full p-4 rounded-xl border border-salma-border bg-salma-bg" />
+                    <textarea value={form.description_fr} onChange={e => setForm({...form, description_fr: e.target.value})} placeholder="Description FR" rows={5} className="w-full p-4 rounded-xl border border-salma-border bg-salma-bg" />
+                  </div>
+                  <div className="space-y-4">
+                    <h3 className="text-xs font-black text-salma-gold uppercase">Anglais</h3>
+                    <input value={form.titre_en} onChange={e => setForm({...form, titre_en: e.target.value})} placeholder="Titre EN" className="w-full p-4 rounded-xl border border-salma-border bg-salma-bg" />
+                    <textarea value={form.description_en} onChange={e => setForm({...form, description_en: e.target.value})} placeholder="Description EN" rows={5} className="w-full p-4 rounded-xl border border-salma-border bg-salma-bg" />
+                  </div>
+                </div>
+              )}
 
-            <div className="col-span-full mt-4">
-              <h3 className="font-serif text-salma-primary border-b border-salma-border pb-2 mb-4">Critères d&apos;Éligibilité</h3>
-            </div>
-            <div>
-              <label className="block text-sm font-medium mb-1">{t.studyLevel}</label>
-              <select name="studyLevel" required defaultValue={scholarshipToEdit?.studyLevel || "master"} className="w-full p-2 border border-salma-border rounded bg-salma-surface">
-                <option value="licence">Licence</option>
-                <option value="master">Master</option>
-                <option value="doctorat">Doctorat</option>
-                <option value="post-doc">Post-doc</option>
-              </select>
-            </div>
-            <div>
-              <label className="block text-sm font-medium mb-1">{t.fieldOfStudy}</label>
-              <input name="fieldOfStudy" required defaultValue={scholarshipToEdit?.fieldOfStudy} type="text" className="w-full p-2 border border-salma-border rounded bg-salma-surface" />
-            </div>
-            <div>
-              <label className="block text-sm font-medium mb-1">{t.ageLimit}</label>
-              <input name="ageLimit" required defaultValue={scholarshipToEdit?.ageLimit} type="number" className="w-full p-2 border border-salma-border rounded bg-salma-surface" />
-            </div>
-            <div>
-              <label className="block text-sm font-medium mb-1">{t.languageReq}</label>
-              <input name="languageReq" required defaultValue={scholarshipToEdit?.languageReq} type="text" className="w-full p-2 border border-salma-border rounded bg-salma-surface" />
-            </div>
-
-            <div className="col-span-full mt-4">
-              <h3 className="font-serif text-salma-primary border-b border-salma-border pb-2 mb-4">Logistique</h3>
-            </div>
-            <div>
-              <label className="block text-sm font-medium mb-1">{t.status}</label>
-              <select name="status" required defaultValue={scholarshipToEdit?.status || "open"} className="w-full p-2 border border-salma-border rounded bg-salma-surface">
-                <option value="open">Ouvert</option>
-                <option value="closed">Fermé</option>
-                <option value="pending">En attente</option>
-              </select>
-            </div>
-            <div>
-              <label className="block text-sm font-medium mb-1">{t.deadline}</label>
-              <input name="deadline" required defaultValue={scholarshipToEdit?.deadline} type="date" className="w-full p-2 border border-salma-border rounded bg-salma-surface" />
-            </div>
-            <div>
-              <label className="block text-sm font-medium mb-1">{t.coverageType}</label>
-              <select name="coverageType" required defaultValue={scholarshipToEdit?.coverageType || "totale"} className="w-full p-2 border border-salma-border rounded bg-salma-surface">
-                <option value="totale">Totale</option>
-                <option value="partielle">Partielle</option>
-                <option value="frais_scolarite">Frais de scolarité uniquement</option>
-                <option value="allocation">Allocation mensuelle</option>
-              </select>
-            </div>
-            <div>
-              <label className="block text-sm font-medium mb-1">{t.officialLink}</label>
-              <input name="officialLink" required defaultValue={scholarshipToEdit?.officialLink} type="url" className="w-full p-2 border border-salma-border rounded bg-salma-surface" />
-            </div>
-
-          </form>
+              {activeTab === "visibility" && (
+                <div className="space-y-6">
+                  <div className="p-4 bg-blue-50 border border-blue-100 rounded-xl text-blue-800 text-sm">
+                    💡 <strong>Note :</strong> Décochez un champ pour qu&apos;il n&apos;apparaisse pas sur le site public.
+                  </div>
+                  <div className="grid grid-cols-2 gap-4">
+                    {SCHOLARSHIP_VISIBILITY_FIELDS.map(field => (
+                      <label key={field} className="flex items-center justify-between p-4 bg-salma-bg rounded-xl border border-salma-border cursor-pointer hover:border-salma-gold transition-colors">
+                        <span className="text-sm font-bold text-salma-primary">{field.replace('_', ' ')}</span>
+                        <input 
+                          type="checkbox" 
+                          checked={visibility[field] ?? true} 
+                          onChange={e => setVisibility({...visibility, [field]: e.target.checked})}
+                          className="w-5 h-5 accent-salma-gold"
+                        />
+                      </label>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </>
+          )}
         </div>
 
-        {/* Footer */}
-        <div className="p-6 border-t border-salma-border flex justify-end gap-4 bg-salma-surface rounded-b-xl">
-          <button type="button" onClick={onClose} className="px-6 py-2 rounded font-medium text-salma-text border border-salma-border hover:bg-salma-border/50">
-            {t.cancel}
-          </button>
-          {/* Le bouton soumet le formulaire via l'attribut "form" */}
-          <button type="submit" form="scholarship-form" className="px-6 py-2 rounded font-medium text-white bg-salma-primary hover:bg-salma-primary-light">
-            {t.save}
-          </button>
+        <div className="p-8 border-t border-salma-border flex justify-end gap-4 bg-salma-bg/30">
+          <button onClick={onClose} className="px-8 py-3 text-salma-text-muted font-bold uppercase text-xs tracking-widest">Annuler</button>
+          <SalmaButton onClick={handleFinalSave} variant="primary" disabled={loading}>
+            {loading ? "Sauvegarde..." : "Enregistrer les modifications"}
+          </SalmaButton>
         </div>
-
       </div>
     </div>
   );

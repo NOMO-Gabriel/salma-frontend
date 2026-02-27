@@ -1,5 +1,5 @@
 ﻿Next.js Project Context
-Generated On: 2026-02-27 17:20:27
+Generated On: 2026-02-27 19:43:24
 Root: C:\Users\hp\Documents\stage gabriel\SALMA\salma-frontend
 ===============================================
 
@@ -1028,149 +1028,103 @@ L'innovation majeure est le **"Scholarship Matcher"** :
 // END OF FILE: docs/specifications/vision-project.md
 
 
-// FILE: src/admin/dashboard/page.tsx
------------------------------------------------
-// src/admin/dashboard/page.tsx
-"use client";
-
-export default function AdminDashboard() {
-  return (
-    <div className="p-8">
-      <header className="flex justify-between items-center mb-8">
-        <h1 className="text-2xl font-bold font-sans">Gestion des Bourses</h1>
-        <button className="bg-salma-primary text-white px-4 py-2 rounded-lg">
-          + Ajouter une bourse
-        </button>
-      </header>
-
-      {/* Tableau vide pour collaborateur B */}
-      <div className="bg-salma-surface border border-salma-border rounded-xl overflow-hidden">
-        <table className="w-full text-left">
-          <thead className="bg-salma-bg border-b border-salma-border">
-            <tr>
-              <th className="p-4">Titre</th>
-              <th className="p-4">Pays</th>
-              <th className="p-4">Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td className="p-4 text-salma-text-muted italic" colSpan={3}>
-                Aucune donnée (En attente du backend Django)
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-    </div>
-  );
-}
-
-// END OF FILE: src/admin/dashboard/page.tsx
-
-
 // FILE: src/app/(admin)/admin/dashboard/page.tsx
 -----------------------------------------------
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useLanguage } from "@/hooks/useLanguage";
+import { scholarshipDictionary } from "@/dictionaries/data";
 import AddScholarshipModal from "@/components/admin/AddScholarshipModal";
-import type { Scholarship } from "@/types";
-
-const initialScholarships: Scholarship[] = [
-  {
-    id: "1",
-    title: "Bourse d'Excellence du CSC",
-    organization: "Gouvernement Chinois",
-    country: "chine",
-    description: "Bourse complète pour les étudiants internationaux.",
-    studyLevel: "master",
-    fieldOfStudy: "Ingénierie",
-    ageLimit: 30,
-    languageReq: "HSK 4",
-    status: "open",
-    deadline: "2026-04-15",
-    coverageType: "totale",
-    officialLink: "https://studyinchina.csc.edu.cn",
-  },
-];
+import type { ScholarshipAdmin, ScholarshipFilters, ScholarshipCountry } from "@/types";
 
 export default function AdminDashboard() {
-  const { dictionary } = useLanguage();
-  
-  const [scholarships, setScholarships] = useState<Scholarship[]>(initialScholarships);
+  // FIX : Retrait de 'dictionary' non utilisé
+  const { locale } = useLanguage(); 
+  const [scholarships, setScholarships] = useState<ScholarshipAdmin[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [editingScholarship, setEditingScholarship] = useState<Scholarship | null>(null);
+  const [editingId, setEditingId] = useState<string | null>(null);
+  
+  const [filters, setFilters] = useState<ScholarshipFilters>({ search: "", pays_destination: undefined });
 
-  // --- CETTE FONCTION EST CELLE QUI MANQUE DANS TON ERREUR ---
-  const handleSaveScholarship = (data: Partial<Scholarship>) => {
-    if (editingScholarship) {
-      setScholarships(scholarships.map(s => 
-        s.id === editingScholarship.id ? { ...s, ...data } as Scholarship : s
-      ));
-    } else {
-      const newScholarship = { 
-        ...data, 
-        id: Math.random().toString(36).substring(2, 11) 
-      } as Scholarship;
-      setScholarships([...scholarships, newScholarship]);
+  const fetchScholarships = useCallback(async () => {
+    setIsLoading(true);
+    try {
+      const data = await scholarshipDictionary.admin.getList(filters);
+      setScholarships(data.results);
+    } catch (error) {
+      console.error("Erreur:", error);
+    } finally {
+      setIsLoading(false);
     }
-    setIsModalOpen(false);
-    setEditingScholarship(null);
-  };
+  }, [filters]);
 
-  const handleEditClick = (scholarship: Scholarship) => {
-    setEditingScholarship(scholarship);
-    setIsModalOpen(true);
-  };
-
-  const handleDeleteClick = (id: string) => {
-    if (window.confirm(dictionary.admin.scholarships.table.deleteConfirm)) {
-      setScholarships(scholarships.filter(s => s.id !== id));
-    }
-  };
+  useEffect(() => { fetchScholarships(); }, [fetchScholarships]);
 
   return (
-    <div className="space-y-6 animate-fade-in">
-      <div className="flex justify-between items-center">
-        <div>
-          <h2 className="text-2xl font-bold font-sans text-salma-text">
-            {dictionary.admin.scholarships.title}
-          </h2>
+    <div className="p-8 space-y-6 animate-fade-in">
+      <div className="flex justify-between items-end">
+        <div className="space-y-4">
+          <h2 className="text-2xl font-serif font-bold text-salma-primary">Gestion des Bourses</h2>
+          <div className="flex gap-4">
+            <input 
+              type="text" 
+              placeholder="Rechercher..." 
+              className="px-4 py-2 border border-salma-border rounded-lg bg-white text-sm outline-none focus:border-salma-gold w-64"
+              onChange={(e) => setFilters(f => ({ ...f, search: e.target.value }))}
+            />
+            <select 
+              className="px-4 py-2 border border-salma-border rounded-lg bg-white text-sm outline-none"
+              // FIX : Typage explicite du HTMLSelectElement et du cast de valeur
+              onChange={(e: React.ChangeEvent<HTMLSelectElement>) => 
+                setFilters(f => ({ ...f, pays_destination: (e.target.value as ScholarshipCountry) || undefined }))
+              }
+            >
+              <option value="">Tous les pays</option>
+              <option value="chine">Chine</option>
+              <option value="allemagne">Allemagne</option>
+            </select>
+          </div>
         </div>
-        
         <button 
-          onClick={() => { setEditingScholarship(null); setIsModalOpen(true); }}
-          className="bg-salma-primary text-white px-5 py-2.5 rounded-lg font-medium hover:opacity-90 transition-opacity shadow-salma-sm"
+          onClick={() => { setEditingId(null); setIsModalOpen(true); }}
+          className="bg-salma-primary text-white px-6 py-3 rounded-xl font-bold hover:bg-salma-primary-light transition-all shadow-salma-md"
         >
-          {dictionary.admin.scholarships.addBtn}
+          + Ajouter une bourse
         </button>
       </div>
 
-      {/* Tableau */}
-      <div className="bg-salma-surface border border-salma-border rounded-xl shadow-sm overflow-hidden">
+      <div className="bg-white border border-salma-border rounded-2xl shadow-sm overflow-hidden">
         <table className="w-full text-left text-sm">
-          <thead className="bg-salma-bg border-b border-salma-border text-salma-text-muted">
+          <thead className="bg-salma-bg border-b border-salma-border text-salma-text-muted uppercase text-[10px] font-bold tracking-widest">
             <tr>
-              <th className="p-4">{dictionary.admin.scholarships.table.title}</th>
-              <th className="p-4">{dictionary.admin.scholarships.table.country}</th>
-              <th className="p-4">{dictionary.admin.scholarships.table.status}</th>
-              <th className="p-4 text-right">{dictionary.admin.scholarships.table.actions}</th>
+              <th className="p-5">Titre (FR)</th>
+              <th className="p-5">Pays</th>
+              <th className="p-5">Niveau</th>
+              <th className="p-5">Visibilité</th>
+              <th className="p-5 text-right">Actions</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-salma-border">
-            {scholarships.map((s) => (
-              <tr key={s.id} className="hover:bg-salma-bg/50 transition-colors">
-                <td className="p-4 font-medium">{s.title}</td>
-                <td className="p-4 uppercase">{dictionary.admin.scholarships.country[s.country]}</td>
-                <td className="p-4 capitalize">{dictionary.admin.scholarships.status[s.status]}</td>
-                <td className="p-4 text-right space-x-3">
-                  <button onClick={() => handleEditClick(s)} className="text-salma-accent hover:underline">
-                    {dictionary.admin.scholarships.table.edit}
-                  </button>
-                  <button onClick={() => handleDeleteClick(s.id)} className="text-red-500 hover:underline">
-                    {dictionary.admin.scholarships.table.delete}
+            {isLoading ? (
+               <tr><td colSpan={5} className="p-10 text-center animate-pulse text-salma-text-muted">Synchronisation avec le serveur...</td></tr>
+            ) : scholarships.map((s) => (
+              <tr key={s.id} className="hover:bg-salma-bg/30 transition-colors group">
+                <td className="p-5 font-bold text-salma-primary">{s.titre_fr}</td>
+                <td className="p-5 uppercase text-xs">{s.pays_destination}</td>
+                <td className="p-5 capitalize">{s.niveau}</td>
+                <td className="p-5">
+                   <div className="flex gap-1">
+                      {s.visibilites.filter(v => v.est_visible).length} / {s.visibilites.length} champs
+                   </div>
+                </td>
+                <td className="p-5 text-right">
+                  <button 
+                    onClick={() => { setEditingId(s.id); setIsModalOpen(true); }}
+                    className="text-salma-gold hover:text-salma-primary font-bold mr-4 transition-colors"
+                  >
+                    Éditer
                   </button>
                 </td>
               </tr>
@@ -1179,13 +1133,14 @@ export default function AdminDashboard() {
         </table>
       </div>
 
-      {/* VERIFICATION : onSave DOIT être présent ici */}
-      <AddScholarshipModal 
-        isOpen={isModalOpen} 
-        onClose={() => setIsModalOpen(false)} 
-        onSave={handleSaveScholarship} 
-        scholarshipToEdit={editingScholarship}
-      />
+      {isModalOpen && (
+        <AddScholarshipModal 
+          isOpen={isModalOpen} 
+          onClose={() => { setIsModalOpen(false); setEditingId(null); }} 
+          onSave={fetchScholarships}
+          scholarshipId={editingId} 
+        />
+      )}
     </div>
   );
 }
@@ -1728,7 +1683,7 @@ function ScholarshipCard({
 }) {
   const title   = locale === "fr" ? scholarship.titre_fr : scholarship.titre_en;
   const org     = locale === "fr" ? scholarship.organisme_fr : scholarship.organisme_en;
-  const imgUrl  = getMediaUrl(scholarship.image_principale?.url);
+  const imgUrl  = getMediaUrl(scholarship.image_principale?.url_fichier);
   const flag    = FLAG[scholarship.pays_destination] ?? "🌍";
   const covStyle = COVERAGE_STYLE[scholarship.type_couverture] ?? COVERAGE_STYLE.autre;
   const covLabel = COVERAGE_LABEL[scholarship.type_couverture] ?? "Aide financière";
@@ -2171,7 +2126,6 @@ export default async function BoursesPage({ searchParams }: PageProps) {
 
 // FILE: src/app/(visitor)/confidentialite/page.tsx
 -----------------------------------------------
-// src/app/(visitor)/confidentialite/page.tsx
 import SectionTitle from "@/components/ui/SectionTitle";
 
 export default function PrivacyPage() {
@@ -2183,9 +2137,10 @@ export default function PrivacyPage() {
           <h3>1. Collecte des données</h3>
           <p>Nous collectons les informations que vous nous fournissez via les formulaires de contact (Nom, Email, Téléphone) pour traiter vos demandes de bourses.</p>
           <h3>2. Utilisation des données</h3>
-          <p>Vos données sont utilisées exclusivement par AG Technologies pour l'accompagnement de votre dossier et l'envoi de notre newsletter si vous l'avez accepté.</p>
+          {/* FIX : Échappement de l'apostrophe */}
+          <p>Vos données sont utilisées exclusivement par AG Technologies pour l&apos;accompagnement de votre dossier et l&apos;envoi de notre newsletter si vous l&apos;avez accepté.</p>
           <h3>3. Vos droits</h3>
-          <p>Vous disposez d'un droit d'accès, de rectification et de suppression de vos données sur simple demande à : secretariatagtechnologies@gmail.com</p>
+          <p>Vous disposez d&apos;un droit d&apos;accès, de rectification et de suppression de vos données sur simple demande à : secretariatagtechnologies@gmail.com</p>
         </div>
       </div>
     </div>
@@ -2272,62 +2227,6 @@ export default function ServicesPage() {
 }
 
 // END OF FILE: src/app/(visitor)/services/page.tsx
-
-
-// FILE: src/app/api/scholarships.ts
------------------------------------------------
-import { getScholarships } from '@/repositories/scholarshipRepository';
-import { getDictionary } from '@/dictionaries';
-
-export async function GET(request: Request) {
-  const locale = new URL(request.url).searchParams.get('lang') || 'fr';
-  const dictionary = await getDictionary(locale);
-  const scholarships = await getScholarships();
-
-  return new Response(JSON.stringify({
-    scholarships,
-    dictionary: dictionary.scholarships,
-  }));
-}
-
-// END OF FILE: src/app/api/scholarships.ts
-
-
-// FILE: src/app/test-theme/page.tsx
------------------------------------------------
-// src/app/test-theme/page.tsx
-"use client";
-
-export default function ThemeTestPage() {
-  return (
-    <div className="min-h-screen p-12 flex flex-col items-center justify-center gap-8">
-      <div className="max-w-md w-full p-8 rounded-3xl bg-surface border border-border shadow-xl">
-        <span className="text-gold font-bold tracking-widest text-xs uppercase">Test de Design</span>
-        <h1 className="text-3xl font-serif font-bold text-salma-primary mt-2 mb-4">
-          Bourse d'Excellence SALMA
-        </h1>
-        <p className="text-text-muted text-sm leading-relaxed mb-6">
-          Ceci est un test pour valider la nouvelle charte graphique Bordeaux & Or. 
-          Le fond de cette carte change selon le mode Clair ou Sombre.
-        </p>
-        <div className="flex gap-4">
-          <button className="flex-1 bg-salma-primary text-white py-3 rounded-xl font-bold text-sm transition-transform active:scale-95">
-            Postuler
-          </button>
-          <button className="flex-1 border-2 border-gold text-gold py-3 rounded-xl font-bold text-sm">
-            Détails
-          </button>
-        </div>
-      </div>
-      
-      <p className="text-xs text-text-muted italic">
-        Utilise ton bouton de changement de thème dans la Navbar pour tester.
-      </p>
-    </div>
-  );
-}
-
-// END OF FILE: src/app/test-theme/page.tsx
 
 
 // FILE: src/app/globals copy.css
@@ -2631,146 +2530,144 @@ export default async function Home() {
 -----------------------------------------------
 "use client";
 
-import { useLanguage } from "@/hooks/useLanguage";
-import type { Scholarship } from "@/types";
+import { useState, useEffect } from "react";
+import { scholarshipDictionary } from "@/dictionaries/data";
+import { SCHOLARSHIP_VISIBILITY_FIELDS, type UpdateScholarshipPayload, type FieldVisibilityMap } from "@/types";
+import SalmaButton from "../ui/SalmaButton";
 
-interface ModalProps {
+interface Props {
   isOpen: boolean;
   onClose: () => void;
-  onSave: (data: Partial<Scholarship>) => void;
-  scholarshipToEdit?: Scholarship | null;
+  onSave: () => void;
+  scholarshipId?: string | null;
 }
 
-export default function AddScholarshipModal({ isOpen, onClose, onSave, scholarshipToEdit }: ModalProps) {
-  const { dictionary } = useLanguage();
-  const t = dictionary.admin.scholarships.form;
+export default function AddScholarshipModal({ isOpen, onClose, onSave, scholarshipId }: Props) {
+  const [activeTab, setActiveTab] = useState<"content" | "visibility" | "media">("content");
+  const [loading, setLoading] = useState(false);
+  
+  // FIX : Typage UpdateScholarshipPayload au lieu de any
+  const [form, setForm] = useState<UpdateScholarshipPayload>({
+    titre_fr: "", titre_en: "", organisme_fr: "", organisme_en: "",
+    description_fr: "", description_en: "", pays_destination: "chine",
+    niveau: "master", statut: "publie", type_couverture: "complete"
+  });
+  const [visibility, setVisibility] = useState<FieldVisibilityMap>({});
+
+  useEffect(() => {
+    if (scholarshipId && isOpen) {
+      setLoading(true);
+      scholarshipDictionary.admin.getById(scholarshipId).then(data => {
+        setForm(data);
+        const vMap = data.visibilites.reduce((acc, v) => {
+          acc[v.nom_du_champ] = v.est_visible;
+          return acc;
+        }, {} as FieldVisibilityMap);
+        setVisibility(vMap);
+        setLoading(false);
+      });
+    }
+  }, [scholarshipId, isOpen]);
+
+  const handleFinalSave = async () => {
+    setLoading(true);
+    try {
+      if (scholarshipId) {
+        await scholarshipDictionary.admin.patch(scholarshipId, form);
+        await scholarshipDictionary.admin.saveVisibility(scholarshipId, visibility);
+      } else {
+        // En création, on cast en CreateScholarshipPayload (le type est compatible)
+        await scholarshipDictionary.admin.create(form as any); 
+      }
+      onSave();
+      onClose();
+    } catch {
+      // FIX : Retrait du 'e' non utilisé
+      alert("Erreur lors de la sauvegarde");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   if (!isOpen) return null;
 
-  // Intercepte la soumission du formulaire
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    const formData = new FormData(e.currentTarget);
-    const data = Object.fromEntries(formData.entries()) as Partial<Scholarship>;
-    
-    // Formatage spécial pour les nombres
-    if (data.ageLimit) data.ageLimit = Number(data.ageLimit);
-    
-    onSave(data);
-  };
-
-  const isEditing = !!scholarshipToEdit;
-
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-fade-in">
-      <div className="bg-salma-bg border border-salma-border rounded-xl w-full max-w-3xl max-h-[90vh] flex flex-col shadow-salma-lg">
-        
-        {/* Header */}
-        <div className="p-6 border-b border-salma-border flex justify-between items-center">
-          <h2 className="text-xl font-bold text-salma-text">
-            {isEditing ? t.editTitle : t.addTitle}
-          </h2>
-          <button onClick={onClose} className="text-salma-text-muted hover:text-salma-text">
-            ✕
-          </button>
+    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-salma-primary/40 backdrop-blur-md p-4">
+      <div className="bg-white rounded-[2rem] w-full max-w-5xl max-h-[90vh] flex flex-col shadow-2xl overflow-hidden border border-salma-border">
+        <div className="p-8 border-b border-salma-border bg-salma-bg/50">
+          <div className="flex justify-between items-center mb-6">
+            <h2 className="text-2xl font-serif font-bold text-salma-primary">
+              {scholarshipId ? "Édition Bourse" : "Nouvelle Bourse"}
+            </h2>
+            <button onClick={onClose} className="text-salma-text-muted hover:text-salma-primary text-2xl">✕</button>
+          </div>
+          
+          <div className="flex gap-8">
+            {["content", "visibility", "media"].map((tab) => (
+              <button
+                key={tab}
+                // FIX : Cast du tab pour le setter
+                onClick={() => setActiveTab(tab as "content" | "visibility" | "media")}
+                className={`pb-2 text-sm font-bold uppercase tracking-widest transition-all border-b-2 ${
+                  activeTab === tab ? "border-salma-gold text-salma-primary" : "border-transparent text-salma-text-muted"
+                }`}
+              >
+                {tab === "content" ? "Contenu" : tab === "visibility" ? "Visibilité" : "Images"}
+              </button>
+            ))}
+          </div>
         </div>
 
-        {/* Body / Formulaire */}
-        <div className="p-6 overflow-y-auto flex-1">
-          <form id="scholarship-form" onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            
-            <div className="col-span-full">
-              <h3 className="font-serif text-salma-primary border-b border-salma-border pb-2 mb-4">Informations Générales</h3>
-            </div>
-            <div>
-              <label className="block text-sm font-medium mb-1">{t.title}</label>
-              <input name="title" required defaultValue={scholarshipToEdit?.title} type="text" className="w-full p-2 border border-salma-border rounded bg-salma-surface" />
-            </div>
-            <div>
-              <label className="block text-sm font-medium mb-1">{t.organization}</label>
-              <input name="organization" required defaultValue={scholarshipToEdit?.organization} type="text" className="w-full p-2 border border-salma-border rounded bg-salma-surface" />
-            </div>
-            <div>
-              <label className="block text-sm font-medium mb-1">{t.country}</label>
-              <select name="country" required defaultValue={scholarshipToEdit?.country || "chine"} className="w-full p-2 border border-salma-border rounded bg-salma-surface">
-                <option value="chine">Chine</option>
-                <option value="allemagne">Allemagne</option>
-                <option value="both">Chine & Allemagne</option>
-              </select>
-            </div>
-            <div className="col-span-full">
-              <label className="block text-sm font-medium mb-1">{t.description}</label>
-              <textarea name="description" required defaultValue={scholarshipToEdit?.description} rows={4} className="w-full p-2 border border-salma-border rounded bg-salma-surface"></textarea>
-            </div>
+        <div className="flex-1 overflow-y-auto p-8">
+          {loading ? (
+            <div className="flex justify-center py-20 italic">Chargement des données...</div>
+          ) : (
+            <>
+              {activeTab === "content" && (
+                <div className="grid grid-cols-2 gap-8">
+                  <div className="space-y-4">
+                    <h3 className="text-xs font-black text-salma-gold uppercase">Français</h3>
+                    <input value={form.titre_fr} onChange={e => setForm({...form, titre_fr: e.target.value})} placeholder="Titre FR" className="w-full p-4 rounded-xl border border-salma-border bg-salma-bg" />
+                    <textarea value={form.description_fr} onChange={e => setForm({...form, description_fr: e.target.value})} placeholder="Description FR" rows={5} className="w-full p-4 rounded-xl border border-salma-border bg-salma-bg" />
+                  </div>
+                  <div className="space-y-4">
+                    <h3 className="text-xs font-black text-salma-gold uppercase">Anglais</h3>
+                    <input value={form.titre_en} onChange={e => setForm({...form, titre_en: e.target.value})} placeholder="Titre EN" className="w-full p-4 rounded-xl border border-salma-border bg-salma-bg" />
+                    <textarea value={form.description_en} onChange={e => setForm({...form, description_en: e.target.value})} placeholder="Description EN" rows={5} className="w-full p-4 rounded-xl border border-salma-border bg-salma-bg" />
+                  </div>
+                </div>
+              )}
 
-            <div className="col-span-full mt-4">
-              <h3 className="font-serif text-salma-primary border-b border-salma-border pb-2 mb-4">Critères d&apos;Éligibilité</h3>
-            </div>
-            <div>
-              <label className="block text-sm font-medium mb-1">{t.studyLevel}</label>
-              <select name="studyLevel" required defaultValue={scholarshipToEdit?.studyLevel || "master"} className="w-full p-2 border border-salma-border rounded bg-salma-surface">
-                <option value="licence">Licence</option>
-                <option value="master">Master</option>
-                <option value="doctorat">Doctorat</option>
-                <option value="post-doc">Post-doc</option>
-              </select>
-            </div>
-            <div>
-              <label className="block text-sm font-medium mb-1">{t.fieldOfStudy}</label>
-              <input name="fieldOfStudy" required defaultValue={scholarshipToEdit?.fieldOfStudy} type="text" className="w-full p-2 border border-salma-border rounded bg-salma-surface" />
-            </div>
-            <div>
-              <label className="block text-sm font-medium mb-1">{t.ageLimit}</label>
-              <input name="ageLimit" required defaultValue={scholarshipToEdit?.ageLimit} type="number" className="w-full p-2 border border-salma-border rounded bg-salma-surface" />
-            </div>
-            <div>
-              <label className="block text-sm font-medium mb-1">{t.languageReq}</label>
-              <input name="languageReq" required defaultValue={scholarshipToEdit?.languageReq} type="text" className="w-full p-2 border border-salma-border rounded bg-salma-surface" />
-            </div>
-
-            <div className="col-span-full mt-4">
-              <h3 className="font-serif text-salma-primary border-b border-salma-border pb-2 mb-4">Logistique</h3>
-            </div>
-            <div>
-              <label className="block text-sm font-medium mb-1">{t.status}</label>
-              <select name="status" required defaultValue={scholarshipToEdit?.status || "open"} className="w-full p-2 border border-salma-border rounded bg-salma-surface">
-                <option value="open">Ouvert</option>
-                <option value="closed">Fermé</option>
-                <option value="pending">En attente</option>
-              </select>
-            </div>
-            <div>
-              <label className="block text-sm font-medium mb-1">{t.deadline}</label>
-              <input name="deadline" required defaultValue={scholarshipToEdit?.deadline} type="date" className="w-full p-2 border border-salma-border rounded bg-salma-surface" />
-            </div>
-            <div>
-              <label className="block text-sm font-medium mb-1">{t.coverageType}</label>
-              <select name="coverageType" required defaultValue={scholarshipToEdit?.coverageType || "totale"} className="w-full p-2 border border-salma-border rounded bg-salma-surface">
-                <option value="totale">Totale</option>
-                <option value="partielle">Partielle</option>
-                <option value="frais_scolarite">Frais de scolarité uniquement</option>
-                <option value="allocation">Allocation mensuelle</option>
-              </select>
-            </div>
-            <div>
-              <label className="block text-sm font-medium mb-1">{t.officialLink}</label>
-              <input name="officialLink" required defaultValue={scholarshipToEdit?.officialLink} type="url" className="w-full p-2 border border-salma-border rounded bg-salma-surface" />
-            </div>
-
-          </form>
+              {activeTab === "visibility" && (
+                <div className="space-y-6">
+                  <div className="p-4 bg-blue-50 border border-blue-100 rounded-xl text-blue-800 text-sm">
+                    💡 <strong>Note :</strong> Décochez un champ pour qu&apos;il n&apos;apparaisse pas sur le site public.
+                  </div>
+                  <div className="grid grid-cols-2 gap-4">
+                    {SCHOLARSHIP_VISIBILITY_FIELDS.map(field => (
+                      <label key={field} className="flex items-center justify-between p-4 bg-salma-bg rounded-xl border border-salma-border cursor-pointer hover:border-salma-gold transition-colors">
+                        <span className="text-sm font-bold text-salma-primary">{field.replace('_', ' ')}</span>
+                        <input 
+                          type="checkbox" 
+                          checked={visibility[field] ?? true} 
+                          onChange={e => setVisibility({...visibility, [field]: e.target.checked})}
+                          className="w-5 h-5 accent-salma-gold"
+                        />
+                      </label>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </>
+          )}
         </div>
 
-        {/* Footer */}
-        <div className="p-6 border-t border-salma-border flex justify-end gap-4 bg-salma-surface rounded-b-xl">
-          <button type="button" onClick={onClose} className="px-6 py-2 rounded font-medium text-salma-text border border-salma-border hover:bg-salma-border/50">
-            {t.cancel}
-          </button>
-          {/* Le bouton soumet le formulaire via l'attribut "form" */}
-          <button type="submit" form="scholarship-form" className="px-6 py-2 rounded font-medium text-white bg-salma-primary hover:bg-salma-primary-light">
-            {t.save}
-          </button>
+        <div className="p-8 border-t border-salma-border flex justify-end gap-4 bg-salma-bg/30">
+          <button onClick={onClose} className="px-8 py-3 text-salma-text-muted font-bold uppercase text-xs tracking-widest">Annuler</button>
+          <SalmaButton onClick={handleFinalSave} variant="primary" disabled={loading}>
+            {loading ? "Sauvegarde..." : "Enregistrer les modifications"}
+          </SalmaButton>
         </div>
-
       </div>
     </div>
   );
@@ -2781,14 +2678,12 @@ export default function AddScholarshipModal({ isOpen, onClose, onSave, scholarsh
 
 // FILE: src/components/ui/ChatbotWidget.tsx
 -----------------------------------------------
-// src/components/ui/ChatbotWidget.tsx
 "use client";
 
 import { useState, useEffect, useRef } from "react";
 import { useLanguage } from "@/hooks/useLanguage";
 import { chatbotRepository } from "@/repositories/chatbot.repository";
 import { eventsRepository } from "@/repositories/events.repository";
-import SalmaButton from "./SalmaButton";
 
 interface Message {
   role: "user" | "bot";
@@ -2796,14 +2691,14 @@ interface Message {
 }
 
 export default function ChatbotWidget() {
-  const { dictionary, locale } = useLanguage();
+  // FIX : Retrait de dictionary
+  const { locale } = useLanguage(); 
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
 
-  // Message de bienvenue initial
   useEffect(() => {
     if (isOpen && messages.length === 0) {
       const welcome = locale === "fr" 
@@ -2814,7 +2709,6 @@ export default function ChatbotWidget() {
     }
   }, [isOpen, locale, messages.length]);
 
-  // Auto-scroll vers le bas
   useEffect(() => {
     if (scrollRef.current) scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
   }, [messages]);
@@ -2830,13 +2724,13 @@ export default function ChatbotWidget() {
     try {
       const response = await chatbotRepository.query({ message: userMsg, langue: locale });
       setMessages((prev) => [...prev, { role: "bot", text: response.reponse }]);
-    } catch (error) {
+    } catch {
+      // FIX : Retrait de 'error'
       setMessages((prev) => [...prev, { role: "bot", text: "Désolé, une erreur est survenue." }]);
     } finally {
       setIsLoading(false);
     }
   };
-
   return (
     <div className="fixed bottom-28 right-8 z-50 flex flex-col items-end">
       {/* Fenêtre de Chat */}
@@ -2960,7 +2854,7 @@ import { newsletterDictionary } from "@/dictionaries/data";
 import { eventsRepository } from "@/repositories/events.repository";
 
 export default function NewsletterForm() {
-  const { dictionary, locale } = useLanguage();
+  const {locale } = useLanguage();
   const [email, setEmail] = useState("");
   const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
 
@@ -3093,24 +2987,35 @@ export default function SalmaButton({
 "use client";
 
 import Image from "next/image";
-import { Scholarship } from "@/types/scholarship";
+import Link from "next/link";
 import { useLanguage } from "@/hooks/useLanguage";
+import { getMediaUrl } from "@/lib/api-client";
+import type { ScholarshipPublicListItem } from "@/types"; // Import depuis le nouveau barrel
 import SalmaBadge from "./SalmaBadge";
 import SalmaButton from "./SalmaButton";
-import Link from "next/link";
 
 interface ScholarshipCardProps {
-  scholarship: Scholarship;
+  scholarship: ScholarshipPublicListItem;
 }
 
 export default function ScholarshipCard({ scholarship }: ScholarshipCardProps) {
   const { locale, dictionary } = useLanguage();
 
-  // Mapping des drapeaux selon le pays
-  const countryFlags = {
-    CHINE: "🇨🇳",
-    ALLEMAGNE: "🇩🇪",
-    BOTH: "🌍",
+  // Mapping des textes selon la langue
+  const title = locale === "fr" ? scholarship.titre_fr : scholarship.titre_en;
+  const org = locale === "fr" ? scholarship.organisme_fr : scholarship.organisme_en;
+  const langReq = locale === "fr" ? scholarship.exigence_langue_fr : scholarship.exigence_langue_en;
+  
+  // URL de l'image via le helper
+  const imageUrl = getMediaUrl(scholarship.image_principale?.url_fichier);
+
+  // Mapping des drapeaux
+  const countryFlags: Record<string, string> = {
+    chine: "🇨🇳",
+    allemagne: "🇩🇪",
+    france: "🇫🇷",
+    canada: "🇨🇦",
+    autre: "🌍",
   };
 
   return (
@@ -3118,60 +3023,56 @@ export default function ScholarshipCard({ scholarship }: ScholarshipCardProps) {
       {/* --- HEADER : Image & Badges --- */}
       <div className="relative h-52 w-full overflow-hidden">
         <Image
-          src={scholarship.imageUrl || "/images/placeholder-scholarship.jpg"}
-          alt={scholarship.title[locale]}
+          src={imageUrl || "/image.jpg"}
+          alt={title}
           fill
           className="object-cover group-hover:scale-110 transition-transform duration-700"
         />
-        {/* Overlay dégradé pour la lisibilité */}
         <div className="absolute inset-0 bg-gradient-to-t from-salma-primary/60 to-transparent opacity-60" />
 
-        {/* Badge Pays (Top Right) */}
-        <div className="absolute top-4 right-4 bg-white/90 backdrop-blur-sm px-3 py-1 rounded-full text-[10px] font-black text-salma-primary flex items-center gap-2 shadow-sm">
-          <span>{countryFlags[scholarship.destinationCountry]}</span>
-          {scholarship.destinationCountry}
+        {/* Badge Pays */}
+        <div className="absolute top-4 right-4 bg-white/90 backdrop-blur-sm px-3 py-1 rounded-full text-[10px] font-black text-salma-primary flex items-center gap-2 shadow-sm uppercase">
+          <span>{countryFlags[scholarship.pays_destination] || "🌍"}</span>
+          {scholarship.pays_destination}
         </div>
 
-        {/* Badge Statut (Bottom Left) */}
+        {/* Badge Statut */}
         <div className="absolute bottom-4 left-4">
           <SalmaBadge 
-            status={scholarship.status === 'OUVERT' ? 'open' : scholarship.status === 'URGENT' ? 'urgent' : 'closed'} 
-            label={scholarship.status} 
+            status={scholarship.statut === 'publie' ? 'open' : scholarship.statut === 'expire' ? 'closed' : 'urgent'} 
+            label={scholarship.statut} 
           />
         </div>
       </div>
 
-      {/* --- BODY : Contenu textuel --- */}
+      {/* --- BODY : Contenu --- */}
       <div className="p-6 flex flex-col flex-1">
-        {/* Niveau & Type de couverture */}
         <div className="flex items-center gap-2 mb-2">
           <span className="text-salma-gold text-[10px] font-bold uppercase tracking-widest">
-            {dictionary.scholarships.levels[scholarship.level]}
+            {scholarship.niveau}
           </span>
           <span className="text-salma-text-muted text-[10px]">•</span>
           <span className="text-salma-gold text-[10px] font-bold uppercase tracking-widest">
-            {dictionary.scholarships.coverage[scholarship.coverageType]}
+            {scholarship.type_couverture}
           </span>
         </div>
 
-        {/* Titre (traduit) */}
         <h3 className="text-xl font-serif font-bold text-salma-primary dark:text-white leading-tight mb-3 line-clamp-2">
-          {scholarship.title[locale]}
+          {title}
         </h3>
 
-        {/* Description courte (traduite) */}
         <p className="text-sm text-salma-text-muted line-clamp-2 mb-6 font-sans">
-          {scholarship.description[locale]}
+          {org}
         </p>
 
-        {/* --- DETAILS : Langue & Deadline --- */}
+        {/* --- DETAILS --- */}
         <div className="mt-auto pt-4 border-t border-salma-border grid grid-cols-2 gap-4">
           <div>
             <span className="block text-[9px] text-salma-text-muted uppercase font-bold tracking-tighter">
               {dictionary.scholarships.language}
             </span>
             <span className="text-xs font-bold text-salma-primary dark:text-salma-gold">
-              {scholarship.languageRequirement[locale]}
+              {langReq}
             </span>
           </div>
           <div>
@@ -3179,21 +3080,16 @@ export default function ScholarshipCard({ scholarship }: ScholarshipCardProps) {
               {dictionary.scholarships.deadline}
             </span>
             <span className="text-xs font-bold text-red-500">
-              {new Date(scholarship.deadline).toLocaleDateString(locale, {
-                day: 'numeric',
-                month: 'short',
-                year: 'numeric'
-              })}
+              {scholarship.date_limite ? new Date(scholarship.date_limite).toLocaleDateString(locale) : "N/A"}
             </span>
           </div>
         </div>
 
-        {/* Bouton d'action */}
-       <Link href={`/bourses/${scholarship.id}`} className="w-full mt-6">
-        <SalmaButton variant="outline" size="sm" className="w-full">
-          {dictionary.scholarships.viewDetails}
-        </SalmaButton>
-      </Link>
+        <Link href={`/bourses/${scholarship.id}`} className="w-full mt-6">
+          <SalmaButton variant="outline" size="sm" className="w-full">
+            {dictionary.scholarships.viewDetails}
+          </SalmaButton>
+        </Link>
       </div>
     </div>
   );
@@ -3634,7 +3530,7 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
     setDictionary(getDictionary(newLocale));
     try {
       localStorage.setItem("salma-locale", newLocale);
-    } catch (e) {}
+    } catch {}
   };
 
   // IMPORTANT : Le Provider doit TOUJOURS être présent dans l'arbre
@@ -3685,215 +3581,28 @@ export function ThemeProvider({ children, ...props }: ThemeProviderProps) {
 // END OF FILE: src/contexts/ThemeContext.tsx
 
 
-// FILE: src/data/index.ts
------------------------------------------------
-// src/data/index.ts
-// Point d'entrée central des données statiques de SALMA
-// Toutes les données sont ici — les composants importent depuis @/data
-
-import { Service, VisaType } from "@/types";
-
-// ============================================================
-//  SERVICES
-// ============================================================
-export const services: Service[] = [
-  { id: "visa-etude",    category: "visa",   icon: "graduation-cap", isActive: true },
-  { id: "visa-touriste", category: "visa",   icon: "plane",          isActive: true },
-  { id: "visa-travail",  category: "visa",   icon: "briefcase",      isActive: true },
-  { id: "bourse-etude",  category: "bourse", icon: "star",           isActive: true },
-];
-
-// ============================================================
-//  TYPES DE VISA
-// ============================================================
-export const visaTypes: VisaType[] = [
-  { id: "visa-etude",    processingTime: "3 semaines", isActive: true },
-  { id: "visa-touriste", processingTime: "3 semaines", isActive: true },
-  { id: "visa-travail",  processingTime: "3 semaines", isActive: true },
-];
-
-// END OF FILE: src/data/index.ts
-
-
-// FILE: src/data/mock-scholarships.ts
------------------------------------------------
-import { Scholarship } from "@/types/scholarship";
-
-export const MOCK_SCHOLARSHIPS: Scholarship[] = [
-  {
-    id: "1",
-    title: { fr: "Bourse du Gouvernement Chinois (CSC)", en: "Chinese Government Scholarship (CSC)" },
-    organization: { fr: "Conseil des Bourses de Chine", en: "China Scholarship Council" },
-    description: { 
-      fr: "Bourse complète pour les programmes de Master et Doctorat dans les meilleures universités chinoises.", 
-      en: "Full scholarship for Master's and Doctoral programs in top Chinese universities." 
-    },
-    destinationCountry: "CHINE",
-    imageUrl: "https://images.unsplash.com/photo-1540608801476-6e9367d53386?q=80&w=800",
-    level: "MASTER",
-    studyFields: [{ fr: "Ingénierie", en: "Engineering" }, { fr: "Sciences", en: "Sciences" }],
-    languageRequirement: { fr: "HSK 4 ou IELTS 6.5", en: "HSK 4 or IELTS 6.5" },
-    status: "OUVERT",
-    deadline: "2026-03-30",
-    coverageType: "TOTALE",
-    amountDetails: { fr: "Scolarité + Logement + 3000 RMB/mois", en: "Tuition + Housing + 3000 RMB/month" },
-    createdAt: "2026-01-15",
-    updatedAt: "2026-02-20"
-  },
-  {
-    id: "2",
-    title: { fr: "Bourse d'Études DAAD Allemagne", en: "DAAD Germany Scholarship" },
-    organization: { fr: "DAAD (Service Allemand d'Échanges)", en: "DAAD Academic Exchange Service" },
-    description: { 
-      fr: "Soutien aux étudiants internationaux pour des études de Master en Allemagne.", 
-      en: "Support for international students for Master's studies in Germany." 
-    },
-    destinationCountry: "ALLEMAGNE",
-    imageUrl: "https://images.unsplash.com/photo-1599946347341-6cd39444452f?q=80&w=800",
-    level: "MASTER",
-    studyFields: [{ fr: "Économie", en: "Economics" }, { fr: "Développement", en: "Development" }],
-    languageRequirement: { fr: "B2 Allemand ou IELTS 6.0", en: "B2 German or IELTS 6.0" },
-    status: "URGENT",
-    deadline: "2026-03-15",
-    coverageType: "PARTIELLE",
-    amountDetails: { fr: "934 € / mois", en: "934 € / month" },
-    createdAt: "2026-01-20",
-    updatedAt: "2026-02-18"
-  },
-  {
-    id: "3",
-    title: { fr: "Bourse du Maire de Shanghai", en: "Shanghai Government Scholarship" },
-    organization: { fr: "Gouvernement de Shanghai", en: "Shanghai Municipal Government" },
-    description: { 
-      fr: "Financement pour les étudiants internationaux souhaitant étudier à Shanghai.", 
-      en: "Funding for international students wishing to study in Shanghai." 
-    },
-    destinationCountry: "CHINE",
-    imageUrl: "https://images.unsplash.com/photo-1474181487882-5abf3f0ba6c2?q=80&w=800",
-    level: "LICENCE",
-    studyFields: [{ fr: "Commerce International", en: "International Business" }],
-    languageRequirement: { fr: "Anglais ou Chinois", en: "English or Chinese" },
-    status: "OUVERT",
-    deadline: "2026-05-20",
-    coverageType: "TOTALE",
-    amountDetails: { fr: "Couverture complète", en: "Full coverage" },
-    createdAt: "2026-02-01",
-    updatedAt: "2026-02-01"
-  },
-  {
-    id: "4",
-    title: { fr: "Bourse de l'Université Technique de Munich", en: "TU Munich Merit Scholarship" },
-    organization: { fr: "TUM Allemagne", en: "TU Munich Germany" },
-    description: { 
-      fr: "Bourse au mérite pour les étudiants en ingénierie et technologies.", 
-      en: "Merit scholarship for students in engineering and technology." 
-    },
-    destinationCountry: "ALLEMAGNE",
-    imageUrl: "https://images.unsplash.com/photo-1567427017947-545c5f8d16ad?q=80&w=800",
-    level: "LICENCE",
-    studyFields: [{ fr: "Mécatronique", en: "Mechatronics" }, { fr: "IA", en: "AI" }],
-    languageRequirement: { fr: "C1 Allemand requis", en: "C1 German required" },
-    status: "EN_ATTENTE",
-    deadline: "2026-06-01",
-    coverageType: "SCOLARITÉ",
-    amountDetails: { fr: "Exonération des frais", en: "Tuition waiver" },
-    createdAt: "2026-02-10",
-    updatedAt: "2026-02-10"
-  },
-  {
-    id: "5",
-    title: { fr: "Bourse Route de la Soie (Anhui)", en: "Silk Road Scholarship (Anhui)" },
-    organization: { fr: "Province d'Anhui", en: "Anhui Province" },
-    description: { 
-      fr: "Bourse spéciale pour les pays de la ceinture et de la route.", 
-      en: "Special scholarship for Belt and Road initiative countries." 
-    },
-    destinationCountry: "CHINE",
-    imageUrl: "https://images.unsplash.com/photo-1525910303722-dc909867040f?q=80&w=800",
-    level: "MASTER",
-    studyFields: [{ fr: "Agriculture", en: "Agriculture" }, { fr: "Logistique", en: "Logistics" }],
-    languageRequirement: { fr: "Anglais parlé", en: "Spoken English" },
-    status: "OUVERT",
-    deadline: "2026-04-30",
-    coverageType: "TOTALE",
-    amountDetails: { fr: "Bourse complète + Vol", en: "Full scholarship + Flight" },
-    createdAt: "2026-02-12",
-    updatedAt: "2026-02-12"
-  },
-  {
-    id: "6",
-    title: { fr: "Bourse Fondation Heinrich Böll", en: "Heinrich Böll Foundation Scholarship" },
-    organization: { fr: "Fondation Böll", en: "Böll Foundation" },
-    description: { 
-      fr: "Bourse pour les étudiants engagés dans le développement durable.", 
-      en: "Scholarship for students committed to sustainable development." 
-    },
-    destinationCountry: "ALLEMAGNE",
-    imageUrl: "https://images.unsplash.com/photo-1461896836934-ffe607ba8211?q=80&w=800",
-    level: "DOCTORAT",
-    studyFields: [{ fr: "Environnement", en: "Environment" }, { fr: "Politique", en: "Politics" }],
-    languageRequirement: { fr: "DSH 2 requis", en: "DSH 2 required" },
-    status: "FERMÉ",
-    deadline: "2026-02-01",
-    coverageType: "ALLOCATION",
-    amountDetails: { fr: "1350 € / mois", en: "1350 € / month" },
-    createdAt: "2025-12-01",
-    updatedAt: "2026-01-05"
-  },
-  {
-    id: "7",
-    title: { fr: "Bourse d'Excellence HUST Wuhan", en: "HUST Wuhan Excellence Scholarship" },
-    organization: { fr: "Université HUST", en: "HUST University" },
-    description: { 
-      fr: "Bourse pour les étudiants brillants en informatique.", 
-      en: "Scholarship for brilliant students in computer science." 
-    },
-    destinationCountry: "CHINE",
-    imageUrl: "https://images.unsplash.com/photo-1517694712202-14dd9538aa97?q=80&w=800",
-    level: "MASTER",
-    studyFields: [{ fr: "Logiciel", en: "Software Engineering" }],
-    languageRequirement: { fr: "HSK 5", en: "HSK 5" },
-    status: "OUVERT",
-    deadline: "2026-04-15",
-    coverageType: "TOTALE",
-    amountDetails: { fr: "Scolarité + Allocation", en: "Tuition + Allowance" },
-    createdAt: "2026-02-14",
-    updatedAt: "2026-02-14"
-  },
-  {
-    id: "8",
-    title: { fr: "Bourse Fondation Konrad-Adenauer", en: "Konrad-Adenauer-Stiftung Scholarship" },
-    organization: { fr: "Fondation KAS", en: "KAS Foundation" },
-    description: { 
-      fr: "Bourse d'excellence pour les futurs cadres.", 
-      en: "Excellence scholarship for future leaders." 
-    },
-    destinationCountry: "ALLEMAGNE",
-    imageUrl: "https://images.unsplash.com/photo-1527672829624-f3a142faafbc?q=80&w=800",
-    level: "MASTER",
-    studyFields: [{ fr: "Droit", en: "Law" }, { fr: "Management", en: "Management" }],
-    languageRequirement: { fr: "B2 Allemand", en: "B2 German" },
-    status: "OUVERT",
-    deadline: "2026-07-15",
-    coverageType: "ALLOCATION",
-    amountDetails: { fr: "850 € / mois", en: "850 € / month" },
-    createdAt: "2026-02-18",
-    updatedAt: "2026-02-18"
-  }
-];
-
-// END OF FILE: src/data/mock-scholarships.ts
-
-
 // FILE: src/dictionaries/data/cms.data-dictionary.ts
 -----------------------------------------------
+// src/dictionaries/data/cms.data-dictionary.ts
 import { cmsPublicRepository, cmsAdminRepository } from "@/repositories/cms.repository";
-import type { SitePagePublic, UpdateContentBlockPayload, PitchVideo } from "@/types/api/cms.types";
+import type { 
+  SitePagePublic, 
+  SitePageAdmin, 
+  UpdateContentBlockPayload, 
+  PitchVideo 
+} from "@/types/api/cms.types";
 
 export const cmsDictionary = {
+  /** 
+   * Récupère le contenu public d'une page par son slug 
+   * Utilisé par la vitrine (ex: /a-propos)
+   */
   getPage: (slug: string): Promise<SitePagePublic> =>
-    cmsPublicRepository.getPageBySlug(slug),
+    cmsPublicRepository.getPageBySlug(slug), // Correction du nom ici
 
+  /** 
+   * Config globale sous forme de map clé/valeur 
+   */
   getConfigMap: async (): Promise<Record<string, string>> => {
     const configs = await cmsPublicRepository.getConfig();
     return configs.reduce((acc, c) => {
@@ -3902,14 +3611,19 @@ export const cmsDictionary = {
     }, {} as Record<string, string>);
   },
 
+  /** 
+   * Vidéo de pitch active 
+   */
   getActivePitchVideo: async (): Promise<PitchVideo | null> => {
     const videos = await cmsPublicRepository.getVideos();
     return videos.find((v) => v.est_active) ?? null;
   },
 
+  // --- Espace Admin ---
   admin: {
     getPages: () => cmsAdminRepository.getPages(),
-    getPage: (id: string) => cmsAdminRepository.getPageById(id),
+    getPage: (id: string): Promise<SitePageAdmin> => 
+      cmsAdminRepository.getPageById(id),
     updateBloc: (pageId: string, blocId: string, payload: UpdateContentBlockPayload) => 
       cmsAdminRepository.patchBlock(pageId, blocId, payload),
   },
@@ -4281,23 +3995,12 @@ export const newsletterDictionary = {
 // FILE: src/dictionaries/data/scholarship.data-dictionary.ts
 -----------------------------------------------
 // src/dictionaries/data/scholarship.data-dictionary.ts
-// ==============================================================================
-//  Dictionnaire de données — Bourses
-//
-//  RÈGLE ARCHITECTURE :
-//  Server Components → data-dictionary → repository → api-client → Django
-//
-//  Les composants ne connaissent QUE ce fichier.
-//  Toute la logique de cache ISR et d'orchestration est ici.
-// ==============================================================================
-
 import {
   scholarshipPublicRepository,
   scholarshipAdminRepository,
 } from "@/repositories/scholarship.repository";
 import type {
   ScholarshipPublicListItem,
-  ScholarshipPublicDetail,
   ScholarshipAdmin,
   ScholarshipListResponse,
   ScholarshipAdminListResponse,
@@ -4308,109 +4011,47 @@ import type {
 } from "@/types/api/scholarship.types";
 import { toFieldVisibilityMap } from "@/types/api/scholarship.types";
 
-// ==============================================================================
-//  VITRINE — Server Components (avec ISR)
-// ==============================================================================
-
 export const scholarshipDictionary = {
-  /**
-   * Liste paginée des bourses publiées pour le catalogue.
-   * Utilisé par : /bourses (Server Component)
-   * Cache ISR : 60s (configuré dans le repository)
-   */
+  /** Liste paginée pour le catalogue */
   getCatalog: (filters?: ScholarshipFilters): Promise<ScholarshipListResponse> => {
     return scholarshipPublicRepository.getList(filters);
   },
 
-  /**
-   * Bourses mises en avant pour la Home Page.
-   * Utilisé par : / (Server Component)
-   */
+  /** Bourses vedettes pour la Home */
   getFeatured: (): Promise<ScholarshipPublicListItem[]> => {
     return scholarshipPublicRepository.getFeatured();
   },
 
-  /**
-   * Détail d'une bourse avec visibilité pré-calculée.
-   * Utilisé par : /bourses/[id] (Server Component)
-   * Retourne la bourse + un map de visibilité prêt à l'emploi
-   */
-  getDetail: async (
-    id: string
-  ): Promise<{
-    scholarship: ScholarshipPublicDetail;
-    visibilityMap: FieldVisibilityMap;
-  }> => {
+  /** Détail d'une bourse avec map de visibilité */
+  getDetail: async (id: string) => {
     const scholarship = await scholarshipPublicRepository.getById(id);
     const visibilityMap = toFieldVisibilityMap(scholarship.visibilites);
     return { scholarship, visibilityMap };
   },
 
-  // ==============================================================================
-  //  ADMIN — Dashboard (pas d'ISR, données fraîches)
-  // ==============================================================================
-
-  /**
-   * Liste complète pour le tableau du dashboard admin.
-   * Utilisé par : /admin/dashboard (Server Component ou Client fetch)
-   */
+  // --- Espace Admin ---
   admin: {
     getList: (filters?: ScholarshipFilters): Promise<ScholarshipAdminListResponse> => {
       return scholarshipAdminRepository.getList(filters);
     },
-
     getById: (id: string): Promise<ScholarshipAdmin> => {
       return scholarshipAdminRepository.getById(id);
     },
-
     create: (payload: CreateScholarshipPayload): Promise<ScholarshipAdmin> => {
       return scholarshipAdminRepository.create(payload);
     },
-
-    update: (id: string, payload: CreateScholarshipPayload): Promise<ScholarshipAdmin> => {
-      return scholarshipAdminRepository.update(id, payload);
-    },
-
     patch: (id: string, payload: UpdateScholarshipPayload): Promise<ScholarshipAdmin> => {
       return scholarshipAdminRepository.patch(id, payload);
     },
-
     delete: (id: string): Promise<void> => {
       return scholarshipAdminRepository.delete(id);
     },
-
-    duplicate: (id: string): Promise<ScholarshipAdmin> => {
-      return scholarshipAdminRepository.duplicate(id);
-    },
-
-    /**
-     * Met à jour la visibilité de tous les champs d'un coup.
-     * Utilisé par le panneau "Visibilité des champs" dans l'éditeur de bourse.
-     */
-    saveVisibility: (
-      bourseId: string,
-      visibilityMap: FieldVisibilityMap
-    ): Promise<void> => {
+    saveVisibility: (bourseId: string, visibilityMap: FieldVisibilityMap): Promise<void> => {
       const payload = Object.entries(visibilityMap).map(([nom_du_champ, est_visible]) => ({
         nom_du_champ,
         est_visible,
       }));
       return scholarshipAdminRepository.bulkUpdateVisibility(bourseId, payload);
-    },
-
-    addImage: (bourseId: string, mediaId: string, isPrimary = false) => {
-      return scholarshipAdminRepository.addImage(bourseId, {
-        media_id: mediaId,
-        est_principale: isPrimary,
-      });
-    },
-
-    removeImage: (bourseId: string, imgId: string) => {
-      return scholarshipAdminRepository.removeImage(bourseId, imgId);
-    },
-
-    setMainImage: (bourseId: string, imgId: string) => {
-      return scholarshipAdminRepository.setMainImage(bourseId, imgId);
     },
   },
 };
@@ -4541,6 +4182,7 @@ export const en = {
 
   catalog: {
     title: "All Scholarships",
+    subtitle: "China & Germany",
     description: "Find the scholarship that matches your study project in China or Germany.",
     searchPlaceholder: "Search for a scholarship...",
     filterAll: "All",
@@ -4823,6 +4465,7 @@ export const fr = {
 
   catalog: {
     title: "Toutes nos bourses",
+     subtitle: "Chine & Allemagne",
     description: "Trouvez la bourse qui correspond à votre projet d'études en Chine ou en Allemagne.",
     searchPlaceholder: "Rechercher une bourse...",
     filterAll: "Tous",
@@ -6311,6 +5954,7 @@ import type {
   ScholarshipField,
   ScholarshipBenefit,
   ScholarshipEligibility,
+  ScholarshipImage
 } from "@/types/api/scholarship.types";
 
 const PUBLIC = "/bourses";
@@ -6459,12 +6103,12 @@ export const scholarshipAdminRepository = {
    * POST /api/admin/bourses/{id}/visibilites/bulk
    * Mettre à jour plusieurs visibilités d'un coup
    */
-  bulkUpdateVisibility: (
-    bourseId: string,
-    visibilities: UpdateFieldVisibilityPayload[]
-  ) => {
-    return api.post(`${ADMIN}/${bourseId}/visibilites/bulk`, { visibilites: visibilities });
-  },
+ bulkUpdateVisibility: (
+  bourseId: string,
+  visibilities: UpdateFieldVisibilityPayload[]
+): Promise<void> => { // Ajoute le type de retour ici
+  return api.post<void>(`${ADMIN}/${bourseId}/visibilites/bulk`, { visibilities: visibilities });
+},
 
   // --- Images ---------------------------------------------------------------
 
@@ -6479,8 +6123,9 @@ export const scholarshipAdminRepository = {
    * POST /api/admin/bourses/{id}/images
    * Ajouter une image à une bourse
    */
-  addImage: (id: string, payload: AddScholarshipImagePayload) => {
-    return api.post(`${ADMIN}/${id}/images`, payload);
+ // FIX : Typage ScholarshipImage au lieu de any
+  addImage: (bourseId: string, payload: AddScholarshipImagePayload): Promise<ScholarshipImage> => {
+    return api.post<ScholarshipImage>(`${ADMIN}/${bourseId}/images`, payload);
   },
 
   /**
@@ -6530,46 +6175,49 @@ export const scholarshipAdminRepository = {
 
 // FILE: src/repositories/service.repository.ts
 -----------------------------------------------
-
 // src/repositories/service.repository.ts
 // ==============================================================================
 import { api as apiClient } from "@/lib/api-client";
-import type { Service, CreateServicePayload, UpdateServicePayload } from "@/types/api/service.types";
+import type { 
+  ServicePublic, 
+  ServiceAdmin, 
+  CreateServicePayload, 
+  UpdateServicePayload 
+} from "@/types/api/service.types";
 
 export const serviceRepository = {
   /** GET /api/services — liste publique des services actifs */
-  getPublicList: (): Promise<Service[]> =>
-    apiClient.get<Service[]>("/services", { revalidate: 300 }),
+  getPublicList: (): Promise<ServicePublic[]> =>
+    apiClient.get<ServicePublic[]>("/services", { revalidate: 300 }),
 
   /** GET /api/services/{slug} */
-  getPublicBySlug: (slug: string): Promise<Service> =>
-    apiClient.get<Service>(`/services/${slug}`, { revalidate: 300 }),
+  getPublicBySlug: (slug: string): Promise<ServicePublic> =>
+    apiClient.get<ServicePublic>(`/services/${slug}`, { revalidate: 300 }),
 
   /** GET /api/admin/services */
-  adminGetList: (): Promise<Service[]> =>
-    apiClient.get<Service[]>("/admin/services"),
+  adminGetList: (): Promise<ServiceAdmin[]> =>
+    apiClient.get<ServiceAdmin[]>("/admin/services"),
 
   /** GET /api/admin/services/{id} */
-  adminGetById: (id: string): Promise<Service> =>
-    apiClient.get(`/admin/services/${id}`),
+  adminGetById: (id: string): Promise<ServiceAdmin> =>
+    apiClient.get<ServiceAdmin>(`/admin/services/${id}`),
 
   /** POST /api/admin/services */
-  adminCreate: (payload: CreateServicePayload): Promise<Service> =>
-    apiClient.post("/admin/services", payload),
+  adminCreate: (payload: CreateServicePayload): Promise<ServiceAdmin> =>
+    apiClient.post<ServiceAdmin>("/admin/services", payload),
 
   /** PUT /api/admin/services/{id} */
-  adminUpdate: (id: string, payload: CreateServicePayload): Promise<Service> =>
-    apiClient.put(`/admin/services/${id}`, payload),
+  adminUpdate: (id: string, payload: CreateServicePayload): Promise<ServiceAdmin> =>
+    apiClient.put<ServiceAdmin>(`/admin/services/${id}`, payload),
 
   /** PATCH /api/admin/services/{id} */
-  adminPatch: (id: string, payload: UpdateServicePayload): Promise<Service> =>
-    apiClient.patch(`/admin/services/${id}`, payload),
+  adminPatch: (id: string, payload: UpdateServicePayload): Promise<ServiceAdmin> =>
+    apiClient.patch<ServiceAdmin>(`/admin/services/${id}`, payload),
 
   /** DELETE /api/admin/services/{id} */
   adminDelete: (id: string): Promise<void> =>
     apiClient.delete(`/admin/services/${id}`),
 };
-
 
 // END OF FILE: src/repositories/service.repository.ts
 
@@ -7073,7 +6721,7 @@ const COUNTRY_FLAGS: Record<string, string> = {
 function ScholarshipCard({ scholarship, locale }: { scholarship: ScholarshipPublicListItem; locale: "fr" | "en" }) {
   const title = locale === "fr" ? scholarship.titre_fr : scholarship.titre_en;
   const org   = locale === "fr" ? scholarship.organisme_fr : scholarship.organisme_en;
-  const imageUrl = getMediaUrl(scholarship.image_principale?.url);
+  const imageUrl = getMediaUrl(scholarship.image_principale?.url_fichier);
   const coverage = COVERAGE_LABELS[scholarship.type_couverture] ?? COVERAGE_LABELS.autre;
   const flag = COUNTRY_FLAGS[scholarship.pays_destination] ?? "🌍";
 
@@ -7323,9 +6971,6 @@ export default function Hero() {
 // FILE: src/sections/visitor/StatsCounter.tsx
 -----------------------------------------------
 // src/sections/visitor/StatsCounter.tsx
-// ==============================================================================
-//  Section Stats — données réelles KPI si disponibles, sinon valeurs statiques
-// ==============================================================================
 "use client";
 
 import { useLanguage } from "@/hooks/useLanguage";
@@ -7338,25 +6983,22 @@ interface Props {
 export default function StatsCounter({ kpi }: Props) {
   const { dictionary } = useLanguage();
 
-  // Stats enrichies avec données réelles si disponibles
+  // On simplifie : on ne garde que value et label
   const stats = [
     {
       id: "visas",
       value: dictionary.stats.visas.value,
       label: dictionary.stats.visas.label,
-      suffix: dictionary.stats.visas.suffix ?? "",
     },
     {
       id: "partners",
       value: dictionary.stats.partners.value,
       label: dictionary.stats.partners.label,
-      suffix: dictionary.stats.partners.suffix ?? "",
     },
     {
       id: "experience",
       value: dictionary.stats.experience.value,
       label: dictionary.stats.experience.label,
-      suffix: dictionary.stats.experience.suffix ?? "",
     },
     {
       id: "satisfaction",
@@ -7364,7 +7006,6 @@ export default function StatsCounter({ kpi }: Props) {
         ? `${Math.round(kpi.taux_conversion_global * 100)}%`
         : dictionary.stats.satisfaction.value,
       label: dictionary.stats.satisfaction.label,
-      suffix: "",
     },
   ];
 
@@ -7375,7 +7016,7 @@ export default function StatsCounter({ kpi }: Props) {
           {stats.map((stat) => (
             <div key={stat.id} className="flex flex-col items-center text-center group">
               <span className="text-4xl md:text-5xl font-serif font-bold text-salma-primary dark:text-salma-gold mb-2 transition-transform group-hover:scale-110 duration-300">
-                {stat.value}{stat.suffix}
+                {stat.value}
               </span>
               <div className="w-8 h-1 bg-salma-gold rounded-full mb-4 opacity-50" />
               <span className="text-xs md:text-sm font-sans font-bold uppercase tracking-widest text-salma-text-muted">
@@ -7388,7 +7029,6 @@ export default function StatsCounter({ kpi }: Props) {
     </section>
   );
 }
-
 
 // END OF FILE: src/sections/visitor/StatsCounter.tsx
 
@@ -8299,6 +7939,8 @@ export interface AnnouncementFilters {
 //  Calque exact sur les modèles Django / sérialiseurs DRF
 // ==============================================================================
 
+// Imports
+import type { MediaAssetMinimal } from "./media.types";
 // --- Énumérations (correspondent aux choices Django) -------------------------
 
 export type ScholarshipStatus = "brouillon" | "publie" | "expire" | "archive";
@@ -8339,12 +7981,6 @@ export interface FieldVisibility {
 /** Dictionnaire pratique : { nom_du_champ: est_visible } */
 export type FieldVisibilityMap = Record<string, boolean>;
 
-export interface MediaAssetMinimal {
-  id: string;
-  url: string;
-  nom: string;
-  type_mime: string;
-}
 
 export interface ScholarshipImage {
   id: string;
@@ -8409,10 +8045,8 @@ export interface ScholarshipPublicDetail {
 
 // --- Modèle principal — Admin complet (CRUD) --------------------------------
 
-export interface ScholarshipAdmin extends ScholarshipPublicDetail {
-  // Admin voit tout, pas de restriction de visibilité
-  // Les champs identiques sont hérités
-}
+// FIX : Utilisation d'un type alias au lieu d'une interface vide pour ESLint
+export type ScholarshipAdmin = ScholarshipPublicDetail;
 
 // --- Payloads de création/modification (admin) ------------------------------
 
@@ -8708,44 +8342,38 @@ export interface TestimonialFilters {
 
 // FILE: src/types/index.ts
 -----------------------------------------------
-// src/types/index.ts
-// ==============================================================================
-//  Barrel export — tous les types TypeScript du projet SALMA
-//  Usage : import type { Scholarship, AdminUser, KpiRealtime } from "@/types"
+// FILE: src/types/index.ts
 // ==============================================================================
 
-// --- Auth --------------------------------------------------------------------
-export type * from "@/types/api/auth.types";
+// --- Auth ---
+export * from "@/types/api/auth.types"; // Retrait du mot-clé 'type' pour exporter les enums/consts si présents
 
-// --- Bourses -----------------------------------------------------------------
-export type * from "@/typesapi/scholarship.types";
+// --- Bourses ---
+export * from "@/types/api/scholarship.types"; // CRITIQUE : exporte toFieldVisibilityMap et SCHOLARSHIP_VISIBILITY_FIELDS
 
-// --- Médias ------------------------------------------------------------------
-export type * from "@/typesapi/media.types";
+// --- Médias ---
+export * from "@/types/api/media.types";
 
-// --- CMS (Pages, Blocs, Config, Vidéos) -------------------------------------
-export type * from "@/typesapi/cms.types";
+// --- CMS ---
+export * from "@/types/api/cms.types";
 
-// --- Contact -----------------------------------------------------------------
-export type * from "@/typesapi/contact.types";
+// --- Contact ---
+export * from "@/types/api/contact.types";
 
-// --- Newsletter & Annonces ---------------------------------------------------
-export type * from "@/typesapi/newsletter.types";
+// --- Newsletter ---
+export * from "@/types/api/newsletter.types";
 
-// --- Témoignages -------------------------------------------------------------
-export type * from "@/typesapi/testimonial.types";
+// --- Témoignages ---
+export * from "@/types/api/testimonial.types";
 
-// --- Chatbot -----------------------------------------------------------------
-export type * from "@/typesapi/chatbot.types";
+// --- Chatbot ---
+export * from "@/types/api/chatbot.types";
 
-// --- Services ----------------------------------------------------------------
-export type * from "@/typesapi/service.types";
+// --- Services ---
+export * from "@/types/api/service.types";
 
-// --- KPI & Analytics ---------------------------------------------------------
-export type * from "@/typesapi/kpi.types";
-
-// Helper functions (non-type exports — à importer séparément si besoin)
-// Ex: import { toFieldVisibilityMap } from "@/types/api/scholarship.types"
+// --- KPI ---
+export * from "@/types/api/kpi.types";
 
 // END OF FILE: src/types/index.ts
 
@@ -9100,6 +8728,8 @@ const nextConfig: NextConfig = {
         protocol: 'https',
         hostname: 'api-x75k2m8-v1.agtgroupholding.com',
       },
+       { protocol: 'http',
+         hostname: '127.0.0.1' },
     ],
   },
 };

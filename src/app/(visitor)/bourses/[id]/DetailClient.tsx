@@ -7,7 +7,7 @@
 "use client";
 
 import { useEffect } from "react";
-import { eventsRepository } from "@/repositories/others.repository";
+import { eventsRepository } from "@/repositories/events.repository";
 
 interface Props {
   scholarshipId: string;

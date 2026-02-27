@@ -81,7 +81,7 @@ function ScholarshipCard({
 }) {
   const title   = locale === "fr" ? scholarship.titre_fr : scholarship.titre_en;
   const org     = locale === "fr" ? scholarship.organisme_fr : scholarship.organisme_en;
-  const imgUrl  = getMediaUrl(scholarship.image_principale?.url);
+  const imgUrl  = getMediaUrl(scholarship.image_principale?.url_fichier);
   const flag    = FLAG[scholarship.pays_destination] ?? "🌍";
   const covStyle = COVERAGE_STYLE[scholarship.type_couverture] ?? COVERAGE_STYLE.autre;
   const covLabel = COVERAGE_LABEL[scholarship.type_couverture] ?? "Aide financière";

@@ -46,7 +46,7 @@ const COUNTRY_FLAGS: Record<string, string> = {
 function ScholarshipCard({ scholarship, locale }: { scholarship: ScholarshipPublicListItem; locale: "fr" | "en" }) {
   const title = locale === "fr" ? scholarship.titre_fr : scholarship.titre_en;
   const org   = locale === "fr" ? scholarship.organisme_fr : scholarship.organisme_en;
-  const imageUrl = getMediaUrl(scholarship.image_principale?.url);
+  const imageUrl = getMediaUrl(scholarship.image_principale?.url_fichier);
   const coverage = COVERAGE_LABELS[scholarship.type_couverture] ?? COVERAGE_LABELS.autre;
   const flag = COUNTRY_FLAGS[scholarship.pays_destination] ?? "🌍";
 

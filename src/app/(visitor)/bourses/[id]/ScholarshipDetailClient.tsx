@@ -55,7 +55,7 @@ export default function ScholarshipDetailClient({ scholarship, visibilityMap }: 
           <div className="bg-white dark:bg-salma-surface rounded-3xl overflow-hidden border border-salma-border shadow-salma-md">
             <div className="relative h-[400px] w-full">
               <Image 
-                src={getMediaUrl(scholarship.images.find(img => img.est_principale)?.media.url) || "/image.jpg"}
+                src={getMediaUrl(scholarship.images.find(img => img.est_principale)?.media.url_fichier) || "/image.jpg"}
                 alt={title}
                 fill
                 className="object-cover"

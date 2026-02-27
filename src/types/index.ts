@@ -1,38 +1,32 @@
-// src/types/index.ts
-// ==============================================================================
-//  Barrel export — tous les types TypeScript du projet SALMA
-//  Usage : import type { Scholarship, AdminUser, KpiRealtime } from "@/types"
+// FILE: src/types/index.ts
 // ==============================================================================
 
-// --- Auth --------------------------------------------------------------------
-export type * from "@/types/api/auth.types";
+// --- Auth ---
+export * from "@/types/api/auth.types"; // Retrait du mot-clé 'type' pour exporter les enums/consts si présents
 
-// --- Bourses -----------------------------------------------------------------
-export type * from "@/typesapi/scholarship.types";
+// --- Bourses ---
+export * from "@/types/api/scholarship.types"; // CRITIQUE : exporte toFieldVisibilityMap et SCHOLARSHIP_VISIBILITY_FIELDS
 
-// --- Médias ------------------------------------------------------------------
-export type * from "@/typesapi/media.types";
+// --- Médias ---
+export * from "@/types/api/media.types";
 
-// --- CMS (Pages, Blocs, Config, Vidéos) -------------------------------------
-export type * from "@/typesapi/cms.types";
+// --- CMS ---
+export * from "@/types/api/cms.types";
 
-// --- Contact -----------------------------------------------------------------
-export type * from "@/typesapi/contact.types";
+// --- Contact ---
+export * from "@/types/api/contact.types";
 
-// --- Newsletter & Annonces ---------------------------------------------------
-export type * from "@/typesapi/newsletter.types";
+// --- Newsletter ---
+export * from "@/types/api/newsletter.types";
 
-// --- Témoignages -------------------------------------------------------------
-export type * from "@/typesapi/testimonial.types";
+// --- Témoignages ---
+export * from "@/types/api/testimonial.types";
 
-// --- Chatbot -----------------------------------------------------------------
-export type * from "@/typesapi/chatbot.types";
+// --- Chatbot ---
+export * from "@/types/api/chatbot.types";
 
-// --- Services ----------------------------------------------------------------
-export type * from "@/typesapi/service.types";
+// --- Services ---
+export * from "@/types/api/service.types";
 
-// --- KPI & Analytics ---------------------------------------------------------
-export type * from "@/typesapi/kpi.types";
-
-// Helper functions (non-type exports — à importer séparément si besoin)
-// Ex: import { toFieldVisibilityMap } from "@/types/api/scholarship.types"
+// --- KPI ---
+export * from "@/types/api/kpi.types";

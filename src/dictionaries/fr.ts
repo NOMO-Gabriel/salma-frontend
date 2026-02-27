@@ -119,6 +119,7 @@ export const fr = {
 
   catalog: {
     title: "Toutes nos bourses",
+     subtitle: "Chine & Allemagne",
     description: "Trouvez la bourse qui correspond à votre projet d'études en Chine ou en Allemagne.",
     searchPlaceholder: "Rechercher une bourse...",
     filterAll: "Tous",

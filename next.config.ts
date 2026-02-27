@@ -16,6 +16,8 @@ const nextConfig: NextConfig = {
         protocol: 'https',
         hostname: 'api-x75k2m8-v1.agtgroupholding.com',
       },
+       { protocol: 'http',
+         hostname: '127.0.0.1' },
     ],
   },
 };
