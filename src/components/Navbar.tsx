@@ -3,7 +3,6 @@
 import Link from "next/link";
 import { useState } from "react";
 import { useLanguage } from "@/hooks/useLanguage";
-import ThemeSwitcher from "./ThemeSwitcher";
 import LanguageSwitcher from "./LanguageSwitcher";
 import SalmaButton from "./ui/SalmaButton";
 
@@ -49,7 +48,6 @@ export default function Navbar() {
           {/* ACTIONS */}
           <div className="flex items-center gap-4">
             <LanguageSwitcher />
-            <ThemeSwitcher />
             
             {/* CONTACT EN BOUTON POUR LA CONVERSION */}
             <Link href="/contact">
@@ -93,7 +91,6 @@ export default function Navbar() {
           <div className="flex justify-between items-center pt-6 border-t border-salma-border">
             <div className="flex gap-4">
               <LanguageSwitcher />
-              <ThemeSwitcher />
             </div>
             <Link href="/admin/dashboard" onClick={() => setIsOpen(false)} className="text-xs font-bold text-salma-primary">
               {dictionary.nav.admin}

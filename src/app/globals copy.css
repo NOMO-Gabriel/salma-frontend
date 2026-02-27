@@ -2,48 +2,58 @@
 @import "tailwindcss";
 
 @theme inline {
+  /* --- Polices --- */
   --font-serif: var(--font-cormorant), Georgia, serif;
   --font-sans: var(--font-inter), system-ui, sans-serif;
 
+  /* --- Couleurs SALMA (Inspirées de la bannière Facebook) --- */
+  /* Bleu Marine (Confiance/Banque) */
   --color-salma-primary:       #1B365D; 
   --color-salma-primary-dark:  #11243D;
   --color-salma-primary-light: #2D5284;
+
+  /* Bleu Azur (Voyage/Action) */
   --color-salma-accent:        #00AEEF; 
+
+  /* Or (Excellence/Bourses) */
   --color-salma-gold:          #C9A84C;
   --color-salma-gold-light:    #E8C97A;
   --color-salma-gold-dark:     #A68635;
 
+  /* --- Tokens sémantiques --- */
   --color-bg:         var(--bg);
   --color-surface:    var(--surface);
   --color-border:     var(--border);
   --color-text:       var(--text);
   --color-text-muted: var(--text-muted);
-  --color-heading:    var(--heading);
 
+  /* --- Ombres (plus légères et aériennes) --- */
   --shadow-salma-sm:  0 2px 10px rgba(0, 174, 239, 0.05);
   --shadow-salma-md:  0 10px 30px rgba(27, 54, 93, 0.1);
   --shadow-salma-lg:  0 20px 50px rgba(27, 54, 93, 0.15);
 }
 
 :root {
+  /* Fond CLAIR demandé (Pure White) */
   --bg:         #FFFFFF;
   --surface:    #F8FAFC;
   --border:     #E2E8F0;
   --text:       #0F172A;
   --text-muted: #64748B;
-  --heading:    #1B365D; 
+   --heading:    #1B365D; 
 }
 
 .dark {
-  /* On utilise un bleu très sombre saturé pour garder l'identité Navy */
-  --bg:         #0F172A; /* Bleu nuit profond */
-  --surface:    #1E293B; /* Bleu ardoise pour les cartes */
-  --border:     #334155; /* Bordures visibles mais discrètes */
-  --text:       #94A3B8; /* Gris bleuté pour le texte */
-  --text-muted: #64748B;
-  --heading:    #F8FAFC; /* Titres en blanc cassé pour le contraste */
+  /* Mode Sombre (Bleu Nuit Profond) */
+  --bg:         #0A0F1A;
+  --surface:    #151D2E;
+  --border:     #1E293B;
+  --text:       #F1F5F9;
+  --text-muted: #94A3B8;
+   --heading:    #F1F5F9;
 }
 
+/* --- Reset & Base --- */
 body {
   background-color: var(--bg);
   color: var(--text);
@@ -54,6 +64,18 @@ body {
 h1, h2, h3, h4, h5, h6 {
   font-family: var(--font-serif);
   font-weight: 700;
-  color: var(--heading); 
+ color: var(--heading); 
   transition: color 0.4s ease;
+}
+
+/* --- Utilitaires de test visuel --- */
+.gold-divider {
+  width: 50px;
+  height: 3px;
+  background-color: var(--color-salma-gold);
+  border-radius: 10px;
+}
+
+.blue-gradient {
+  background: linear-gradient(135deg, var(--color-salma-primary) 0%, var(--color-salma-accent) 100%);
 }

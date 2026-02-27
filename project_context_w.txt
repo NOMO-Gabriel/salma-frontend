@@ -1,5 +1,5 @@
 ﻿Next.js Project Context
-Generated On: 2026-02-26 23:26:03
+Generated On: 2026-02-26 23:37:15
 Root: E:\AG_Technologie\Salma\salma-frontend
 ===============================================
 
@@ -1486,7 +1486,44 @@ export default function ServicesPage() {
 // END OF FILE: src/app/(visitor)/services/page.tsx
 
 
-// FILE: src/app/globals.css
+// FILE: src/app/test-theme/page.tsx
+-----------------------------------------------
+// src/app/test-theme/page.tsx
+"use client";
+
+export default function ThemeTestPage() {
+  return (
+    <div className="min-h-screen p-12 flex flex-col items-center justify-center gap-8">
+      <div className="max-w-md w-full p-8 rounded-3xl bg-surface border border-border shadow-xl">
+        <span className="text-gold font-bold tracking-widest text-xs uppercase">Test de Design</span>
+        <h1 className="text-3xl font-serif font-bold text-salma-primary mt-2 mb-4">
+          Bourse d'Excellence SALMA
+        </h1>
+        <p className="text-text-muted text-sm leading-relaxed mb-6">
+          Ceci est un test pour valider la nouvelle charte graphique Bordeaux & Or. 
+          Le fond de cette carte change selon le mode Clair ou Sombre.
+        </p>
+        <div className="flex gap-4">
+          <button className="flex-1 bg-salma-primary text-white py-3 rounded-xl font-bold text-sm transition-transform active:scale-95">
+            Postuler
+          </button>
+          <button className="flex-1 border-2 border-gold text-gold py-3 rounded-xl font-bold text-sm">
+            Détails
+          </button>
+        </div>
+      </div>
+      
+      <p className="text-xs text-text-muted italic">
+        Utilise ton bouton de changement de thème dans la Navbar pour tester.
+      </p>
+    </div>
+  );
+}
+
+// END OF FILE: src/app/test-theme/page.tsx
+
+
+// FILE: src/app/globals copy.css
 -----------------------------------------------
 /* src/app/globals.css */
 @import "tailwindcss";
@@ -1570,6 +1607,71 @@ h1, h2, h3, h4, h5, h6 {
   background: linear-gradient(135deg, var(--color-salma-primary) 0%, var(--color-salma-accent) 100%);
 }
 
+// END OF FILE: src/app/globals copy.css
+
+
+// FILE: src/app/globals.css
+-----------------------------------------------
+/* src/app/globals.css */
+@import "tailwindcss";
+
+@theme inline {
+  --font-serif: var(--font-cormorant), Georgia, serif;
+  --font-sans: var(--font-inter), system-ui, sans-serif;
+
+  --color-salma-primary:       #1B365D; 
+  --color-salma-primary-dark:  #11243D;
+  --color-salma-primary-light: #2D5284;
+  --color-salma-accent:        #00AEEF; 
+  --color-salma-gold:          #C9A84C;
+  --color-salma-gold-light:    #E8C97A;
+  --color-salma-gold-dark:     #A68635;
+
+  --color-bg:         var(--bg);
+  --color-surface:    var(--surface);
+  --color-border:     var(--border);
+  --color-text:       var(--text);
+  --color-text-muted: var(--text-muted);
+  --color-heading:    var(--heading);
+
+  --shadow-salma-sm:  0 2px 10px rgba(0, 174, 239, 0.05);
+  --shadow-salma-md:  0 10px 30px rgba(27, 54, 93, 0.1);
+  --shadow-salma-lg:  0 20px 50px rgba(27, 54, 93, 0.15);
+}
+
+:root {
+  --bg:         #FFFFFF;
+  --surface:    #F8FAFC;
+  --border:     #E2E8F0;
+  --text:       #0F172A;
+  --text-muted: #64748B;
+  --heading:    #1B365D; 
+}
+
+.dark {
+  /* On utilise un bleu très sombre saturé pour garder l'identité Navy */
+  --bg:         #0F172A; /* Bleu nuit profond */
+  --surface:    #1E293B; /* Bleu ardoise pour les cartes */
+  --border:     #334155; /* Bordures visibles mais discrètes */
+  --text:       #94A3B8; /* Gris bleuté pour le texte */
+  --text-muted: #64748B;
+  --heading:    #F8FAFC; /* Titres en blanc cassé pour le contraste */
+}
+
+body {
+  background-color: var(--bg);
+  color: var(--text);
+  font-family: var(--font-sans);
+  transition: background-color 0.4s ease, color 0.4s ease;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-serif);
+  font-weight: 700;
+  color: var(--heading); 
+  transition: color 0.4s ease;
+}
+
 // END OF FILE: src/app/globals.css
 
 
@@ -1615,7 +1717,12 @@ export default function RootLayout({
       suppressHydrationWarning
     >
       <body className="antialiased bg-salma-bg text-salma-text transition-colors duration-300">
-        <ThemeProvider>
+        <ThemeProvider
+        attribute="class" 
+        defaultTheme="light" 
+        forcedTheme="light" // Force le mode clair
+        enableSystem={false}
+        >
           <LanguageProvider>
             <Navbar />
             <main>{children}</main>
@@ -1655,38 +1762,6 @@ export default function Home() {
 }
 
 // END OF FILE: src/app/page.tsx
-
-
-// FILE: src/app/page2.tsx
------------------------------------------------
-"use client";
-
-import { MOCK_SCHOLARSHIPS } from "@/data/mock-scholarships";
-import ScholarshipCard from "@/components/ui/ScholarshipCard";
-import SectionTitle from "@/components/ui/SectionTitle";
-import { useLanguage } from "@/hooks/useLanguage";
-
-export default function Home() {
-  const { dictionary } = useLanguage();
-
-  return (
-    <div className="max-w-7xl mx-auto px-6 py-20">
-      <SectionTitle 
-        title={dictionary.scholarships.sectionTitle} 
-        subtitle="Nos opportunités" 
-        align="center" 
-      />
-      
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
-        {MOCK_SCHOLARSHIPS.map((s) => (
-          <ScholarshipCard key={s.id} scholarship={s} />
-        ))}
-      </div>
-    </div>
-  );
-}
-
-// END OF FILE: src/app/page2.tsx
 
 
 // FILE: src/components/admin/AddScholarshipModal.tsx
@@ -2228,7 +2303,6 @@ export default function LanguageSwitcher() {
 import Link from "next/link";
 import { useState } from "react";
 import { useLanguage } from "@/hooks/useLanguage";
-import ThemeSwitcher from "./ThemeSwitcher";
 import LanguageSwitcher from "./LanguageSwitcher";
 import SalmaButton from "./ui/SalmaButton";
 
@@ -2274,7 +2348,6 @@ export default function Navbar() {
           {/* ACTIONS */}
           <div className="flex items-center gap-4">
             <LanguageSwitcher />
-            <ThemeSwitcher />
             
             {/* CONTACT EN BOUTON POUR LA CONVERSION */}
             <Link href="/contact">
@@ -2318,7 +2391,6 @@ export default function Navbar() {
           <div className="flex justify-between items-center pt-6 border-t border-salma-border">
             <div className="flex gap-4">
               <LanguageSwitcher />
-              <ThemeSwitcher />
             </div>
             <Link href="/admin/dashboard" onClick={() => setIsOpen(false)} className="text-xs font-bold text-salma-primary">
               {dictionary.nav.admin}
@@ -3368,6 +3440,70 @@ export function useTheme() {
 // END OF FILE: src/hooks/useTheme.ts
 
 
+// FILE: src/lib/api-client.ts
+-----------------------------------------------
+// src/lib/api-client.ts
+
+const BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000/api";
+
+interface FetchOptions extends RequestInit {
+  params?: Record<string, string>;
+  revalidate?: number;
+}
+
+async function apiFetch<T>(endpoint: string, options: FetchOptions = {}): Promise<T> {
+  const { params, revalidate, ...customConfig } = options;
+
+  // Construction de l'URL avec les paramètres de requête (query params)
+  const url = new URL(`${BASE_URL}${endpoint.startsWith("/") ? endpoint : `/${endpoint}`}`);
+  if (params) {
+    Object.keys(params).forEach((key) => url.searchParams.append(key, params[key]));
+  }
+
+  const headers = {
+    "Content-Type": "application/json",
+    ...customConfig.headers,
+  };
+
+  const config: RequestInit = {
+    ...customConfig,
+    headers,
+    next: revalidate !== undefined ? { revalidate } : customConfig.next,
+  };
+
+  try {
+    const response = await fetch(url.toString(), config);
+
+    // Gestion des erreurs HTTP
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.detail || `Erreur API: ${response.status}`);
+    }
+
+    // Pour les DELETE ou les réponses vides
+    if (response.status === 204) return {} as T;
+
+    return await response.json();
+  } catch (error) {
+    console.error(`[API Error] ${endpoint}:`, error);
+    throw error;
+  }
+}
+
+export const api = {
+  get: <T>(url: string, options?: FetchOptions) => apiFetch<T>(url, { ...options, method: "GET" }),
+  post: <T>(url: string, body: any, options?: FetchOptions) => 
+    apiFetch<T>(url, { ...options, method: "POST", body: JSON.stringify(body) }),
+  put: <T>(url: string, body: any, options?: FetchOptions) => 
+    apiFetch<T>(url, { ...options, method: "PUT", body: JSON.stringify(body) }),
+  patch: <T>(url: string, body: any, options?: FetchOptions) => 
+    apiFetch<T>(url, { ...options, method: "PATCH", body: JSON.stringify(body) }),
+  delete: <T>(url: string, options?: FetchOptions) => apiFetch<T>(url, { ...options, method: "DELETE" }),
+};
+
+// END OF FILE: src/lib/api-client.ts
+
+
 // FILE: src/sections/visitor/ContactForm.tsx
 -----------------------------------------------
 "use client";
@@ -4273,6 +4409,38 @@ Le site sera disponible sur `http://localhost:3000`.
 - **Téléphones :** +237 6 99 45 09 84 / +237 6 51 74 03 28
 
 // END OF FILE: README.md
+
+
+// FILE: todo.md
+-----------------------------------------------
+### 📋 To-Do List : Projet SALMA (Version Client-First)
+
+**Phase 1 : Socle Technique & Design (L'urgence)**
+- [x] Configuration du client API avec `fetch` (Gestion des erreurs et Base URL).
+- [x] Stabilisation du thème : Forcé en Clair, Architecture sémantique prête.
+- [ ] Définition des Types TypeScript (basés sur les modèles Django réels : Scholarship, Service, KPI).
+- [ ] Création des Repositories (scholarship.repository.ts, cms.repository.ts, etc.) avec toutes le sméthodes
+- [] Configuration de la liaison repositories et dictionnaire afin que les composants connaisent uniquement les dictionnaire qui eux coinnqisent les repositories qui eux connqissent le serveur ainsi les appels serveurs sont optimisées via des server components et donc la performance aussi 
+
+**Phase 2 : Dynamisation de la Vitrine (Liaison Backend)**
+- [ ] Liaison de la **Home Page** (Stats réelles, Bourses à la une).
+- [ ] Liaison du **Catalogue complet** (Fetch des bourses + Filtres dynamiques).
+- [ ] Création de la **Page de Détail** dynamique (Route `[id]` + Affichage conditionnel des champs).
+- [ ] Envoi réel du **Formulaire de Contact** vers l'API Django.
+
+**Phase 3 : Dashboard Admin (Le Pilotage)**
+- [ ] Système d'authentification JWT (Login + Protection des routes).
+- [ ] Interface de gestion des bourses (CRUD complet).
+- [ ] Gestionnaire de médias (Upload et bibliothèque).
+- [ ] Suivi des candidatures et des abonnés newsletter.
+
+**Phase 4 : Retours Clients & Excellence (Le Polissage)**
+- [ ] Intégration du Chatbot IA (Gemini).
+- [ ] Ajout des animations raffinées (Framer Motion ou CSS transitions avancées).
+- [ ] Mise en place des KPI Analytics dans le dashboard.
+
+
+// END OF FILE: todo.md
 
 
 // FILE: tsconfig.json

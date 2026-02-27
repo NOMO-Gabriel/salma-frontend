@@ -1,15 +1,47 @@
+// src/sections/visitor/StatsCounter.tsx
+// ==============================================================================
+//  Section Stats — données réelles KPI si disponibles, sinon valeurs statiques
+// ==============================================================================
 "use client";
 
 import { useLanguage } from "@/hooks/useLanguage";
+import type { KpiRealtime } from "@/types/api/kpi.types";
 
-export default function StatsCounter() {
+interface Props {
+  kpi?: KpiRealtime | null;
+}
+
+export default function StatsCounter({ kpi }: Props) {
   const { dictionary } = useLanguage();
 
+  // Stats enrichies avec données réelles si disponibles
   const stats = [
-    { id: "visas", ...dictionary.stats.visas },
-    { id: "partners", ...dictionary.stats.partners },
-    { id: "experience", ...dictionary.stats.experience },
-    { id: "satisfaction", ...dictionary.stats.satisfaction },
+    {
+      id: "visas",
+      value: dictionary.stats.visas.value,
+      label: dictionary.stats.visas.label,
+      suffix: dictionary.stats.visas.suffix ?? "",
+    },
+    {
+      id: "partners",
+      value: dictionary.stats.partners.value,
+      label: dictionary.stats.partners.label,
+      suffix: dictionary.stats.partners.suffix ?? "",
+    },
+    {
+      id: "experience",
+      value: dictionary.stats.experience.value,
+      label: dictionary.stats.experience.label,
+      suffix: dictionary.stats.experience.suffix ?? "",
+    },
+    {
+      id: "satisfaction",
+      value: kpi
+        ? `${Math.round(kpi.taux_conversion_global * 100)}%`
+        : dictionary.stats.satisfaction.value,
+      label: dictionary.stats.satisfaction.label,
+      suffix: "",
+    },
   ];
 
   return (
@@ -18,16 +50,11 @@ export default function StatsCounter() {
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-8 md:gap-12">
           {stats.map((stat) => (
             <div key={stat.id} className="flex flex-col items-center text-center group">
-              {/* Le Chiffre */}
               <span className="text-4xl md:text-5xl font-serif font-bold text-salma-primary dark:text-salma-gold mb-2 transition-transform group-hover:scale-110 duration-300">
-                {stat.value}
+                {stat.value}{stat.suffix}
               </span>
-              
-              {/* Le Petit Trait Décoratif Or */}
               <div className="w-8 h-1 bg-salma-gold rounded-full mb-4 opacity-50" />
-              
-              {/* Le Libellé */}
-              <span className="text-xs md:text-sm font-sans font-bold uppercase tracking-[0.2em] text-salma-text-muted">
+              <span className="text-xs md:text-sm font-sans font-bold uppercase tracking-widest text-salma-text-muted">
                 {stat.label}
               </span>
             </div>
