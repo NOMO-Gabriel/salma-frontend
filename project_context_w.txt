@@ -1,5 +1,5 @@
 ﻿Next.js Project Context
-Generated On: 2026-02-27 19:43:24
+Generated On: 2026-02-27 21:39:33
 Root: C:\Users\hp\Documents\stage gabriel\SALMA\salma-frontend
 ===============================================
 
@@ -1033,14 +1033,12 @@ L'innovation majeure est le **"Scholarship Matcher"** :
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import { useLanguage } from "@/hooks/useLanguage";
 import { scholarshipDictionary } from "@/dictionaries/data";
 import AddScholarshipModal from "@/components/admin/AddScholarshipModal";
 import type { ScholarshipAdmin, ScholarshipFilters, ScholarshipCountry } from "@/types";
 
 export default function AdminDashboard() {
   // FIX : Retrait de 'dictionary' non utilisé
-  const { locale } = useLanguage(); 
   const [scholarships, setScholarships] = useState<ScholarshipAdmin[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -2532,7 +2530,7 @@ export default async function Home() {
 
 import { useState, useEffect } from "react";
 import { scholarshipDictionary } from "@/dictionaries/data";
-import { SCHOLARSHIP_VISIBILITY_FIELDS, type UpdateScholarshipPayload, type FieldVisibilityMap } from "@/types";
+import { SCHOLARSHIP_VISIBILITY_FIELDS, type UpdateScholarshipPayload, type FieldVisibilityMap,type CreateScholarshipPayload } from "@/types";
 import SalmaButton from "../ui/SalmaButton";
 
 interface Props {
@@ -2577,7 +2575,7 @@ export default function AddScholarshipModal({ isOpen, onClose, onSave, scholarsh
         await scholarshipDictionary.admin.saveVisibility(scholarshipId, visibility);
       } else {
         // En création, on cast en CreateScholarshipPayload (le type est compatible)
-        await scholarshipDictionary.admin.create(form as any); 
+        await scholarshipDictionary.admin.create(form as CreateScholarshipPayload); 
       }
       onSave();
       onClose();
