@@ -27,7 +27,7 @@ export default function Navbar() {
             SALMA
           </span>
           <span className="text-[10px] uppercase tracking-[0.3em] text-salma-gold font-sans font-bold">
-            Travel Agency
+            Bourses de Voyage
           </span>
         </Link>
 

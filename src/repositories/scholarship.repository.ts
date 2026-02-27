@@ -65,7 +65,7 @@ export const scholarshipPublicRepository = {
    * Bourses mises en avant (pour la home page)
    */
   getFeatured: (): Promise<ScholarshipPublicListItem[]> => {
-    return api.get<ScholarshipPublicListItem[]>(`${PUBLIC}/vedette`, {
+    return api.get<ScholarshipPublicListItem[]>(`${PUBLIC}/mise-en-avant`, {
       revalidate: 60,
     });
   },

@@ -19,13 +19,13 @@
 
 ### 1.1 Types TypeScript exhaustifs
 - [x] `src/types/api/scholarship.types.ts` — modèle complet (tous les champs Django + `field_visibility: Record<string, boolean>`)
-- [] `src/types/api/service.types.ts`
-- [] `src/types/api/cms.types.ts` (pages, sections, champs CMS)
-- [] `src/types/api/contact.types.ts` (demandes + rendez-vous)
-- [] `src/types/api/newsletter.types.ts` (abonnés + annonces)
-- [] `src/types/api/testimonial.types.ts`
-- [] `src/types/api/chatbot.types.ts` (questions/réponses FAQ)
-- [] `src/types/api/media.types.ts`
+- [x] `src/types/api/service.types.ts`
+- [x] `src/types/api/cms.types.ts` (pages, sections, champs CMS)
+- [x] `src/types/api/contact.types.ts` (demandes + rendez-vous)
+- [x] `src/types/api/newsletter.types.ts` (abonnés + annonces)
+- [x] `src/types/api/testimonial.types.ts`
+- [x] `src/types/api/chatbot.types.ts` (questions/réponses FAQ)
+- [x] `src/types/api/media.types.ts`
 - [x] `src/types/api/kpi.types.ts` (snapshots, temps-réel, conversion)
 - [x] `src/types/api/auth.types.ts` (JWT tokens, user, profil admin)
 - [x] `src/types/index.ts` — barrel export de tous les types
@@ -38,9 +38,9 @@
 - [x] `src/repositories/cms.repository.ts` (20 endpoints : pages, sections, champs)
 - [] `src/repositories/contact.repository.ts` (5 endpoints)
 - [x] `src/repositories/newsletter.repository.ts` (12 endpoints)
-- [] `src/repositories/testimonial.repository.ts` (8 endpoints)
+- [x] `src/repositories/testimonial.repository.ts` (8 endpoints)
 - [x] `src/repositories/chatbot.repository.ts` (6 endpoints)
-- [] `src/repositories/media.repository.ts` (5 endpoints)
+- [x] `src/repositories/media.repository.ts` (5 endpoints)
 - [x] `src/repositories/kpi.repository.ts` (6 endpoints)
 - [x] `src/repositories/auth.repository.ts` (9 endpoints : login, refresh, profil, reset pwd)
 - [x] `src/repositories/events.repository.ts` (tracking visiteurs — POST `/api/evenements`)
@@ -50,9 +50,9 @@
 
 - [x] `src/dictionaries/data/scholarship.data-dictionary.ts`
 - [x] `src/dictionaries/data/cms.data-dictionary.ts`
-- [] `src/dictionaries/data/contact.data-dictionary.ts`
-- [] `src/dictionaries/data/newsletter.data-dictionary.ts`
-- [] `src/dictionaries/data/kpi.data-dictionary.ts`
+- [x] `src/dictionaries/data/contact.data-dictionary.ts`
+- [x] `src/dictionaries/data/newsletter.data-dictionary.ts`
+- [x] `src/dictionaries/data/kpi.data-dictionary.ts`
 - [x] Pattern : toutes les fonctions `async`, retournent des données typées, centralisent le `revalidate` ISR
 
 ### 1.4 Authentification JWT (admin)
@@ -90,19 +90,19 @@
 - [x] Métadonnées dynamiques (OpenGraph, SEO)
 
 ### 2.4 Formulaire de contact
-- [ ] Envoi réel vers `POST /api/contact`
-- [ ] Validation côté client (Zod ou validation native TypeScript)
-- [ ] Confirmation mail simulé (état success UI)
-- [ ] Tracking événement `CONTACT_SOUMIS`
+- [x] Envoi réel vers `POST /api/contact`
+- [x] Validation côté client (Zod ou validation native TypeScript)
+- [x] Confirmation mail simulé (état success UI)
+- [x] Tracking événement `CONTACT_SOUMIS`
 
 ### 2.5 Prise de rendez-vous
-- [ ] Formulaire dédié (nom, email, tel, date souhaitée, objet)
-- [ ] Envoi vers API contact avec type `rendez-vous`
-- [ ] Notification agence : email (simulé via backend) + toast dans dashboard admin
+- [x] Formulaire dédié (nom, email, tel, date souhaitée, objet)
+- [x] Envoi vers API contact avec type `rendez-vous`
+- [x] Notification agence : email (simulé via backend) + toast dans dashboard admin
 
 ### 2.6 Témoignages
-- [ ] Section témoignages sur la Home (fetch `GET /api/temoignages`)
-- [ ] Seuls les témoignages `approuvés` s'affichent
+- [x] Section témoignages sur la Home (fetch `GET /api/temoignages`)
+- [x] Seuls les témoignages `approuvés` s'affichent
 
 ---
 

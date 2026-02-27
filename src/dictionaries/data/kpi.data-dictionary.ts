@@ -4,7 +4,8 @@
 //  Point d'entrée unique pour toutes les stats du dashboard
 // ==============================================================================
 
-import { kpiRepository, eventsRepository } from "@/repositories/others.repository";
+import { eventsRepository } from "@/repositories/events.repository";
+import { kpiRepository} from "@/repositories/kpi.repository";
 import type {
   KpiRealtime,
   KpiSnapshot,
@@ -14,7 +15,7 @@ import type {
   EventFilters,
   KpiSnapshotFilters,
 } from "@/types/api/kpi.types";
-import type { PaginatedResponse } from "@/types";
+import type { PaginatedResponse } from "@/types/api/scholarship.types";
 
 export const kpiDictionary = {
   // --- Tracking public (côté client, silencieux) ----------------------------

@@ -5,8 +5,9 @@ import { ThemeProvider } from "@/contexts/ThemeContext";
 import { LanguageProvider } from "@/contexts/LanguageContext";
 import Navbar from "@/components/Navbar";
 import WhatsAppButton from "@/components/ui/WhatsAppButton";
+import ChatbotWidget from "@/components/ui/ChatbotWidget";
 import Footer from "@/components/Footer";
-
+import CookieBanner from "@/components/ui/CookieBanner";
 // Polices configurées comme dans ton portfolio
 const cormorant = Cormorant_Garamond({
   subsets: ["latin"],
@@ -49,6 +50,8 @@ export default function RootLayout({
             <main>{children}</main>
             <Footer /> 
             <WhatsAppButton />
+            <ChatbotWidget />
+            <CookieBanner />
           </LanguageProvider>
         </ThemeProvider>
       </body>

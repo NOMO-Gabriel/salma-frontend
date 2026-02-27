@@ -266,5 +266,11 @@ export const en = {
         save: "Save",
       }
     }
+  },
+  cookies: {
+    text: "We use cookies to improve your experience and analyze our traffic. Check our",
+    link: "privacy policy",
+    accept: "Accept",
+    decline: "Decline"
   }
 } as const;

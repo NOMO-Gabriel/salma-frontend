@@ -14,7 +14,7 @@ import { useLanguage } from "@/hooks/useLanguage";
 import SectionTitle from "@/components/ui/SectionTitle";
 import SalmaButton from "@/components/ui/SalmaButton";
 import { getMediaUrl } from "@/lib/api-client";
-import { eventsRepository } from "@/repositories/others.repository";
+import { eventsRepository } from "@/repositories/events.repository";
 import type {
   ScholarshipPublicListItem,
   ScholarshipFilters,

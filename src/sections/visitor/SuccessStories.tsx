@@ -1,6 +1,7 @@
 // src/sections/visitor/SuccessStories.tsx
 // ==============================================================================
 //  Section Témoignages — données réelles depuis l'API (approuvés uniquement)
+//  Utilise TestimonialPublic (types corrects) + fallback si aucune donnée
 // ==============================================================================
 "use client";
 
@@ -8,10 +9,10 @@ import { useLanguage } from "@/hooks/useLanguage";
 import Image from "next/image";
 import SectionTitle from "@/components/ui/SectionTitle";
 import { getMediaUrl } from "@/lib/api-client";
-import type { Testimonial } from "@/types/api/testimonial.types";
+import type { TestimonialPublic } from "@/types/api/testimonial.types";
 
 interface Props {
-  testimonials: Testimonial[];
+  testimonials: TestimonialPublic[];
 }
 
 function StarRating({ note }: { note: number }) {
@@ -32,39 +33,42 @@ function StarRating({ note }: { note: number }) {
 }
 
 // Données de fallback si aucun témoignage approuvé en BD
-const FALLBACK_TESTIMONIALS: Omit<Testimonial, "id" | "date_creation" | "bourse_id">[] = [
+const FALLBACK_TESTIMONIALS: TestimonialPublic[] = [
   {
-    nom: "Aminata K.",
-    titre: "Étudiante en Master, Université de Pékin",
-    texte_fr: "Grâce à SALMA, j'ai obtenu ma bourse CSC en moins de 2 mois. L'équipe m'a accompagnée à chaque étape du dossier.",
-    texte_en: "Thanks to SALMA, I got my CSC scholarship in less than 2 months. The team supported me at every step.",
+    id: "fallback-1",
+    nom_auteur: "Aminata K.",
+    pays_auteur: "Cameroun",
+    citation_fr:
+      "Grâce à SALMA, j'ai obtenu ma bourse CSC en moins de 2 mois. L'équipe m'a accompagnée à chaque étape du dossier.",
+    citation_en:
+      "Thanks to SALMA, I got my CSC scholarship in less than 2 months. The team supported me at every step.",
     note: 5,
-    pays_destination: "Chine",
-    statut: "approuve",
     photo: null,
-    ordre: 1,
+    date_creation: "2025-09-15",
   },
   {
-    nom: "Jean-Baptiste M.",
-    titre: "Doctorant, TU Berlin",
-    texte_fr: "Professionnel et efficace. Mon visa allemand a été obtenu en 3 semaines comme promis.",
-    texte_en: "Professional and efficient. My German visa was obtained in 3 weeks as promised.",
+    id: "fallback-2",
+    nom_auteur: "Jean-Baptiste M.",
+    pays_auteur: "Cameroun",
+    citation_fr:
+      "Professionnel et efficace. Mon visa allemand a été obtenu en 3 semaines comme promis.",
+    citation_en:
+      "Professional and efficient. My German visa was obtained in 3 weeks as promised.",
     note: 5,
-    pays_destination: "Allemagne",
-    statut: "approuve",
     photo: null,
-    ordre: 2,
+    date_creation: "2025-10-20",
   },
   {
-    nom: "Fatou D.",
-    titre: "Étudiante en Licence, Shanghai",
-    texte_fr: "Le chatbot m'a guidée 24h/24. L'équipe a répondu à toutes mes questions rapidement.",
-    texte_en: "The chatbot guided me 24/7. The team answered all my questions quickly.",
+    id: "fallback-3",
+    nom_auteur: "Fatou D.",
+    pays_auteur: "Cameroun",
+    citation_fr:
+      "L'équipe a répondu à toutes mes questions rapidement. Je recommande vivement !",
+    citation_en:
+      "The team answered all my questions quickly. I highly recommend them!",
     note: 5,
-    pays_destination: "Chine",
-    statut: "approuve",
     photo: null,
-    ordre: 3,
+    date_creation: "2025-11-10",
   },
 ];
 
@@ -72,35 +76,49 @@ export default function SuccessStories({ testimonials }: Props) {
   const { dictionary, locale } = useLanguage();
 
   // Utiliser les données réelles ou le fallback
-  const displayed = testimonials.length > 0 ? testimonials.slice(0, 3) : FALLBACK_TESTIMONIALS;
+  const displayed =
+    testimonials.length > 0 ? testimonials.slice(0, 3) : FALLBACK_TESTIMONIALS;
 
   return (
     <section className="py-24 bg-salma-surface/30 dark:bg-salma-surface/10">
       <div className="container mx-auto px-6">
         <div className="text-center mb-14">
           <SectionTitle
-            title={dictionary.testimonials?.title ?? "Ils ont réussi grâce à SALMA"}
-            subtitle={dictionary.testimonials?.subtitle ?? "Des histoires vraies, des résultats réels"}
+            title={
+              dictionary.successStories?.title ??
+              (locale === "fr"
+                ? "Ils ont réussi grâce à SALMA"
+                : "They succeeded with SALMA")
+            }
+            subtitle={
+              dictionary.successStories?.subtitle ??
+              (locale === "fr"
+                ? "Histoires de Succès"
+                : "Success Stories")
+            }
             align="center"
           />
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          {displayed.map((t, i) => {
-            const texte = locale === "fr" ? t.texte_fr : t.texte_en;
-            const photoUrl = "photo" in t && t.photo ? getMediaUrl(t.photo) : null;
+          {displayed.map((t) => {
+            const citation =
+              locale === "fr" ? t.citation_fr : (t.citation_en || t.citation_fr);
+            const photoUrl = t.photo
+              ? getMediaUrl(t.photo.url_fichier)
+              : null;
 
             return (
               <div
-                key={"id" in t ? t.id : i}
+                key={t.id}
                 className="flex flex-col bg-white dark:bg-salma-surface border border-salma-border rounded-2xl p-6 gap-4 shadow-sm hover:shadow-salma-lg transition-all duration-300"
               >
                 {/* Étoiles */}
-                <StarRating note={t.note ?? 5} />
+                <StarRating note={t.note} />
 
-                {/* Texte */}
+                {/* Citation */}
                 <blockquote className="text-sm text-salma-text leading-relaxed flex-1 italic">
-                  &ldquo;{texte}&rdquo;
+                  &ldquo;{citation}&rdquo;
                 </blockquote>
 
                 {/* Auteur */}
@@ -108,7 +126,7 @@ export default function SuccessStories({ testimonials }: Props) {
                   {photoUrl ? (
                     <Image
                       src={photoUrl}
-                      alt={t.nom}
+                      alt={t.nom_auteur}
                       width={40}
                       height={40}
                       className="w-10 h-10 rounded-full object-cover"
@@ -116,19 +134,20 @@ export default function SuccessStories({ testimonials }: Props) {
                   ) : (
                     <div className="w-10 h-10 rounded-full bg-salma-primary/10 flex items-center justify-center flex-shrink-0">
                       <span className="text-sm font-bold text-salma-primary">
-                        {t.nom.charAt(0).toUpperCase()}
+                        {t.nom_auteur.charAt(0).toUpperCase()}
                       </span>
                     </div>
                   )}
                   <div>
-                    <p className="text-xs font-bold text-salma-text">{t.nom}</p>
-                    <p className="text-[10px] text-salma-text-muted">{t.titre}</p>
+                    <p className="text-xs font-bold text-salma-text">
+                      {t.nom_auteur}
+                    </p>
+                    {t.pays_auteur && (
+                      <p className="text-[10px] text-salma-text-muted">
+                        {t.pays_auteur}
+                      </p>
+                    )}
                   </div>
-                  {t.pays_destination && (
-                    <span className="ml-auto text-xs text-salma-gold font-medium">
-                      {t.pays_destination === "Chine" || t.pays_destination === "chine" ? "🇨🇳" : "🇩🇪"}
-                    </span>
-                  )}
                 </div>
               </div>
             );

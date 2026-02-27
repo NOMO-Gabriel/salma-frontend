@@ -13,14 +13,8 @@
 export { scholarshipDictionary } from "./scholarship.data-dictionary";
 export { cmsDictionary } from "./cms.data-dictionary";
 export { contactDictionary } from "./contact.data-dictionary";
+export { newsletterDictionary } from "./newsletter.data-dictionary";
 export { kpiDictionary } from "./kpi.data-dictionary";
 
-// Les autres dictionnaires de données peuvent être importés directement
-// depuis leur fichier ou ajoutés ici au fur et à mesure
-export {
-  newsletterRepository as newsletterDictionary,
-  testimonialRepository as testimonialDictionary,
-  serviceRepository as serviceDictionary,
-  chatbotRepository as chatbotDictionary,
-  mediaRepository as mediaDictionary,
-} from "@/repositories";
+// Les modules sans dictionnaire dédié sont accessibles via les repositories
+// Usage : import { mediaRepository } from "@/repositories"

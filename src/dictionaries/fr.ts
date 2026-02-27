@@ -266,5 +266,11 @@ export const fr = {
         save: "Enregistrer",
       }
     }
+  },
+  cookies: {
+    text: "Nous utilisons des cookies pour améliorer votre expérience et analyser notre trafic. Consultez notre",
+    link: "politique de confidentialité",
+    accept: "Accepter",
+    decline: "Refuser"
   }
 } as const;

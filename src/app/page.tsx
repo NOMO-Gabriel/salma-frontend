@@ -13,8 +13,8 @@ import FeaturedScholarships from "@/sections/visitor/FeaturedScholarships";
 import SuccessStories from "@/sections/visitor/SuccessStories";
 import ContactForm from "@/sections/visitor/ContactForm";
 import { scholarshipDictionary } from "@/dictionaries/data/scholarship.data-dictionary";
-import { testimonialRepository } from "@/repositories/others.repository";
-import { kpiRepository } from "@/repositories/others.repository";
+import { testimonialPublicRepository } from "@/repositories/testimonial.repository";
+import { kpiRepository } from "@/repositories/kpi.repository";
 
 // Squelettes de chargement légers
 function SectionSkeleton({ height = "h-64" }: { height?: string }) {
@@ -28,7 +28,7 @@ async function getHomeData() {
   try {
     const [featured, testimonials, kpiRealtime] = await Promise.allSettled([
       scholarshipDictionary.getFeatured(),
-      testimonialRepository.getPublicList(),
+      testimonialPublicRepository.getList(),
       kpiRepository.adminGetRealtime().catch(() => null), // KPI optionnel
     ]);
 

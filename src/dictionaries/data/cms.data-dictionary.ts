@@ -4,13 +4,13 @@
 //  Gestion du contenu de toutes les pages (Server Components)
 // ==============================================================================
 
-import { cmsRepository } from "@/repositories/cms.repository";
+import { cmsPublicRepository,cmsAdminRepository } from "@/repositories/cms.repository";
 import type {
-  SitePage,
+  SitePagePublic,
+  SitePageAdmin,
   ContentBlock,
   UpdateContentBlockPayload,
   SiteConfig,
-  SiteConfigMap,
   UpdateSiteConfigPayload,
   PitchVideo,
   UpdatePitchVideoPayload,
@@ -20,7 +20,7 @@ export const cmsDictionary = {
   // --- Vitrine (Server Components, ISR 300s) ---------------------------------
 
   /** Récupère tous les blocs d'une page spécifique pour le rendu SSR */
-  getPage: (slug: string): Promise<SitePage> =>
+  getPage: (slug: string): Promise<SitePageAdmin> =>
     cmsRepository.getPage(slug),
 
   /** Config globale sous forme de map clé/valeur — pour le layout, footer, etc. */
@@ -41,10 +41,10 @@ export const cmsDictionary = {
   // --- Admin (données fraîches, pas d'ISR) ----------------------------------
 
   admin: {
-    getPages: (): Promise<SitePage[]> =>
+    getPages: (): Promise<SitePageAdmin[]> =>
       cmsRepository.adminGetPages(),
 
-    getPage: (id: string): Promise<SitePage> =>
+    getPage: (id: string): Promise<SitePageAdmin> =>
       cmsRepository.adminGetPage(id),
 
     getBlocs: (pageSlug?: string): Promise<ContentBlock[]> =>

@@ -15,7 +15,7 @@ export default function Footer() {
           <div className="space-y-6">
             <Link href="/" className="flex flex-col">
               <span className="text-3xl font-serif font-bold text-white leading-none">SALMA</span>
-              <span className="text-[10px] uppercase tracking-[0.3em] text-salma-gold font-sans font-bold">Travel Agency</span>
+              <span className="text-[10px] uppercase tracking-[0.3em] text-salma-gold font-sans font-bold">Expertise AG Technologies</span>
             </Link>
             <p className="text-sm text-gray-400 leading-relaxed max-w-xs">
               {dictionary.footer.tagline}
@@ -37,6 +37,8 @@ export default function Footer() {
               <li><Link href="/bourses" className="text-sm text-gray-300 hover:text-white transition-colors">{dictionary.footer.links.bourses}</Link></li>
               <li><Link href="/a-propos" className="text-sm text-gray-300 hover:text-white transition-colors">{dictionary.footer.links.about}</Link></li>
               <li><Link href="/contact" className="text-sm text-gray-300 hover:text-white transition-colors">{dictionary.footer.links.contact}</Link></li>
+              <li><Link href="/confidentialite" className="text-sm text-gray-300 hover:text-white transition-colors">{dictionary.cookies.link}
+  </Link></li>
             </ul>
           </div>
 
