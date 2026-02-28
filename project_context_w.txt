@@ -1,5 +1,5 @@
 ﻿Next.js Project Context
-Generated On: 2026-02-27 22:17:48
+Generated On: 2026-02-28 06:12:42
 Root: E:\AG_Technologie\Salma\salma-frontend
 ===============================================
 
@@ -4615,6 +4615,261 @@ export default function AdminScholarshipsClient({ initialData }: Props) {
 // END OF FILE: src/components/admin/AdminScholarshipsClient.tsx
 
 
+// FILE: src/components/layout/nav/MobileMenu.tsx
+-----------------------------------------------
+"use client";
+
+import Link from "next/link";
+import { useState } from "react";
+
+/**
+ * Menu Mobile Informatif - Responsive Extrême
+ * Utilise les mêmes clés de contenu que le Desktop
+ */
+export default function MobileMenu({ content, onClose }: { content: any, onClose: () => void }) {
+  const [activeAccordion, setActiveAccordion] = useState<string | null>(null);
+
+  const toggleAccordion = (key: string) => {
+    setActiveAccordion(activeAccordion === key ? null : key);
+  };
+
+  const bourses = content.nav_bourses;
+  const services = content.nav_services;
+  const contact = content.nav_contact;
+
+  return (
+    <div className="fixed inset-0 z-[110] lg:hidden animate-fade-in">
+      {/* Backdrop flou pour focus sur le menu */}
+      <div className="absolute inset-0 bg-salma-primary/20 backdrop-blur-sm" onClick={onClose} />
+
+      {/* Panneau latéral droit */}
+      <div className="absolute top-0 right-0 w-[85%] max-w-[400px] h-full bg-white shadow-2xl flex flex-col animate-slide-in-right">
+        
+        {/* HEADER MOBILE */}
+        <div className="p-6 border-b border-salma-border flex justify-between items-center bg-salma-bg/30">
+          <div className="flex flex-col">
+            <span className="text-xl font-serif font-bold text-salma-primary leading-none">SALMA</span>
+            <span className="text-[8px] uppercase tracking-widest text-salma-gold font-bold">Bourses & Mobilité</span>
+          </div>
+          <button onClick={onClose} className="p-2 text-salma-primary hover:bg-salma-primary/10 rounded-full transition-colors">
+            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6" />
+            </svg>
+          </button>
+        </div>
+
+        {/* CORPS DU MENU (Scrollable) */}
+        <div className="flex-1 overflow-y-auto p-4 space-y-2">
+          
+          {/* ACCORDION : BOURSES */}
+          <div className="border border-salma-border rounded-2xl overflow-hidden">
+            <button 
+              onClick={() => toggleAccordion('bourses')}
+              className="w-full p-5 flex justify-between items-center bg-white hover:bg-salma-bg transition-colors"
+            >
+              <span className="text-sm font-bold text-salma-primary uppercase tracking-widest">{bourses.title}</span>
+              <span className={`text-salma-gold transition-transform duration-300 ${activeAccordion === 'bourses' ? 'rotate-180' : ''}`}>▼</span>
+            </button>
+            
+            {activeAccordion === 'bourses' && (
+              <div className="px-5 pb-5 space-y-4 animate-fade-in">
+                <Link href="/bourses?pays=chine" onClick={onClose} className="block p-4 bg-salma-bg rounded-xl">
+                  <p className="font-bold text-salma-primary text-xs">🇨🇳 {bourses.china_label}</p>
+                  <p className="text-[10px] text-salma-text-muted mt-1">{bourses.china_desc}</p>
+                </Link>
+                <Link href="/bourses?pays=allemagne" onClick={onClose} className="block p-4 bg-salma-bg rounded-xl">
+                  <p className="font-bold text-salma-primary text-xs">🇩🇪 {bourses.germany_label}</p>
+                  <p className="text-[10px] text-salma-text-muted mt-1">{bourses.germany_desc}</p>
+                </Link>
+              </div>
+            )}
+          </div>
+
+          {/* ACCORDION : SERVICES */}
+          <div className="border border-salma-border rounded-2xl overflow-hidden">
+            <button 
+              onClick={() => toggleAccordion('services')}
+              className="w-full p-5 flex justify-between items-center bg-white hover:bg-salma-bg transition-colors"
+            >
+              <span className="text-sm font-bold text-salma-primary uppercase tracking-widest">{services.title}</span>
+              <span className={`text-salma-gold transition-transform duration-300 ${activeAccordion === 'services' ? 'rotate-180' : ''}`}>▼</span>
+            </button>
+
+            {activeAccordion === 'services' && (
+              <div className="px-5 pb-5 grid grid-cols-1 gap-2 animate-fade-in">
+                {services.items.map((item: any) => (
+                  <Link key={item.id} href={item.href} onClick={onClose} className="flex items-center gap-4 p-3 bg-salma-bg rounded-xl">
+                    <span className="text-xl">{item.icon}</span>
+                    <div>
+                      <p className="text-xs font-bold text-salma-primary">{item.label}</p>
+                      <p className="text-[9px] text-salma-text-muted">{item.desc}</p>
+                    </div>
+                  </Link>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* SECTION FIXE : CONTACT & ACTIONS RAPIDES */}
+          <div className="mt-4 p-2 space-y-2">
+            <p className="px-4 text-[10px] font-black text-salma-gold uppercase tracking-[0.2em] mb-4">Actions Prioritaires</p>
+            
+            <Link href="/contact" onClick={onClose} className="flex items-center gap-4 p-4 bg-salma-primary text-white rounded-2xl shadow-lg">
+              <span className="text-xl">📅</span>
+              <div>
+                <p className="text-xs font-bold">{contact.rdv_label}</p>
+                <p className="text-[9px] opacity-70">{contact.rdv_desc}</p>
+              </div>
+            </Link>
+
+            <a href="https://wa.me/237699450984" target="_blank" className="flex items-center gap-4 p-4 bg-green-500 text-white rounded-2xl shadow-lg">
+              <span className="text-xl">💬</span>
+              <div>
+                <p className="text-xs font-bold">{contact.whatsapp_label}</p>
+                <p className="text-[9px] opacity-70">{contact.whatsapp_desc}</p>
+              </div>
+            </a>
+          </div>
+        </div>
+
+        {/* FOOTER : NEWSLETTER MOBILE INTEGRÉE */}
+        <div className="p-6 bg-salma-bg border-t border-salma-border">
+          <p className="text-xs font-bold text-salma-primary mb-1">{contact.newsletter_title}</p>
+          <p className="text-[10px] text-salma-text-muted mb-4 leading-tight">{contact.newsletter_desc}</p>
+          <div className="flex gap-2">
+            <input 
+              type="email" 
+              placeholder={contact.newsletter_placeholder} 
+              className="flex-1 bg-white border border-salma-border rounded-xl px-4 py-3 text-xs outline-none focus:border-salma-gold" 
+            />
+            <button className="bg-salma-gold text-salma-primary px-5 py-3 rounded-xl text-xs font-bold shadow-md">
+              {contact.newsletter_btn}
+            </button>
+          </div>
+          
+          <div className="mt-8 pt-6 border-t border-salma-border flex justify-center gap-6 opacity-40">
+             <span className="text-[10px] font-bold">Facebook</span>
+             <span className="text-[10px] font-bold">LinkedIn</span>
+             <span className="text-[10px] font-bold">Instagram</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// END OF FILE: src/components/layout/nav/MobileMenu.tsx
+
+
+// FILE: src/components/layout/nav/NavDropdown.tsx
+-----------------------------------------------
+"use client";
+
+import { useState } from "react";
+import Link from "next/link";
+
+/**
+ * Menu déroulant informatif style Ecobank
+ */
+export default function NavDropdown({ title, data, type, isAction = false }: any) {
+  const [isOpen, setIsOpen] = useState(false);
+
+  return (
+    <div 
+      className="relative h-20 flex items-center"
+      onMouseEnter={() => setIsOpen(true)}
+      onMouseLeave={() => setIsOpen(false)}
+    >
+      <button className={`
+        px-4 py-2 text-xs font-bold uppercase tracking-widest transition-all flex items-center gap-2
+        ${isAction ? "bg-salma-primary text-white rounded-lg ml-4 shadow-md" : "text-salma-primary hover:text-salma-gold"}
+      `}>
+        {title}
+        {!isAction && <span className={`text-[10px] transition-transform ${isOpen ? 'rotate-180' : ''}`}>▼</span>}
+      </button>
+
+      {/* LE PANNEAU INFORMATIF */}
+      {isOpen && !isAction && (
+        <div className="absolute top-[80px] left-1/2 -translate-x-1/2 w-[400px] bg-white border border-salma-border rounded-2xl shadow-salma-lg p-6 animate-fade-in">
+          {/* Petit triangle Ecobank */}
+          <div className="absolute -top-2 left-1/2 -translate-x-1/2 w-4 h-4 bg-white border-l border-t border-salma-border rotate-45" />
+
+          {/* CAS BOURSES */}
+          {type === "bourses" && (
+            <div className="grid grid-cols-1 gap-6">
+              <Link href="/bourses?pays=chine" className="group block p-4 hover:bg-salma-bg rounded-xl transition-all">
+                <p className="font-bold text-salma-primary flex items-center gap-2">🇨🇳 {data.china_label}</p>
+                <p className="text-xs text-salma-text-muted mt-1">{data.china_desc}</p>
+                <span className="text-[10px] font-bold text-salma-gold uppercase mt-2 block opacity-0 group-hover:opacity-100 transition-all">→ {data.china_cta}</span>
+              </Link>
+              <div className="h-px bg-salma-border" />
+              <Link href="/bourses?pays=allemagne" className="group block p-4 hover:bg-salma-bg rounded-xl transition-all">
+                <p className="font-bold text-salma-primary flex items-center gap-2">🇩🇪 {data.germany_label}</p>
+                <p className="text-xs text-salma-text-muted mt-1">{data.germany_desc}</p>
+                <span className="text-[10px] font-bold text-salma-gold uppercase mt-2 block opacity-0 group-hover:opacity-100 transition-all">→ {data.germany_cta}</span>
+              </Link>
+            </div>
+          )}
+
+          {/* CAS SERVICES */}
+          {type === "services" && (
+            <div className="grid grid-cols-2 gap-4">
+              {data.items.map((item: any) => (
+                <Link key={item.id} href={item.href} className="p-3 hover:bg-salma-bg rounded-xl transition-all border border-transparent hover:border-salma-border">
+                  <span className="text-xl mb-2 block">{item.icon}</span>
+                  <p className="text-xs font-bold text-salma-primary">{item.label}</p>
+                  <p className="text-[10px] text-salma-text-muted leading-tight mt-1">{item.desc}</p>
+                </Link>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* CAS NOUS CONTACTER (Action Menu) */}
+      {isOpen && isAction && (
+        <div className="absolute top-[80px] right-0 w-[320px] bg-white border border-salma-border rounded-2xl shadow-salma-lg overflow-hidden animate-fade-in">
+          <div className="p-2 space-y-1">
+            <Link href="/contact" className="flex items-center gap-4 p-4 hover:bg-salma-primary hover:text-white rounded-xl transition-all group">
+              <span className="text-xl">📅</span>
+              <div>
+                <p className="text-xs font-bold">{data.rdv_label}</p>
+                <p className="text-[10px] opacity-70">{data.rdv_desc}</p>
+              </div>
+            </Link>
+            <a href="https://wa.me/237699450984" target="_blank" className="flex items-center gap-4 p-4 hover:bg-green-500 hover:text-white rounded-xl transition-all group">
+              <span className="text-xl">💬</span>
+              <div>
+                <p className="text-xs font-bold">{data.whatsapp_label}</p>
+                <p className="text-[10px] opacity-70">{data.whatsapp_desc}</p>
+              </div>
+            </a>
+          </div>
+
+          {/* MINI NEWSLETTER INTEGRÉE */}
+          <div className="bg-salma-bg p-6 border-t border-salma-border">
+            <p className="text-xs font-bold text-salma-primary mb-1">{data.newsletter_title}</p>
+            <p className="text-[10px] text-salma-text-muted mb-4">{data.newsletter_desc}</p>
+            <div className="flex gap-2">
+              <input 
+                type="email" 
+                placeholder={data.newsletter_placeholder} 
+                className="flex-1 bg-white border border-salma-border rounded-lg px-3 py-2 text-[10px] outline-none focus:border-salma-gold" 
+              />
+              <button className="bg-salma-gold text-salma-primary px-3 py-2 rounded-lg text-[10px] font-bold">
+                OK
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// END OF FILE: src/components/layout/nav/NavDropdown.tsx
+
+
 // FILE: src/components/ui/ChatbotWidget.tsx
 -----------------------------------------------
 "use client";
@@ -5235,103 +5490,61 @@ export default function LanguageSwitcher() {
 -----------------------------------------------
 "use client";
 
+import { useEffect, useState } from "react";
 import Link from "next/link";
-import { useState } from "react";
 import { useLanguage } from "@/hooks/useLanguage";
-import LanguageSwitcher from "./LanguageSwitcher";
-import SalmaButton from "./ui/SalmaButton";
+import { cmsSwitcher } from "@/dictionaries/data/cms-switcher";
+import NavDropdown from "@/components/layout/nav/NavDropdown";
+import MobileMenu from "@/components/layout/nav/MobileMenu";
+import LanguageSwitcher from "@/components/LanguageSwitcher";
 
 export default function Navbar() {
-  const [isOpen, setIsOpen] = useState(false);
-  const { dictionary } = useLanguage();
+  const { locale } = useLanguage();
+  const [content, setContent] = useState<any>(null);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
-  const links = [
-    { name: dictionary.nav.home, href: "/" },
-    { name: dictionary.nav.bourses, href: "/bourses" },
-    { name: dictionary.nav.services, href: "/services" },
-    { name: dictionary.nav.about, href: "/a-propos" },
-  ];
+  // Chargement du contenu via le switcher
+  useEffect(() => {
+    cmsSwitcher.getScopeContent("layout", locale).then(setContent);
+  }, [locale]);
+
+  if (!content) return null; // Ou un squelette de chargement
 
   return (
-    <nav className="sticky top-0 z-50 w-full bg-white/90 dark:bg-salma-bg/90 backdrop-blur-md border-b border-salma-border">
+    <nav className="sticky top-0 z-[100] w-full bg-white/95 backdrop-blur-md border-b border-salma-border shadow-sm">
       <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
         
-        {/* LOGO */}
+        {/* LOGO - Sans mention admin */}
         <Link href="/" className="flex flex-col group">
-          <span className="text-2xl font-serif font-bold text-salma-primary dark:text-white leading-none group-hover:text-salma-accent transition-colors">
-            SALMA
-          </span>
-          <span className="text-[10px] uppercase tracking-[0.3em] text-salma-gold font-sans font-bold">
-            Bourses de Voyage
-          </span>
+          <span className="text-2xl font-serif font-bold text-salma-primary leading-none">SALMA</span>
+          <span className="text-[10px] uppercase tracking-[0.3em] text-salma-gold font-sans font-bold">Bourses & Mobilité</span>
         </Link>
 
-        {/* LINKS DESKTOP */}
-        <div className="hidden lg:flex items-center gap-8">
-          {links.map((link) => (
-            <Link 
-              key={link.href} 
-              href={link.href}
-              className="text-xs font-bold uppercase tracking-widest text-salma-primary dark:text-gray-300 hover:text-salma-accent transition-colors"
-            >
-              {link.name}
-            </Link>
-          ))}
+        {/* MENU DESKTOP */}
+        <div className="hidden lg:flex items-center gap-2">
+          <NavDropdown title={content.nav_bourses.title} type="bourses" data={content.nav_bourses} />
+          <NavDropdown title={content.nav_services.title} type="services" data={content.nav_services} />
+          <NavDropdown title={content.nav_about.title} type="about" data={content.nav_about} />
+          <NavDropdown title={content.nav_contact.title} type="contact" data={content.nav_contact} isAction />
           
-          <div className="h-6 w-px bg-salma-border mx-2" />
-
-          {/* ACTIONS */}
-          <div className="flex items-center gap-4">
-            <LanguageSwitcher />
-            
-            {/* CONTACT EN BOUTON POUR LA CONVERSION */}
-            <Link href="/contact">
-              <SalmaButton variant="primary" size="sm">
-                {dictionary.nav.contact}
-              </SalmaButton>
-            </Link>
-
-            {/* LIEN ADMIN DISCRET */}
-            <Link 
-              href="/admin/dashboard" 
-              className="p-2 text-salma-text-muted hover:text-salma-primary transition-colors"
-              title={dictionary.nav.admin}
-            >
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5.121 17.804A13.937 13.937 0 0112 16c2.5 0 4.847.655 6.879 1.804M15 10a3 3 0 11-6 0 3 3 0 016 0zm6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-            </Link>
-          </div>
+          <div className="h-6 w-px bg-salma-border mx-4" />
+          <LanguageSwitcher />
         </div>
 
-        {/* MOBILE TOGGLE */}
-        <button className="lg:hidden p-2 text-salma-primary" onClick={() => setIsOpen(!isOpen)}>
+        {/* BOUTON MOBILE */}
+        <button 
+          className="lg:hidden p-2 text-salma-primary" 
+          onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+        >
           <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={isOpen ? "M6 18L18 6" : "M4 6h16M4 12h16M4 18h16"} />
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={isMobileMenuOpen ? "M6 18L18 6" : "M4 6h16M4 12h16M4 18h16"} />
           </svg>
         </button>
       </div>
 
-      {/* MOBILE MENU */}
-      {isOpen && (
-        <div className="lg:hidden absolute w-full bg-white dark:bg-salma-surface border-b border-salma-border p-6 flex flex-col gap-6 animate-fade-in shadow-xl">
-          {links.map((link) => (
-            <Link key={link.href} href={link.href} onClick={() => setIsOpen(false)} className="text-sm font-bold uppercase tracking-widest">
-              {link.name}
-            </Link>
-          ))}
-          <Link href="/contact" onClick={() => setIsOpen(false)} className="text-sm font-bold text-salma-accent uppercase tracking-widest">
-             {dictionary.nav.contact}
-          </Link>
-          <div className="flex justify-between items-center pt-6 border-t border-salma-border">
-            <div className="flex gap-4">
-              <LanguageSwitcher />
-            </div>
-            <Link href="/admin/dashboard" onClick={() => setIsOpen(false)} className="text-xs font-bold text-salma-primary">
-              {dictionary.nav.admin}
-            </Link>
-          </div>
-        </div>
+      {/* MENU MOBILE (Accordions) */}
+      {isMobileMenuOpen && (
+        <MobileMenu content={content} onClose={() => setIsMobileMenuOpen(false)} />
       )}
     </nav>
   );
@@ -5518,6 +5731,148 @@ export function ThemeProvider({ children, ...props }: ThemeProviderProps) {
 }
 
 // END OF FILE: src/contexts/ThemeContext.tsx
+
+
+// FILE: src/dictionaries/data/static/layout/en.ts
+-----------------------------------------------
+/**
+ * Static data for Layout (Navbar, Footer) - English
+ * Used if NEXT_PUBLIC_STATIC_CONTENT=true
+ */
+export const enLayout = {
+  nav_bourses: {
+    title: "Scholarships",
+    china_label: "Destination China",
+    china_desc: "Access to top 25 universities in the Middle Kingdom.",
+    china_cta: "View opportunities",
+    germany_label: "Destination Germany",
+    germany_desc: "Full expertise in the German academic system.",
+    germany_cta: "Explore scholarships",
+  },
+  nav_services: {
+    title: "Services",
+    items: [
+      { id: "s1", label: "Study Visa", desc: "Guaranteed admission in 3 weeks", icon: "🎓", href: "/services/study-visa" },
+      { id: "s2", label: "Tourist Visa", desc: "Explore the world stress-free", icon: "✈️", href: "/services/tourist-visa" },
+      { id: "s3", label: "Work Visa", desc: "International career opportunities", icon: "💼", href: "/services/work-visa" },
+      { id: "s4", label: "Insurance", desc: "Compliant travel protection", icon: "🛡️", href: "/services/insurance" },
+    ]
+  },
+  nav_contact: {
+    title: "Contact Us",
+    rdv_label: "Book an appointment",
+    rdv_desc: "Free in-person consultation",
+    whatsapp_label: "Direct WhatsApp",
+    whatsapp_desc: "Immediate expert response",
+    newsletter_title: "Scholarship Alerts",
+    newsletter_desc: "Don't miss any opportunity.",
+    newsletter_placeholder: "Your email...",
+    newsletter_btn: "Subscribe",
+  },
+  nav_about: {
+    title: "About Us",
+    agency_label: "The Agency",
+    agency_desc: "AG Technologies: academic mobility expert for over 5 years.",
+    mission_label: "Our Commitment",
+    mission_desc: "Total transparency and guaranteed success for your project.",
+    cta: "Discover our story",
+  },
+};
+
+// END OF FILE: src/dictionaries/data/static/layout/en.ts
+
+
+// FILE: src/dictionaries/data/static/layout/fr.ts
+-----------------------------------------------
+/**
+ * Données statiques pour le Layout (Navbar, Footer) - Français
+ * Ce fichier sera utilisé si NEXT_PUBLIC_STATIC_CONTENT=true
+ */
+export const frLayout = {
+  // Menu Bourses
+  nav_bourses: {
+    title: "Bourses",
+    china_label: "Destination Chine",
+    china_desc: "Accès aux 25 meilleures universités de l'Empire du Milieu.",
+    china_cta: "Voir les opportunités",
+    germany_label: "Destination Allemagne",
+    germany_desc: "Expertise complète du système académique allemand.",
+    germany_cta: "Explorer les bourses",
+  },
+  // Menu Services
+  nav_services: {
+    title: "Services",
+    items: [
+      { id: "s1", label: "Visa Étude", desc: "Admission garantie en 3 semaines", icon: "🎓", href: "/services/visa-etude" },
+      { id: "s2", label: "Visa Touriste", desc: "Découvrez le monde sans stress", icon: "✈️", href: "/services/visa-touriste" },
+      { id: "s3", label: "Visa Travail", desc: "Opportunités pro à l'international", icon: "💼", href: "/services/visa-travail" },
+      { id: "s4", label: "Assurance", desc: "Protection voyage conforme", icon: "🛡️", href: "/services/assurance" },
+    ]
+  },
+  // Menu Contact (Le bloc "Action" type Ecobank)
+  nav_contact: {
+    title: "Nous Contacter",
+    rdv_label: "Prendre rendez-vous",
+    rdv_desc: "Consultation gratuite en agence",
+    whatsapp_label: "WhatsApp Direct",
+    whatsapp_desc: "Réponse immédiate de nos experts",
+    newsletter_title: "Alerte Bourses",
+    newsletter_desc: "Ne ratez aucune opportunité.",
+    newsletter_placeholder: "Votre email...",
+    newsletter_btn: "S'abonner",
+  }
+  ,
+  // Menu About 
+  nav_about: {
+    title: "À Propos",
+    agency_label: "L'Agence",
+    agency_desc: "AG Technologies : expert en mobilité académique depuis plus de 5 ans.",
+    mission_label: "Notre Engagement",
+    mission_desc: "Transparence totale et garantie de réussite pour votre projet.",
+    cta: "Découvrir notre histoire",
+  },
+};
+
+// END OF FILE: src/dictionaries/data/static/layout/fr.ts
+
+
+// FILE: src/dictionaries/data/cms-switcher.ts
+-----------------------------------------------
+import { frLayout } from "./static/layout/fr";
+import { enLayout } from "./static/layout/en";
+import { cmsPublicRepository } from "@/repositories/cms.repository";
+
+/**
+ * Switcher intelligent de contenu.
+ * Permet de basculer entre les fichiers statiques (dev) et le backend (prod).
+ */
+export const cmsSwitcher = {
+  /**
+   * Récupère le contenu d'un scope spécifique (ex: layout)
+   */
+  getScopeContent: async (scope: "layout" | "home", locale: "fr" | "en") => {
+    const isStatic = process.env.NEXT_PUBLIC_STATIC_CONTENT === 'true';
+
+    if (isStatic) {
+      // Chargement statique depuis le dossier /static
+      if (scope === "layout") return locale === "fr" ? frLayout : enLayout;
+      // Ajoutez d'autres scopes ici (home, bourses, etc.)
+      return {};
+    }
+
+    // Sinon, appel au backend via le repository CMS existant
+    // On suppose que le backend renvoie un objet structuré par scope
+    try {
+      const pageData = await cmsPublicRepository.getPageBySlug(scope);
+      return pageData; 
+    } catch (error) {
+      console.error(`Erreur Switcher sur le scope ${scope}:`, error);
+      return locale === "fr" ? frLayout : enLayout; // Fallback sécu
+    }
+  }
+};
+
+// END OF FILE: src/dictionaries/data/cms-switcher.ts
 
 
 // FILE: src/dictionaries/data/cms.data-dictionary.ts
@@ -9528,6 +9883,7 @@ export interface ContactBourseAssociee {
 // --- Modèle admin (lecture) --------------------------------------------------
 
 export interface ContactRequest {
+  statut: string;
   id: string;
   nom_complet: string;
   email: string;
@@ -9630,6 +9986,7 @@ export interface BourseKpi {
 // --- Stats temps réel --------------------------------------------------------
 
 export interface KpiRealtime {
+  total_visiteurs:number;
   visiteurs_aujourd_hui: number;
   vues_bourses_aujourd_hui: number;
   contacts_aujourd_hui: number;
