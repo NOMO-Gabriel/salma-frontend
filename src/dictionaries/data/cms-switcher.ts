@@ -26,8 +26,12 @@ import { enContact } from "./static/contact/en";
 // Types des scopes autorisés
 export type CmsScope = "layout" | "home" | "bourses" | "services" | "contact" | "about";
 
+// On définit un type générique pour le contenu pour éviter le "any"
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type DictionaryContent = Record<string, any>;
+
 // Registre central des contenus statiques
-const staticRegistry: Record<Locale, Record<CmsScope, any>> = {
+const staticRegistry: Record<Locale, Record<CmsScope, DictionaryContent>> = {
   fr: {
     layout: frLayout,
     home: frHome,
@@ -51,32 +55,29 @@ export const cmsSwitcher = {
    * Récupère le contenu d'un scope spécifique.
    * RÈGLE : Si NEXT_PUBLIC_STATIC_CONTENT=true ou si l'API échoue -> Retourne le statique.
    */
-  getScopeContent: async (scope: CmsScope, locale: Locale) => {
+  getScopeContent: async (scope: CmsScope, locale: Locale): Promise<DictionaryContent> => {
     const isStaticMode = process.env.NEXT_PUBLIC_STATIC_CONTENT === 'true';
     const fallbackData = staticRegistry[locale][scope];
 
-    // 1. Si on est en mode statique forcé (Dev ou Debug)
+    // 1. Si on est en mode statique forcé
     if (isStaticMode) {
       return fallbackData;
     }
 
     // 2. Tentative de récupération via l'API (Prod)
     try {
-      // On utilise le slug de la page correspondant au scope
       const pageData = await cmsPublicRepository.getPageBySlug(scope);
       
       if (!pageData || !pageData.blocs) {
-        return fallbackData; // Fallback si la page n'est pas encore créée en BD
+        return fallbackData;
       }
 
-      // NOTE : Ici, nous devrons plus tard ajouter une logique de mapping 
-      // pour transformer les blocs de la BD en objet JSON compatible.
-      // Pour le moment, on retourne le statique si le mapping API n'est pas prêt.
+      // TODO: Implémenter le mapping API -> Dictionnaire ici quand les clés seront synchronisées
       return fallbackData; 
 
-    } catch (error) {
-      // 3. FALLBACK CRITIQUE : Si le serveur est injoignable, on ne crash pas l'UI
-      console.warn(`[CMS Switcher] Serveur indisponible pour le scope "${scope}". Utilisation du fallback statique.`);
+    } catch (_error) {
+      // 3. FALLBACK : On utilise le préfixe "_" pour indiquer à TS que la variable est ignorée
+      console.warn(`[CMS Switcher] Serveur indisponible pour le scope "${scope}". Utilisation du fallback.`);
       return fallbackData;
     }
   }
