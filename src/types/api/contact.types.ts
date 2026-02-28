@@ -15,6 +15,7 @@ export interface ContactBourseAssociee {
 // --- Modèle admin (lecture) --------------------------------------------------
 
 export interface ContactRequest {
+  statut: string;
   id: string;
   nom_complet: string;
   email: string;

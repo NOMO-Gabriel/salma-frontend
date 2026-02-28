@@ -5,6 +5,7 @@
 //  Ne connaît que api-client.ts et les types auth
 // ==============================================================================
 
+
 import { api, tokenStorage } from "@/lib/api-client";
 import type {
   LoginPayload,
@@ -22,6 +23,10 @@ import type {
 
 const BASE = "/auth";
 
+
+
+
+
 export const authRepository = {
   /**
    * POST /api/auth/login
@@ -31,6 +36,10 @@ export const authRepository = {
   login: async (payload: LoginPayload): Promise<LoginResponse> => {
     const response = await api.post<LoginResponse>(`${BASE}/login`, payload);
     tokenStorage.set(response.access, response.refresh);
+
+    if (typeof document !== "undefined") {
+      document.cookie = `salma_auth=${response.access}; path=/; max-age=86400; SameSite=Lax`;
+    }
     return response;
   },
 
@@ -47,6 +56,10 @@ export const authRepository = {
       });
     }
     tokenStorage.clear();
+    if (typeof document !== "undefined") {
+          document.cookie = "salma_auth=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC;";
+        }
+
   },
 
   /**

@@ -44,6 +44,7 @@ export interface BourseKpi {
 // --- Stats temps réel --------------------------------------------------------
 
 export interface KpiRealtime {
+  total_visiteurs:number;
   visiteurs_aujourd_hui: number;
   vues_bourses_aujourd_hui: number;
   contacts_aujourd_hui: number;
