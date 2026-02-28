@@ -1,25 +1,28 @@
 # 🚀 ROADMAP DE STABILISATION — PROJET SALMA
 
 ## 🟠 SPRINT 1 : Polish Frontend & Mécanisme CMS (Vitrine)
-*Objectif : Figer l'UI, appliquer les remarques client, et généraliser le `cmsSwitcher` pour que tout texte soit prêt à devenir dynamique.*
+*Objectif : Figer l'UI, assurer la cohérence de chaque page et préparer la transition vers le contenu dynamique.*
 
-- [ ] **Généralisation du `cmsSwitcher` :**
-  - [ ] Créer les fichiers statiques finaux (`home`, `about`, `services`, `contact`, `footer`) dans `src/dictionaries/data/static/`.
-  - [ ] Remplacer les appels directs à `dictionary.xxx` par `cmsSwitcher.getScopeContent(...)` dans tous les Server/Client Components.
-- [ ] **Intégration des remarques Client (UI/UX) :**
+- [x] **Généralisation du `cmsSwitcher` :**
+  - [x] Créer les fichiers statiques finaux (`home`, `about`, `services`, `contact`, `footer`) dans `src/dictionaries/data/static/`. pour le moment avec le memes clés que ceux des dictionnaires actuels
+- [ ] **Polissage systématique page par page  en incluant les appels directs à `dictionary.xxx` par `cmsSwitcher.getScopeContent(...)` dans tous les composants:**
+  - [ ] **Composants UI :** Audit des boutons, badges et cartes dans `src/components/ui/`.
+  - [ ] **Page Accueil :** Nettoyage des sections Hero, Stats, TrustBar et Témoignages.
+  - [ ] **Page Catalogue :** Vérification des filtres et du squelette de chargement.
+  - [ ] **Page Services :** Harmonisation des cartes de services.
+  - [ ] **Page À Propos & Contact :** Vérification des textes et des champs de formulaire.
+- [ ] **Validation des remarques Client (UI/UX) :**
   - [ ] Changer la photo Hero de la page d'accueil (plus claire, haute qualité).
-  - [ ] Retirer "Travel Agency" de la Navbar et du Footer.
-  - [ ] Activer et polir le **Mode Sombre** (vérifier les contrastes des textes et bordures).
-  - [ ] Ajouter des micro-animations (framer-motion ou CSS pur) : apparition au scroll, effets de survol (hover) sur les cartes de bourses et services.
-- [ ] **Pages manquantes & Conversion :**
-  - [ ] **CRITIQUE :** Créer la page `/bourses/[id]/page.tsx` (Détail de la bourse).
-  - [ ] Implémenter le respect strict du `field_visibility` sur cette page (ex: ne jamais afficher le prix si l'admin l'a décoché).
-  - [ ] Lier le bouton "WhatsApp" de cette page pour pré-remplir le message avec le nom de la bourse.
-- [ ] **Gestion des erreurs (Error Boundaries) :**
-  - [ ] Créer `not-found.tsx` (Page 404 personnalisée avec bouton retour à l'accueil).
-  - [ ] Créer `error.tsx` et `global-error.tsx` (Page 500 propre pour ne pas crasher l'UI si le backend ne répond pas).
-- [ ] **Audit Responsive :** Tester chaque page sur format mobile (iPhone SE) et tablette.
-
+  - [ ] Retirer définitivement "Travel Agency" de la Navbar et du Footer.
+  - [ ] Ajustement final du **Mode Sombre** (contrastes et bordures).
+  - [ ] Ajout des micro-animations (apparition au scroll, effets hover).
+- [ ] **Page Détail & Conversion :**
+  - [ ] Créer la page `/bourses/[id]/page.tsx` (Détail de la bourse).
+  - [ ] Appliquer le respect strict du `field_visibility`.
+  - [ ] Lier le bouton WhatsApp avec message pré-rempli dynamique.
+- [ ] **Fiabilisation :**
+  - [ ] Créer `not-found.tsx` et `error.tsx` (Error Boundaries).
+  - [ ] Audit Responsive complet (iPhone SE ➔ Desktop).
 ## 🔵 SPRINT 2 : Alignement Backend & Seeders
 *Objectif : Mettre à jour la base de données Django pour qu'elle corresponde exactement aux clés CMS définies au Sprint 1.*
 
