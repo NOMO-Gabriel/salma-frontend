@@ -5,11 +5,11 @@
 
 import { Suspense } from "react";
 import AdminScholarshipsClient from "@/components/admin/AdminScholarshipsClient";
-import { scholarshipRepository } from "@/repositories/scholarship.repository";
+import { scholarshipAdminRepository } from "@/repositories/scholarship.repository";
 
 async function getInitialData() {
   try {
-    return await scholarshipRepository.adminGetList({ page: 1, page_size: 20 });
+    return await scholarshipAdminRepository.getList({ page: 1, page_size: 20 });
   } catch {
     return { results: [], count: 0, next: null, previous: null };
   }

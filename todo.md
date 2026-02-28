@@ -1,255 +1,105 @@
-# 📋 TODO SALMA — Version Mise à Jour
-> AG Technologies · Dernière mise à jour : 27/02/2026  
-> Stack : Next.js 15 · Tailwind v4 · TypeScript strict · Django DRF · JWT
+# 🚀 ROADMAP DE STABILISATION — PROJET SALMA
+
+## 🟠 SPRINT 1 : Polish Frontend & Mécanisme CMS (Vitrine)
+*Objectif : Figer l'UI, appliquer les remarques client, et généraliser le `cmsSwitcher` pour que tout texte soit prêt à devenir dynamique.*
+
+- [ ] **Généralisation du `cmsSwitcher` :**
+  - [ ] Créer les fichiers statiques finaux (`home`, `about`, `services`, `contact`, `footer`) dans `src/dictionaries/data/static/`.
+  - [ ] Remplacer les appels directs à `dictionary.xxx` par `cmsSwitcher.getScopeContent(...)` dans tous les Server/Client Components.
+- [ ] **Intégration des remarques Client (UI/UX) :**
+  - [ ] Changer la photo Hero de la page d'accueil (plus claire, haute qualité).
+  - [ ] Retirer "Travel Agency" de la Navbar et du Footer.
+  - [ ] Activer et polir le **Mode Sombre** (vérifier les contrastes des textes et bordures).
+  - [ ] Ajouter des micro-animations (framer-motion ou CSS pur) : apparition au scroll, effets de survol (hover) sur les cartes de bourses et services.
+- [ ] **Pages manquantes & Conversion :**
+  - [ ] **CRITIQUE :** Créer la page `/bourses/[id]/page.tsx` (Détail de la bourse).
+  - [ ] Implémenter le respect strict du `field_visibility` sur cette page (ex: ne jamais afficher le prix si l'admin l'a décoché).
+  - [ ] Lier le bouton "WhatsApp" de cette page pour pré-remplir le message avec le nom de la bourse.
+- [ ] **Gestion des erreurs (Error Boundaries) :**
+  - [ ] Créer `not-found.tsx` (Page 404 personnalisée avec bouton retour à l'accueil).
+  - [ ] Créer `error.tsx` et `global-error.tsx` (Page 500 propre pour ne pas crasher l'UI si le backend ne répond pas).
+- [ ] **Audit Responsive :** Tester chaque page sur format mobile (iPhone SE) et tablette.
+
+## 🔵 SPRINT 2 : Alignement Backend & Seeders
+*Objectif : Mettre à jour la base de données Django pour qu'elle corresponde exactement aux clés CMS définies au Sprint 1.*
+
+- [ ] **Mise à jour des Seeders Django (`seed.py`) :**
+  - [ ] Mettre à jour les `SitePage` et `ContentBlock` avec les clés exactes du frontend.
+  - [ ] Mettre à jour les `SiteConfig` (réseaux sociaux, téléphones, emails).
+  - [ ] Insérer les textes finaux validés en FR et EN.
+- [ ] **Test du Switcher :**
+  - [ ] Passer `NEXT_PUBLIC_STATIC_CONTENT=false` dans le `.env`.
+  - [ ] Vérifier que le frontend affiche correctement les données venant de l'API sans casser l'UI.
+
+## 🟡 SPRINT 3 : Dashboard Admin & Intégrations Externes
+*Objectif : Rendre l'admin 100% fonctionnel pour le client et brancher les services tiers.*
+
+- [ ] **Module CMS & Médias :**
+  - [ ] Créer la page Admin CMS : formulaires pour éditer les blocs de texte et changer les images.
+  - [ ] Créer la page Admin Médias : upload d'images, suppression, copie d'URL.
+- [ ] **Module Contacts & Newsletter :**
+  - [ ] Créer la page Admin Contacts : tableau des leads, marquer comme lu, ajouter des notes.
+  - [ ] Créer la page Admin Newsletter : liste des abonnés.
+- [ ] **Module Témoignages :**
+  - [ ] Créer la page Admin Témoignages : approuver/rejeter pour affichage public.
+- [ ] **Module KPI & Analytics :**
+  - [ ] Créer la page Admin KPI : graphiques de visites, taux de conversion, bourses les plus vues.
+- [ ] **Intégrations Externes (Backend) :**
+  - [ ] **Gemini API :** Brancher l'API Google Gemini sur l'endpoint Chatbot de Django (en utilisant les FAQ de la BD comme contexte).
+  - [ ] **Emails :** Configurer SMTP (SendGrid ou Mailjet) dans Django pour notifier l'agence lors d'une prise de RDV.
+- [ ] **Anti-Spam (Sécurité) :** Intégrer Cloudflare Turnstile ou Google reCAPTCHA v3 (invisible) sur les formulaires de Contact et Newsletter.
+  - [ ] **Rate Limiting :** Configurer un throttle sur Django (ex: max 5 requêtes/min sur `/api/contact`) pour éviter les attaques DDoS.
+
+## 🟢 SPRINT 4 : Tests End-to-End (Dynamisme & Temps Réel)
+*Objectif : Se mettre dans la peau du client (Admin) et du prospect (Visiteur) pour traquer les bugs.*
+
+- [ ] **Test CMS :** Modifier un texte/image dans l'admin ➔ Vérifier la mise à jour sur la vitrine (tester la revalidation ISR).
+- [ ] **Test Bourses :**
+  - [ ] Créer une bourse ➔ Vérifier son apparition dans le catalogue.
+  - [ ] Masquer un champ (ex: `exigence_langue`) ➔ Vérifier sa disparition sur la page détail.
+- [ ] **Test Entonnoir de conversion :**
+  - [ ] Visiter une bourse ➔ Poser une question au Chatbot ➔ Remplir le formulaire de contact.
+  - [ ] Vérifier que le KPI a bien tracké la visite et la conversion.
+  - [ ] Vérifier la réception de l'email côté agence et la notification dans l'admin.
+
+## 🟣 SPRINT 5 : Optimisation, SEO & Code Review (Production)
+*Objectif : Atteindre un score Lighthouse de 95+, un code propre et un référencement optimal.*
+
+- [ ] **Performance & Lighthouse :**
+  - [ ] Optimiser toutes les images (formats WebP, tailles adaptées via `next/image`).
+  - [ ] Vérifier le Lazy Loading des composants lourds (vidéos, chatbot).
+- [ ] **SEO & Accessibilité :**
+  - [ ] Ajouter les balises `metadata` dynamiques (Title, Description, OpenGraph) sur toutes les pages (surtout `/bourses/[id]`).
+  - [ ] Générer un `sitemap.xml` et un `robots.txt` dynamiques.
+  - [ ] Vérifier les contrastes de couleurs et les balises `aria-label` pour l'accessibilité.
+- [ ] **SEO Multilingue :** S'assurer que les balises `<link rel="alternate" hreflang="x">` sont générées dynamiquement pour que Google indexe le FR et le EN.
+- [ ] **Monitoring & Logs (Optionnel mais recommandé) :**
+  - [ ] Brancher un outil comme Sentry ou GlitchTip pour remonter les erreurs JS (front) et Python (back) en temps réel sur un canal Slack/Discord.
+- [ ] **Code Review & Nettoyage :**
+  - [ ] Supprimer tous les `console.log`, codes commentés inutiles et fichiers morts.
+  - [ ] Ajouter des commentaires JSDoc sur les fonctions complexes.
+  - [ ] Vérifier qu'il n'y a aucune erreur TypeScript (`npm run build` doit passer sans aucun warning).
+- [ ] **Sécurité :**
+  - [ ] Vérifier la configuration CORS sur Django (n'autoriser que le domaine Vercel en prod).
+  - [ ] S'assurer que le tracking KPI respecte le choix de la bannière de cookies.
 
 ---
+## 🎓 SPRINT 6 : Capitalisation, Documentation & Standardisation
+*Objectif : Livrer un produit documenté au client, extraire des bases réutilisables (boilerplates) et figer les standards techniques pour faire monter l'équipe en compétence sur les futurs projets.*
 
-## ✅ DÉJÀ FAIT
-- [x] Configuration client API (`api-client.ts` avec `fetch`, Base URL, gestion d'erreurs)
-- [x] Thème clair forcé, architecture sémantique CSS variables prête
-- [x] Système i18n (dictionnaires fr/en, hook `useLanguage`, `useTheme`)
-- [x] Layout admin avec sidebar
-- [x] Dashboard admin : tableau des bourses (statique + modal d'ajout/édition)
-- [x] Architecture App Router Next.js 15 (routes admin/vitrine séparées)
-
----
-
-## 🔴 PHASE 1 — SOCLE TECHNIQUE (Bloquant)
-> Doit être fait AVANT toute liaison backend
-
-### 1.1 Types TypeScript exhaustifs
-- [x] `src/types/api/scholarship.types.ts` — modèle complet (tous les champs Django + `field_visibility: Record<string, boolean>`)
-- [x] `src/types/api/service.types.ts`
-- [x] `src/types/api/cms.types.ts` (pages, sections, champs CMS)
-- [x] `src/types/api/contact.types.ts` (demandes + rendez-vous)
-- [x] `src/types/api/newsletter.types.ts` (abonnés + annonces)
-- [x] `src/types/api/testimonial.types.ts`
-- [x] `src/types/api/chatbot.types.ts` (questions/réponses FAQ)
-- [x] `src/types/api/media.types.ts`
-- [x] `src/types/api/kpi.types.ts` (snapshots, temps-réel, conversion)
-- [x] `src/types/api/auth.types.ts` (JWT tokens, user, profil admin)
-- [x] `src/types/index.ts` — barrel export de tous les types
-
-### 1.2 Repositories (couche d'accès données)
-> Un repository = 1 module d'API. Ne connaît que `api-client.ts`.
-
-- [x] `src/repositories/scholarship.repository.ts` (25 endpoints : public + admin CRUD + images)
-- [x] `src/repositories/service.repository.ts` (11 endpoints)
-- [x] `src/repositories/cms.repository.ts` (20 endpoints : pages, sections, champs)
-- [] `src/repositories/contact.repository.ts` (5 endpoints)
-- [x] `src/repositories/newsletter.repository.ts` (12 endpoints)
-- [x] `src/repositories/testimonial.repository.ts` (8 endpoints)
-- [x] `src/repositories/chatbot.repository.ts` (6 endpoints)
-- [x] `src/repositories/media.repository.ts` (5 endpoints)
-- [x] `src/repositories/kpi.repository.ts` (6 endpoints)
-- [x] `src/repositories/auth.repository.ts` (9 endpoints : login, refresh, profil, reset pwd)
-- [x] `src/repositories/events.repository.ts` (tracking visiteurs — POST `/api/evenements`)
-
-### 1.3 Dictionnaires (couche d'abstraction)
-> Un dictionnaire orchestre les repositories. Les Server Components ne connaissent que les dictionnaires.
-
-- [x] `src/dictionaries/data/scholarship.data-dictionary.ts`
-- [x] `src/dictionaries/data/cms.data-dictionary.ts`
-- [x] `src/dictionaries/data/contact.data-dictionary.ts`
-- [x] `src/dictionaries/data/newsletter.data-dictionary.ts`
-- [x] `src/dictionaries/data/kpi.data-dictionary.ts`
-- [x] Pattern : toutes les fonctions `async`, retournent des données typées, centralisent le `revalidate` ISR
-
-### 1.4 Authentification JWT (admin)
-- [x] `src/lib/auth.ts` — helpers pour stocker/lire/rafraîchir tokens (cookies httpOnly côté server)
-- [x] `src/middleware.ts` — protection routes `/admin/*`, redirection vers `/admin/login`
-- [x] Page `/admin/login` — formulaire typé, appel `auth.repository.ts`, stockage token
-- [x] `src/hooks/useAuth.ts` — état auth côté client (token valide, user info)
-- [x] Gestion refresh token automatique (intercepteur dans `api-client.ts`)
-- [x] Logout (purge cookies + redirect)
-
----
-
-## 🟠 PHASE 2 — VITRINE DYNAMIQUE (Liaison Backend)
-
-### 2.1 Home Page
-- [x] Fetch stats réelles (KPI temps-réel) en SSR → KPIBar
-- [x] Bourses à la une — Server Component avec `scholarship.data-dictionary.getFeatured()`
-- [x] `ScholarshipCard` : affichage conditionnel selon `field_visibility` (ne montrer que ce que l'admin autorise)
-- [x] Bouton WhatsApp flottant contextuel (message pré-rempli selon la page courante)
-- [x] Section vidéo de pitch (intégration YouTube/Vimeo ou fichier uploadé)
-- [x] Tracking événement `PAGE_VIEW` + `BOURSE_VUE` via `events.repository.ts`
-
-### 2.2 Catalogue complet `/bourses`
-- [x] Server Component : fetch liste avec filtres (pays, niveau, domaine, statut)
-- [x] Filtres dynamiques côté client (URL params) sans rechargement page
-- [x] Pagination serveur (cursor ou offset)
-- [x] "Scholarship Matcher" — outil 3 clics (Niveau → Budget → Pays → résultats filtrés)
-- [x] Skeleton loaders pendant fetch
-
-### 2.3 Page de détail `/bourses/[slug]`
-- [x] Route dynamique SSG + ISR (revalidate 60s)
-- [x] Affichage conditionnel de CHAQUE champ selon `field_visibility`
-- [x] **Jamais afficher le prix** côté vitrine (contrôle via `field_visibility`)
-- [x] CTA fort : "En savoir plus → contacter l'agence" + bouton WhatsApp contextuel
-- [x] Métadonnées dynamiques (OpenGraph, SEO)
-
-### 2.4 Formulaire de contact
-- [x] Envoi réel vers `POST /api/contact`
-- [x] Validation côté client (Zod ou validation native TypeScript)
-- [x] Confirmation mail simulé (état success UI)
-- [x] Tracking événement `CONTACT_SOUMIS`
-
-### 2.5 Prise de rendez-vous
-- [x] Formulaire dédié (nom, email, tel, date souhaitée, objet)
-- [x] Envoi vers API contact avec type `rendez-vous`
-- [x] Notification agence : email (simulé via backend) + toast dans dashboard admin
-
-### 2.6 Témoignages
-- [x] Section témoignages sur la Home (fetch `GET /api/temoignages`)
-- [x] Seuls les témoignages `approuvés` s'affichent
-
----
-
-## 🟡 PHASE 3 — DASHBOARD ADMIN COMPLET
-
-### 3.1 Layout & Navigation admin
-- [ ] Sidebar responsive (collapse sur mobile)
-- [ ] Navigation vers toutes les sections : Bourses, CMS, Médias, Contacts, Newsletter, Témoignages, Chatbot, KPI
-- [ ] Badge notifications (nouvelles demandes de contact non lues)
-
-### 3.2 Gestion des bourses (CRUD complet)
-- [ ] Tableau avec pagination, recherche, filtres (statut, pays)
-- [ ] Formulaire création/édition COMPLET avec tous les champs du modèle Django
-- [ ] **Toggle de visibilité par champ** — l'admin coche/décoche ce qui s'affiche sur le site
-- [ ] Upload image principale (via `media.repository.ts`)
-- [ ] Galerie d'images additionnelles (add/remove/set-principale)
-- [ ] Duplication d'une bourse
-- [ ] Publication / Dépublication rapide (toggle statut)
-
-### 3.3 Gestionnaire CMS (contrôle total du contenu vitrine)
-- [ ] Interface par page (Home, À propos, Contact, etc.)
-- [ ] Chaque section éditable inline : titre, sous-titre, texte, image, CTA
-- [ ] Preview en temps réel ou lien vers la page vitrine
-- [ ] Sauvegarde via `cms.repository.ts` → ISR invalide le cache automatiquement
-
-### 3.4 Bibliothèque de médias
-- [ ] Upload drag-and-drop (images, documents)
-- [ ] Grille avec preview, nom, poids, date
-- [ ] Copier l'URL, supprimer, renommer (métadonnées)
-- [ ] Filtres par type (image / document)
-
-### 3.5 Gestion des contacts & candidatures
-- [ ] Liste des demandes (contact + rendez-vous)
-- [ ] Statuts : `nouveau`, `en cours`, `traité`
-- [ ] Marquer comme traité, noter, archiver
-- [ ] Filtres par type et période
-
-### 3.6 Newsletter & abonnés
-- [ ] Liste des abonnés (email, date, source)
-- [ ] Créer & envoyer une annonce (simulé côté backend → TODO Mailjet/SendGrid)
-- [ ] Segmentation de base (actif / inactif)
-
-### 3.7 Témoignages
-- [ ] Liste avec statut `en attente` / `approuvé` / `rejeté`
-- [ ] Approuver/rejeter en un clic
-- [ ] Ordre d'affichage drag-and-drop
-
-### 3.8 KPI & Analytics
-- [ ] Vue d'ensemble : visiteurs, vues bourses, contacts, taux de conversion
-- [ ] Graphiques temporels (snapshots par période)
-- [ ] Détail par bourse (quelle bourse génère le plus de contacts ?)
-- [ ] Événements bruts filtrables
-- [ ] Commande backend : déclencher `generate_kpi` depuis l'interface (bouton admin)
-
----
-
-## 🟢 PHASE 4 — FEATURES AVANCÉES & POLISH
-
-### 4.1 Chatbot IA (Gemini)
-- [ ] Widget chatbot flottant sur la vitrine (ouverture/fermeture)
-- [ ] Fetch FAQ depuis `GET /api/chatbot/questions` (base de connaissances en BD)
-- [ ] Intégration Gemini API : recherche dans les FAQs + génération de réponse naturelle
-- [ ] Si aucune réponse → incitation à contacter l'agence ou prendre RDV
-- [ ] Interface admin : gestion des Q&A (CRUD questions, catégories, statut actif/inactif)
-
-### 4.2 Mode sombre
-- [ ] Compléter les CSS variables pour le thème sombre
-- [ ] Tester chaque page/composant en dark mode
-- [ ] Toggle fonctionnel dans la navbar (ThemeSwitcher)
-
-### 4.3 Responsive & UX
-- [ ] Audit responsive complet (mobile-first, priorité smartphones Cameroun)
-- [ ] Navbar : retirer "Travel Agency"
-- [ ] Changer photo hero page d'accueil
-- [ ] Animations page load (staggered reveals CSS)
-- [ ] Hover effects sur les cards (scale, shadow, description au survol)
-- [ ] Skeleton loaders génériques réutilisables
-
-### 4.4 Cookies & Confidentialité
-- [ ] Bannière de consentement cookies (RGPD-friendly)
-- [ ] Page `/confidentialite` — politique de confidentialité
-- [ ] Stockage consentement (localStorage) → activer/bloquer le tracking KPI
-
-### 4.5 Collecte de prospects (Newsletter vitrine)
-- [ ] Formulaire newsletter dans le footer + popup exit-intent
-- [ ] Champs : email, prénom, niveau d'études, pays cible → base de prospects qualifiée
-- [ ] Double opt-in simulé côté backend
-
-### 4.6 Notifications & alertes agence
-- [ ] Après soumission rendez-vous → email à l'agence (backend simulé)
-- [ ] Toast notification dans le dashboard admin (polling ou WebSocket basique)
-- [ ] Futur : notif WhatsApp Business API
-
-### 4.7 SEO & Performance
-- [ ] Métadonnées dynamiques sur toutes les pages (title, description, OG)
-- [ ] `robots.txt` et `sitemap.xml` dynamiques
-- [ ] Optimisation images (next/image, WebP, lazy loading)
-- [ ] Audit Lighthouse > 90 (Performance, A11y, SEO, Best Practices)
-- [ ] Ajout du domaine backend à `next.config.ts` (remotePatterns)
-
----
-
-## 🔵 PHASE 5 — DÉPLOIEMENT & INFRASTRUCTURE
-
-- [ ] Variables d'environnement production (`.env.production`)
-- [ ] Config `next.config.ts` pour domaine backend prod
-- [ ] Deploy Vercel (frontend) + Hostinger (backend Django)
-- [ ] Config CORS backend pour domaine Vercel
-- [ ] DNS : `salma-studies.com` → Vercel (front) + `api.salma-studies.com` → Hostinger (back)
-- [ ] Commande management Django : `generate_kpi` planifiée (cron Hostinger)
-- [ ] Migration SQLite → PostgreSQL/MySQL (prod)
-- [ ] Test end-to-end post-déploiement
-
----
-
-## 🗂️ ARCHITECTURE CIBLE (Séparation des responsabilités)
-
-```
-Composant (UI) 
-    ↓ connaît uniquement
-Dictionnaire de données (`/dictionaries/data/`)
-    ↓ appelle
-Repository (`/repositories/`)
-    ↓ appelle
-api-client.ts
-    ↓ appelle
-Backend Django (REST API)
-```
-
-**Règles d'or :**
-- Les Server Components fetchent via les dictionnaires de données uniquement
-- Les Client Components utilisent des hooks ou reçoivent les données en props
-- Zéro appel fetch direct dans un composant UI
-- Tout texte visible → dictionnaire i18n (fr/en)
-- Tout champ de bourse → soumis au `field_visibility` de l'admin
-
----
-
-## 📌 ORDRE D'EXÉCUTION RECOMMANDÉ
-
-1. **Types TypeScript** (1.1) — base de tout
-2. **Repositories** (1.2) — briques d'accès API
-3. **Auth JWT** (1.4) — protège le dashboard
-4. **Dictionnaires de données** (1.3) — orchestration
-5. **Dashboard bourses CRUD** (3.2) — valeur immédiate pour le client
-6. **Dashboard CMS** (3.3) — autonomie totale du boss
-7. **Vitrine dynamique** (2.x) — liaison backend
-8. **KPI Dashboard** (3.8) — analytics
-9. **Chatbot Gemini** (4.1)
-10. **Polish UX** (4.2, 4.3) + Déploiement (Phase 5)
+- [ ] **Documentation Client (Livrables finaux) :**
+  - [ ] Mettre à jour le **Cahier des charges** (Version Finale) pour refléter exactement ce qui a été produit.
+  - [ ] Rédiger le **Rapport de fin de projet** (Bilan, fonctionnalités livrées, performances atteintes).
+  - [ ] Créer le **Guide d'utilisation Admin** (Manuel illustré pour le client : comment ajouter une bourse, gérer le CMS, lire les KPI).
+- [ ] **Documentation DevOps & Déploiement :**
+  - [ ] Rédiger le **Guide de déploiement complet** (Setup Vercel, configuration VPS Hostinger, variables d'environnement, commandes de mise à jour et maintenance).
+  - [ ] **CI/CD (Intégration Continue) :** Mettre en place un workflow GitHub Actions pour automatiser le linting (`npm run lint`) et le déploiement.
+  - [ ] **Stratégie de Backup :** Configurer un Cron Job sur le VPS Hostinger pour dumper la base de données PostgreSQL chaque nuit et l'envoyer sur un stockage externe (ex: AWS S3 ou un autre serveur).
+- [ ] **Création de Templates (Boilerplates internes AGT) :**
+  - [ ] **Template Frontend :** Extraire un socle Next.js 15 propre (Tailwind v4, i18n, architecture `dictionaries/repositories`, `api-client.ts` avec intercepteurs JWT).
+  - [ ] **Template Backend :** Extraire un socle Django DRF (Custom User Model, SimpleJWT, architecture modulaire par `apps/`, configuration CORS/Sécurité de prod).
+- [ ] **Livre Blanc de l'Équipe (Design Patterns & Standards) :**
+  - [ ] **Frontend Patterns :** Documenter l'approche *Server Components vs Client Components*, la séparation des responsabilités (UI -> Dictionnaire -> Repository), et la gestion du state.
+  - [ ] **Backend Patterns :** Documenter l'architecture modulaire, les bonnes pratiques DRF (Fat Models / Thin Views), et la gestion des permissions.
+  - [ ] **VPS & Sécurité :** Standardiser le setup serveur (Nginx, Gunicorn, SSL, pare-feu, gestion des secrets).
+  - [ ] **Catalogue de Features :** Lister les modules "prêts à vendre" pour les futures spécifications (CMS Headless, Chatbot IA Gemini, Tracking KPI, Système de Visibilité dynamique).

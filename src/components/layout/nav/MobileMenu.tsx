@@ -2,12 +2,14 @@
 
 import Link from "next/link";
 import { useState } from "react";
+import type { NavContent, NavServiceItem } from "@/types";
 
 /**
  * Menu Mobile Informatif - Responsive Extrême
  * Utilise les mêmes clés de contenu que le Desktop
  */
-export default function MobileMenu({ content, onClose }: { content: any, onClose: () => void }) {
+export default function MobileMenu({ content, onClose }: { content: NavContent; onClose: () => void })
+ {
   const [activeAccordion, setActiveAccordion] = useState<string | null>(null);
 
   const toggleAccordion = (key: string) => {
@@ -78,7 +80,7 @@ export default function MobileMenu({ content, onClose }: { content: any, onClose
 
             {activeAccordion === 'services' && (
               <div className="px-5 pb-5 grid grid-cols-1 gap-2 animate-fade-in">
-                {services.items.map((item: any) => (
+                {services.items.map((item: NavServiceItem) => (
                   <Link key={item.id} href={item.href} onClick={onClose} className="flex items-center gap-4 p-3 bg-salma-bg rounded-xl">
                     <span className="text-xl">{item.icon}</span>
                     <div>

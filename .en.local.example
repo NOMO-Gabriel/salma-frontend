@@ -1,0 +1,5 @@
+NEXT_PUBLIC_API_URL=https://api-x75k2m8-v1.agtgroupholding.com/api
+
+# URL de base du backend (sans /api) — pour les médias, uploads, etc.
+NEXT_PUBLIC_BACKEND_URL=https://api-x75k2m8-v1.agtgroupholding.com/api
+NEXT_PUBLIC_STATIC_CONTENT=True

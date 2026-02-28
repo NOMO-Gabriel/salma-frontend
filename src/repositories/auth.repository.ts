@@ -1,11 +1,4 @@
 // src/repositories/auth.repository.ts
-// ==============================================================================
-//  Repository — Authentification JWT
-//  Couche d'accès aux 9 endpoints /api/auth/*
-//  Ne connaît que api-client.ts et les types auth
-// ==============================================================================
-
-
 import { api, tokenStorage } from "@/lib/api-client";
 import type {
   LoginPayload,
@@ -23,51 +16,44 @@ import type {
 
 const BASE = "/auth";
 
-
-
-
-
 export const authRepository = {
   /**
    * POST /api/auth/login
    * Connexion → retourne les tokens + profil
-   * Stocke automatiquement les tokens
    */
   login: async (payload: LoginPayload): Promise<LoginResponse> => {
     const response = await api.post<LoginResponse>(`${BASE}/login`, payload);
+    
+    // 1. Stockage Client (localStorage) pour les futurs appels API
     tokenStorage.set(response.access, response.refresh);
 
+    // 2. Stockage Cookie pour le Middleware Next.js (Protection des routes serveur)
     if (typeof document !== "undefined") {
+      // Expire dans 24h, accessible sur tout le domaine
       document.cookie = `salma_auth=${response.access}; path=/; max-age=86400; SameSite=Lax`;
     }
+    
     return response;
   },
 
   /**
    * POST /api/auth/logout
-   * Déconnexion → blacklist le refresh token + efface le storage
+   * Déconnexion → invalide le token et nettoie tout
    */
   logout: async (): Promise<void> => {
     const refresh = tokenStorage.getRefresh();
     if (refresh) {
       const payload: LogoutPayload = { refresh };
-      await api.post<void>(`${BASE}/logout`, payload).catch(() => {
-        // Même si le logout échoue côté serveur, on efface localement
-      });
+      await api.post<void>(`${BASE}/logout`, payload).catch(() => {});
     }
+    
+    // Nettoyage localStorage
     tokenStorage.clear();
+
+    // Nettoyage Cookie
     if (typeof document !== "undefined") {
-          document.cookie = "salma_auth=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC;";
-        }
-
-  },
-
-  /**
-   * POST /api/auth/register
-   * Créer un compte admin (super admin uniquement)
-   */
-  register: async (payload: RegisterPayload): Promise<AdminUser> => {
-    return api.post<AdminUser>(`${BASE}/register`, payload);
+      document.cookie = "salma_auth=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC;";
+    }
   },
 
   /**
@@ -79,8 +65,14 @@ export const authRepository = {
   },
 
   /**
+   * POST /api/auth/register
+   */
+  register: async (payload: RegisterPayload): Promise<AdminUser> => {
+    return api.post<AdminUser>(`${BASE}/register`, payload);
+  },
+
+  /**
    * PATCH /api/auth/me
-   * Modifier partiellement le profil
    */
   updateProfile: async (payload: UpdateProfilePayload): Promise<AdminUser> => {
     return api.patch<AdminUser>(`${BASE}/me`, payload);
@@ -88,7 +80,6 @@ export const authRepository = {
 
   /**
    * PUT /api/auth/change-password
-   * Modifier le mot de passe
    */
   changePassword: async (payload: ChangePasswordPayload): Promise<void> => {
     return api.put<void>(`${BASE}/change-password`, payload);
@@ -96,7 +87,6 @@ export const authRepository = {
 
   /**
    * POST /api/auth/reset-password
-   * Demander réinitialisation par email (simulé)
    */
   requestPasswordReset: async (payload: ResetPasswordRequestPayload): Promise<void> => {
     return api.post<void>(`${BASE}/reset-password`, payload);
@@ -104,7 +94,6 @@ export const authRepository = {
 
   /**
    * POST /api/auth/reset-password/confirm
-   * Confirmer le nouveau mot de passe avec le token reçu par email
    */
   confirmPasswordReset: async (payload: ResetPasswordConfirmPayload): Promise<void> => {
     return api.post<void>(`${BASE}/reset-password/confirm`, payload);
@@ -112,8 +101,6 @@ export const authRepository = {
 
   /**
    * POST /api/auth/token/refresh
-   * Rafraîchir le token d'accès avec le refresh token
-   * Stocke automatiquement le nouveau token
    */
   refreshToken: async (): Promise<TokenRefreshResponse | null> => {
     const refresh = tokenStorage.getRefresh();
@@ -122,7 +109,6 @@ export const authRepository = {
     const payload: TokenRefreshPayload = { refresh };
     const response = await api.post<TokenRefreshResponse>(`${BASE}/token/refresh`, payload);
 
-    // Mettre à jour le storage avec le nouveau access token
     const newRefresh = response.refresh ?? refresh;
     tokenStorage.set(response.access, newRefresh);
 
@@ -130,7 +116,7 @@ export const authRepository = {
   },
 
   /**
-   * Vérifie si un token est stocké côté client (ne valide pas avec le serveur)
+   * Vérifie la présence locale d'un token
    */
   isAuthenticated: (): boolean => {
     return !!tokenStorage.getAccess();

@@ -15,8 +15,8 @@ export default function AdminNotificationBell() {
   useEffect(() => {
     const fetchUnread = async () => {
       try {
-        const { contactRepository } = await import("@/repositories/contact.repository");
-        const data = await contactRepository.getList({ statut: "nouveau", page_size: 1 });
+        const { contactAdminRepository } = await import("@/repositories/contact.repository");
+        const data = await contactAdminRepository.getList({ est_lu: false, page_size: 1 });
         setCount(data.count ?? 0);
       } catch {
         // Silencieux — pas de crash si backend inaccessible

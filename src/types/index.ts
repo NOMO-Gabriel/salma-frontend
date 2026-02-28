@@ -30,3 +30,9 @@ export * from "@/types/api/service.types";
 
 // --- KPI ---
 export * from "@/types/api/kpi.types";
+
+
+// pages
+
+// navbar
+export * from "@/types/pages/nav.types"

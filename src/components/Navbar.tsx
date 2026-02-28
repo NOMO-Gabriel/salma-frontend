@@ -7,16 +7,20 @@ import { cmsSwitcher } from "@/dictionaries/data/cms-switcher";
 import NavDropdown from "@/components/layout/nav/NavDropdown";
 import MobileMenu from "@/components/layout/nav/MobileMenu";
 import LanguageSwitcher from "@/components/LanguageSwitcher";
+import type { NavContent } from "@/types";
+
 
 export default function Navbar() {
   const { locale } = useLanguage();
-  const [content, setContent] = useState<any>(null);
+  const [content, setContent] = useState<NavContent | null>(null);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   // Chargement du contenu via le switcher
   useEffect(() => {
-    cmsSwitcher.getScopeContent("layout", locale).then(setContent);
-  }, [locale]);
+  cmsSwitcher.getScopeContent("layout", locale).then(
+    (data) => setContent(data as NavContent)
+  );
+}, [locale]);
 
   if (!content) return null; // Ou un squelette de chargement
 
