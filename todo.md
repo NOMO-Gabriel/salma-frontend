@@ -5,9 +5,9 @@
 
 - [x] **Généralisation du `cmsSwitcher` :**
   - [x] Créer les fichiers statiques finaux (`home`, `about`, `services`, `contact`, `footer`) dans `src/dictionaries/data/static/`. pour le moment avec le memes clés que ceux des dictionnaires actuels
-- [ ] **Polissage systématique page par page  en incluant les appels directs à `dictionary.xxx` par `cmsSwitcher.getScopeContent(...)` dans tous les composants:**
+- [-] **Polissage systématique page par page  en incluant les appels directs à `dictionary.xxx` par `cmsSwitcher.getScopeContent(...)` dans tous les composants:**
   - [ ] **Composants UI :** Audit des boutons, badges et cartes dans `src/components/ui/`.
-  - [ ] **Page Accueil :** Nettoyage des sections Hero, Stats, TrustBar et Témoignages.
+  - [-] **Page Accueil :** Nettoyage des sections Hero, Stats, TrustBar et Témoignages.
   - [ ] **Page Catalogue :** Vérification des filtres et du squelette de chargement.
   - [ ] **Page Services :** Harmonisation des cartes de services.
   - [ ] **Page À Propos & Contact :** Vérification des textes et des champs de formulaire.

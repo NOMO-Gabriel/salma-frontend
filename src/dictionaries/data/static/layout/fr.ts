@@ -127,5 +127,87 @@ nav_home: {
     { id: "temoignages", label: "Témoignages",      icon: "⭐", href: "/#temoignages"},
     { id: "contact",   label: "Nous contacter",     icon: "✉️", href: "/#contact"   },
   ]
-}
+},
+
+
+  hero_carousel: {
+    slides: [
+      {
+        id: "slide-1",
+        badge: "🎓 Bourses 2025 – 2026 ouvertes",
+        title: "Réalisez vos rêves\nd'études en Chine\n& Allemagne",
+        subtitle: "Accompagnement complet, visa en 3 semaines et garantie Satisfait ou Remboursé. Rejoignez +500 étudiants accompagnés.",
+        ctas: [
+          { label: "Trouver ma bourse", href: "/bourses", variant: "gold" },
+          { label: "Prendre RDV",       href: "/contact", variant: "navy" },
+        ],
+        stats: [
+          { value: "500+", label: "Étudiants" },
+          { value: "3 sem", label: "Délai visa" },
+          { value: "100%", label: "Réussite" },
+        ],
+        scholarship: {
+          flag: "🇨🇳",
+          country: "Chine",
+          title: "Bourse CSC — Gouvernement Chinois",
+          level: "Licence · Master · Doctorat",
+          coverage: "Bourse complète",
+          deadline: "Clôture : 31 mars 2026",
+          href: "/bourses?pays=chine",
+          cta: "Voir cette bourse →",
+        },
+      },
+      {
+        id: "slide-2",
+        badge: "⭐ +500 étudiants nous font confiance",
+        title: "Une équipe locale\nqui connaît\nvos démarches",
+        subtitle: "Basés à Yaoundé, nous accompagnons chaque étudiant camerounais de A à Z : dossier, visa, logement, orientation.",
+        ctas: [
+          { label: "Voir les témoignages", href: "/#temoignages", variant: "gold" },
+          { label: "Nos services",         href: "/services",     variant: "navy" },
+        ],
+        stats: [
+          { value: "5+", label: "Ans d'expérience" },
+          { value: "25+", label: "Universités" },
+          { value: "2",   label: "Pays couverts" },
+        ],
+        scholarship: {
+          flag: "🇩🇪",
+          country: "Allemagne",
+          title: "Bourse DAAD — Échanges Académiques",
+          level: "Master · Doctorat",
+          coverage: "Partielle + frais réduits",
+          deadline: "Clôture : 15 avril 2026",
+          href: "/bourses?pays=allemagne",
+          cta: "Voir cette bourse →",
+        },
+      },
+      {
+        id: "slide-3",
+        badge: "🚀 Places limitées — Dossiers en cours",
+        title: "Les meilleures\nuniversités vous\nouvrent leurs portes",
+        subtitle: "Chine : Top 10 mondial, médecine, ingénierie, management. Allemagne : DAAD, master en anglais, frais réduits.",
+        ctas: [
+          { label: "Bourses Chine 🇨🇳",    href: "/bourses?pays=chine",     variant: "gold" },
+          { label: "Bourses Allemagne 🇩🇪", href: "/bourses?pays=allemagne", variant: "navy" },
+        ],
+        stats: [
+          { value: "50+", label: "Bourses actives" },
+          { value: "CSC", label: "Partenaire officiel" },
+          { value: "DAAD", label: "Réseau Allemagne" },
+        ],
+        scholarship: {
+          flag: "🌍",
+          country: "Chine & Allemagne",
+          title: "Nouvelles bourses disponibles",
+          level: "Tous niveaux",
+          coverage: "Complète ou partielle",
+          deadline: "Candidatez maintenant",
+          href: "/bourses",
+          cta: "Voir toutes les bourses →",
+        },
+      },
+    ],
+  },
 };
+
