@@ -7,7 +7,7 @@ param (
     [string]$ProjectPath = "."
 )
 
-$OutputFilename = "project_context_w.txt"
+$OutputFilename = "project_context_frontend.txt"
 
 # Résolution du chemin absolu
 try {
