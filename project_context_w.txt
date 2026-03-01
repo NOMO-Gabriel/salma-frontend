@@ -1,5 +1,5 @@
 ﻿Next.js Project Context
-Generated On: 2026-02-28 09:01:47
+Generated On: 2026-03-01 06:04:29
 Root: E:\AG_Technologie\Salma\salma-frontend
 ===============================================
 
@@ -2571,6 +2571,40 @@ h1, h2, h3, h4, h5, h6 {
   color: var(--heading); 
   transition: color 0.4s ease;
 }
+/* =============================================================================
+   ANIMATIONS NAVBAR — À ajouter dans src/app/globals.css
+   (coller AVANT la dernière ligne du fichier)
+============================================================================= */
+
+/* Entrée fadeIn générique */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+/* Slide du menu mobile depuis la droite */
+@keyframes slideInRight {
+  from { transform: translateX(100%); }
+  to   { transform: translateX(0); }
+}
+
+/* Apparition des dropdowns desktop (fade + légère descente) */
+@keyframes dropdownReveal {
+  from {
+    opacity: 0;
+    transform: translateY(-6px) scaleY(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scaleY(1);
+  }
+}
+
+/* Extension horizontale de l'underline actif */
+@keyframes expandWidth {
+  from { transform: scaleX(0); }
+  to   { transform: scaleX(1); }
+}
 
 // END OF FILE: src/app/globals.css
 
@@ -4045,142 +4079,361 @@ export default function AdminScholarshipsClient({ initialData }: Props) {
 // FILE: src/components/layout/nav/MobileMenu.tsx
 -----------------------------------------------
 "use client";
+// =============================================================================
+//  MobileMenu.tsx — SALMA · Menu mobile (panneau latéral droit)
+//  Améliorations polish :
+//    • Header avec dégradé navy + branding premium
+//    • CTA "Prendre RDV" gold hero visible immédiatement (sans accordéon)
+//    • Accordéons avec icônes et animations fluides
+//    • Pied de menu avec newsletter intégrée + liens sociaux
+//    • Animation slide-in depuis la droite
+//    • Trap focus et accessibilité (aria)
+// =============================================================================
 
 import Link from "next/link";
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
+import { usePathname } from "next/navigation";
+import { useLanguage } from "@/hooks/useLanguage";
 import type { NavContent, NavServiceItem } from "@/types";
 
-/**
- * Menu Mobile Informatif - Responsive Extrême
- * Utilise les mêmes clés de contenu que le Desktop
- */
-export default function MobileMenu({ content, onClose }: { content: NavContent; onClose: () => void })
- {
+// =============================================================================
+//  Composant principal
+// =============================================================================
+export default function MobileMenu({
+  content,
+  onClose,
+}: {
+  content: NavContent;
+  onClose: () => void;
+}) {
+  const { locale } = useLanguage();
+  const pathname = usePathname();
+  const panelRef = useRef<HTMLDivElement>(null);
   const [activeAccordion, setActiveAccordion] = useState<string | null>(null);
 
+  // Ferme si la route change
+  useEffect(() => {
+    onClose();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pathname]);
+
+  // Focus piégé dans le panneau (accessibilité)
+  useEffect(() => {
+    panelRef.current?.focus();
+  }, []);
+
+  // Ferme avec Escape
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => {
+      if (e.key === "Escape") onClose();
+    };
+    document.addEventListener("keydown", handler);
+    return () => document.removeEventListener("keydown", handler);
+  }, [onClose]);
+
   const toggleAccordion = (key: string) => {
-    setActiveAccordion(activeAccordion === key ? null : key);
+    setActiveAccordion((prev) => (prev === key ? null : key));
   };
 
-  const bourses = content.nav_bourses;
-  const services = content.nav_services;
-  const contact = content.nav_contact;
+  const { nav_bourses, nav_services, nav_contact } = content;
 
   return (
-    <div className="fixed inset-0 z-[110] lg:hidden animate-fade-in">
-      {/* Backdrop flou pour focus sur le menu */}
-      <div className="absolute inset-0 bg-salma-primary/20 backdrop-blur-sm" onClick={onClose} />
+    <div
+      className="fixed inset-0 z-[110] lg:hidden"
+      role="dialog"
+      aria-modal="true"
+      aria-label="Menu de navigation"
+    >
+      {/* Backdrop */}
+      <div
+        className="absolute inset-0 bg-salma-primary/30 backdrop-blur-sm animate-[fadeIn_0.2s_ease-out]"
+        onClick={onClose}
+        aria-hidden="true"
+      />
 
-      {/* Panneau latéral droit */}
-      <div className="absolute top-0 right-0 w-[85%] max-w-[400px] h-full bg-white shadow-2xl flex flex-col animate-slide-in-right">
-        
-        {/* HEADER MOBILE */}
-        <div className="p-6 border-b border-salma-border flex justify-between items-center bg-salma-bg/30">
-          <div className="flex flex-col">
-            <span className="text-xl font-serif font-bold text-salma-primary leading-none">SALMA</span>
-            <span className="text-[8px] uppercase tracking-widest text-salma-gold font-bold">Bourses & Mobilité</span>
+      {/* Panneau latéral */}
+      <div
+        ref={panelRef}
+        tabIndex={-1}
+        className="
+          absolute top-0 right-0
+          w-[88%] max-w-[420px] h-full
+          bg-white shadow-[−20px_0_60px_rgba(27,54,93,0.2)]
+          flex flex-col
+          animate-[slideInRight_0.28s_cubic-bezier(0.32,0.72,0,1)]
+          outline-none
+        "
+      >
+
+        {/* =================================================================
+            HEADER DU PANNEAU
+        ================================================================= */}
+        <div className="relative bg-salma-primary px-6 py-5 flex justify-between items-center overflow-hidden flex-shrink-0">
+          {/* Décoration géométrique subtile */}
+          <div className="absolute -right-8 -top-8 w-24 h-24 rounded-full bg-salma-accent/10" aria-hidden="true" />
+          <div className="absolute right-12 -bottom-4 w-12 h-12 rounded-full bg-salma-gold/10" aria-hidden="true" />
+
+          {/* Branding */}
+          <div className="relative flex flex-col">
+            <span className="text-xl font-serif font-bold text-white leading-none">SALMA</span>
+            <span className="text-[8px] uppercase tracking-[0.35em] text-salma-gold font-bold mt-0.5">
+              Bourses & Mobilité
+            </span>
           </div>
-          <button onClick={onClose} className="p-2 text-salma-primary hover:bg-salma-primary/10 rounded-full transition-colors">
-            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6" />
+
+          {/* Bouton fermeture */}
+          <button
+            onClick={onClose}
+            className="
+              relative w-9 h-9 flex items-center justify-center
+              rounded-xl bg-white/10 hover:bg-white/20
+              text-white transition-colors duration-150
+            "
+            aria-label="Fermer le menu"
+          >
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
             </svg>
           </button>
         </div>
 
-        {/* CORPS DU MENU (Scrollable) */}
-        <div className="flex-1 overflow-y-auto p-4 space-y-2">
-          
-          {/* ACCORDION : BOURSES */}
-          <div className="border border-salma-border rounded-2xl overflow-hidden">
-            <button 
-              onClick={() => toggleAccordion('bourses')}
-              className="w-full p-5 flex justify-between items-center bg-white hover:bg-salma-bg transition-colors"
-            >
-              <span className="text-sm font-bold text-salma-primary uppercase tracking-widest">{bourses.title}</span>
-              <span className={`text-salma-gold transition-transform duration-300 ${activeAccordion === 'bourses' ? 'rotate-180' : ''}`}>▼</span>
-            </button>
-            
-            {activeAccordion === 'bourses' && (
-              <div className="px-5 pb-5 space-y-4 animate-fade-in">
-                <Link href="/bourses?pays=chine" onClick={onClose} className="block p-4 bg-salma-bg rounded-xl">
-                  <p className="font-bold text-salma-primary text-xs">🇨🇳 {bourses.china_label}</p>
-                  <p className="text-[10px] text-salma-text-muted mt-1">{bourses.china_desc}</p>
+        {/* =================================================================
+            CTA HERO — Visible immédiatement, sans scroll
+        ================================================================= */}
+        <div className="px-4 pt-4 flex-shrink-0">
+          <Link
+            href="/contact"
+            onClick={onClose}
+            className="
+              flex items-center justify-center gap-3
+              w-full py-4 rounded-2xl
+              bg-salma-gold text-salma-primary
+              font-bold text-sm tracking-wide
+              shadow-[0_4px_20px_rgba(201,168,76,0.4)]
+              hover:bg-salma-gold-light active:scale-[0.98]
+              transition-all duration-150
+            "
+          >
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+            </svg>
+            {locale === "fr" ? "Prendre rendez-vous" : "Book a consultation"}
+          </Link>
+        </div>
+
+        {/* =================================================================
+            CORPS : ACCORDÉONS DE NAVIGATION
+        ================================================================= */}
+        <div className="flex-1 overflow-y-auto px-4 py-4 space-y-2">
+
+          {/* ── BOURSES ─────────────────────────────────────────────────── */}
+          <AccordionItem
+            id="bourses"
+            label={nav_bourses.title}
+            icon="🎓"
+            isOpen={activeAccordion === "bourses"}
+            onToggle={() => toggleAccordion("bourses")}
+          >
+            <div className="space-y-2 pb-1">
+              <Link
+                href="/bourses?pays=chine"
+                onClick={onClose}
+                className="group flex items-start gap-3 p-4 bg-salma-bg rounded-xl hover:bg-salma-primary/5 transition-colors"
+              >
+                <span className="text-lg">🇨🇳</span>
+                <div>
+                  <p className="text-xs font-bold text-salma-primary">{nav_bourses.china_label}</p>
+                  <p className="text-[10px] text-salma-text-muted mt-0.5 leading-snug">{nav_bourses.china_desc}</p>
+                </div>
+              </Link>
+              <Link
+                href="/bourses?pays=allemagne"
+                onClick={onClose}
+                className="group flex items-start gap-3 p-4 bg-salma-bg rounded-xl hover:bg-salma-primary/5 transition-colors"
+              >
+                <span className="text-lg">🇩🇪</span>
+                <div>
+                  <p className="text-xs font-bold text-salma-primary">{nav_bourses.germany_label}</p>
+                  <p className="text-[10px] text-salma-text-muted mt-0.5 leading-snug">{nav_bourses.germany_desc}</p>
+                </div>
+              </Link>
+              <Link
+                href="/bourses"
+                onClick={onClose}
+                className="block text-center text-[10px] font-bold text-salma-gold py-2 hover:underline"
+              >
+                Voir toutes les bourses →
+              </Link>
+            </div>
+          </AccordionItem>
+
+          {/* ── SERVICES ────────────────────────────────────────────────── */}
+          <AccordionItem
+            id="services"
+            label={nav_services.title}
+            icon="⚙️"
+            isOpen={activeAccordion === "services"}
+            onToggle={() => toggleAccordion("services")}
+          >
+            <div className="grid grid-cols-1 gap-1.5 pb-1">
+              {nav_services.items.map((item: NavServiceItem) => (
+                <Link
+                  key={item.id}
+                  href={item.href}
+                  onClick={onClose}
+                  className="flex items-center gap-3 p-3 bg-salma-bg rounded-xl hover:bg-salma-primary/5 transition-colors"
+                >
+                  <span className="text-lg w-8 text-center flex-shrink-0">{item.icon}</span>
+                  <div>
+                    <p className="text-xs font-bold text-salma-primary">{item.label}</p>
+                    <p className="text-[9px] text-salma-text-muted leading-snug">{item.desc}</p>
+                  </div>
                 </Link>
-                <Link href="/bourses?pays=allemagne" onClick={onClose} className="block p-4 bg-salma-bg rounded-xl">
-                  <p className="font-bold text-salma-primary text-xs">🇩🇪 {bourses.germany_label}</p>
-                  <p className="text-[10px] text-salma-text-muted mt-1">{bourses.germany_desc}</p>
-                </Link>
-              </div>
-            )}
+              ))}
+            </div>
+          </AccordionItem>
+
+          {/* ── LIENS SIMPLES ───────────────────────────────────────────── */}
+          <nav className="space-y-1" aria-label="Liens rapides">
+            {[
+              { href: "/a-propos", label: locale === "fr" ? "À propos" : "About us", icon: "🏢" },
+              { href: "/contact",  label: locale === "fr" ? "Contact"  : "Contact",  icon: "✉️" },
+            ].map(({ href, label, icon }) => (
+              <Link
+                key={href}
+                href={href}
+                onClick={onClose}
+                className="flex items-center gap-3 px-4 py-3.5 rounded-xl border border-salma-border hover:border-salma-gold hover:bg-salma-gold/5 transition-all"
+              >
+                <span className="text-base">{icon}</span>
+                <span className="text-xs font-bold text-salma-primary uppercase tracking-widest">
+                  {label}
+                </span>
+              </Link>
+            ))}
+          </nav>
+
+          {/* ── WHATSAPP ────────────────────────────────────────────────── */}
+          <a
+            href="https://wa.me/237699450984"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="
+              flex items-center gap-3 px-4 py-3.5 rounded-xl
+              bg-green-500 text-white
+              hover:bg-green-600 active:scale-[0.98]
+              transition-all duration-150 shadow-sm
+            "
+          >
+            <span className="text-base">💬</span>
+            <div>
+              <p className="text-xs font-bold">{nav_contact.whatsapp_label}</p>
+              <p className="text-[9px] text-white/70">{nav_contact.whatsapp_desc}</p>
+            </div>
+          </a>
+
+        </div>
+
+        {/* =================================================================
+            FOOTER : NEWSLETTER + COPYRIGHT
+        ================================================================= */}
+        <div className="flex-shrink-0 border-t border-salma-border bg-salma-bg/60 px-5 py-5 space-y-4">
+          {/* Mini newsletter */}
+          <div>
+            <p className="text-[10px] font-bold text-salma-primary mb-1">{nav_contact.newsletter_title}</p>
+            <p className="text-[9px] text-salma-text-muted mb-3 leading-snug">{nav_contact.newsletter_desc}</p>
+            <div className="flex gap-2">
+              <input
+                type="email"
+                placeholder={nav_contact.newsletter_placeholder}
+                className="flex-1 bg-white border border-salma-border rounded-xl px-3 py-2.5 text-xs outline-none focus:border-salma-gold transition-colors"
+              />
+              <button className="bg-salma-gold text-salma-primary px-4 py-2.5 rounded-xl text-[10px] font-bold hover:bg-salma-gold-light transition-colors shadow-sm">
+                {nav_contact.newsletter_btn}
+              </button>
+            </div>
           </div>
 
-          {/* ACCORDION : SERVICES */}
-          <div className="border border-salma-border rounded-2xl overflow-hidden">
-            <button 
-              onClick={() => toggleAccordion('services')}
-              className="w-full p-5 flex justify-between items-center bg-white hover:bg-salma-bg transition-colors"
-            >
-              <span className="text-sm font-bold text-salma-primary uppercase tracking-widest">{services.title}</span>
-              <span className={`text-salma-gold transition-transform duration-300 ${activeAccordion === 'services' ? 'rotate-180' : ''}`}>▼</span>
-            </button>
-
-            {activeAccordion === 'services' && (
-              <div className="px-5 pb-5 grid grid-cols-1 gap-2 animate-fade-in">
-                {services.items.map((item: NavServiceItem) => (
-                  <Link key={item.id} href={item.href} onClick={onClose} className="flex items-center gap-4 p-3 bg-salma-bg rounded-xl">
-                    <span className="text-xl">{item.icon}</span>
-                    <div>
-                      <p className="text-xs font-bold text-salma-primary">{item.label}</p>
-                      <p className="text-[9px] text-salma-text-muted">{item.desc}</p>
-                    </div>
-                  </Link>
-                ))}
+          {/* Liens sociaux */}
+          <div className="flex gap-3 opacity-50">
+            {["f", "in", "ig"].map((s) => (
+              <div
+                key={s}
+                className="w-7 h-7 rounded-full border border-salma-border flex items-center justify-center text-[9px] font-bold text-salma-primary"
+              >
+                {s}
               </div>
-            )}
-          </div>
-
-          {/* SECTION FIXE : CONTACT & ACTIONS RAPIDES */}
-          <div className="mt-4 p-2 space-y-2">
-            <p className="px-4 text-[10px] font-black text-salma-gold uppercase tracking-[0.2em] mb-4">Actions Prioritaires</p>
-            
-            <Link href="/contact" onClick={onClose} className="flex items-center gap-4 p-4 bg-salma-primary text-white rounded-2xl shadow-lg">
-              <span className="text-xl">📅</span>
-              <div>
-                <p className="text-xs font-bold">{contact.rdv_label}</p>
-                <p className="text-[9px] opacity-70">{contact.rdv_desc}</p>
-              </div>
-            </Link>
-
-            <a href="https://wa.me/237699450984" target="_blank" className="flex items-center gap-4 p-4 bg-green-500 text-white rounded-2xl shadow-lg">
-              <span className="text-xl">💬</span>
-              <div>
-                <p className="text-xs font-bold">{contact.whatsapp_label}</p>
-                <p className="text-[9px] opacity-70">{contact.whatsapp_desc}</p>
-              </div>
-            </a>
+            ))}
           </div>
         </div>
 
-        {/* FOOTER : NEWSLETTER MOBILE INTEGRÉE */}
-        <div className="p-6 bg-salma-bg border-t border-salma-border">
-          <p className="text-xs font-bold text-salma-primary mb-1">{contact.newsletter_title}</p>
-          <p className="text-[10px] text-salma-text-muted mb-4 leading-tight">{contact.newsletter_desc}</p>
-          <div className="flex gap-2">
-            <input 
-              type="email" 
-              placeholder={contact.newsletter_placeholder} 
-              className="flex-1 bg-white border border-salma-border rounded-xl px-4 py-3 text-xs outline-none focus:border-salma-gold" 
-            />
-            <button className="bg-salma-gold text-salma-primary px-5 py-3 rounded-xl text-xs font-bold shadow-md">
-              {contact.newsletter_btn}
-            </button>
-          </div>
-          
-          <div className="mt-8 pt-6 border-t border-salma-border flex justify-center gap-6 opacity-40">
-             <span className="text-[10px] font-bold">Facebook</span>
-             <span className="text-[10px] font-bold">LinkedIn</span>
-             <span className="text-[10px] font-bold">Instagram</span>
-          </div>
+      </div>
+    </div>
+  );
+}
+
+// =============================================================================
+//  Sous-composant : Item d'accordéon réutilisable
+// =============================================================================
+function AccordionItem({
+  id,
+  label,
+  icon,
+  isOpen,
+  onToggle,
+  children,
+}: {
+  id: string;
+  label: string;
+  icon: string;
+  isOpen: boolean;
+  onToggle: () => void;
+  children: React.ReactNode;
+}) {
+  return (
+    <div className="border border-salma-border rounded-2xl overflow-hidden">
+      <button
+        onClick={onToggle}
+        className="
+          w-full flex items-center justify-between gap-3
+          px-4 py-4 bg-white hover:bg-salma-bg
+          transition-colors duration-150
+        "
+        aria-expanded={isOpen}
+        aria-controls={`accordion-${id}`}
+      >
+        <div className="flex items-center gap-3">
+          <span className="text-base">{icon}</span>
+          <span className="text-xs font-bold text-salma-primary uppercase tracking-widest">
+            {label}
+          </span>
+        </div>
+        {/* Chevron animé */}
+        <svg
+          className={`
+            w-4 h-4 text-salma-gold flex-shrink-0
+            transition-transform duration-300
+            ${isOpen ? "rotate-180" : "rotate-0"}
+          `}
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+          aria-hidden="true"
+        >
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M19 9l-7 7-7-7" />
+        </svg>
+      </button>
+
+      {/* Contenu accordéon avec animation */}
+      <div
+        id={`accordion-${id}`}
+        className={`
+          overflow-hidden transition-all duration-300 ease-in-out
+          ${isOpen ? "max-h-[500px] opacity-100" : "max-h-0 opacity-0"}
+        `}
+      >
+        <div className="px-4 pb-3 pt-1 bg-salma-bg/30 border-t border-salma-border/50">
+          {children}
         </div>
       </div>
     </div>
@@ -4193,15 +4446,25 @@ export default function MobileMenu({ content, onClose }: { content: NavContent; 
 // FILE: src/components/layout/nav/NavDropdown.tsx
 -----------------------------------------------
 "use client";
+// =============================================================================
+//  NavDropdown.tsx — SALMA · Menu déroulant desktop
+//  Améliorations polish :
+//    • Chevron animé (rotate 180° à l'ouverture)
+//    • Bouton trigger avec underline gold au hover
+//    • Dropdowns avec entrée animée (fade + translateY)
+//    • Cards hover avec background subtil et border gold
+//    • Dropdown Contact avec gradient header navy
+// =============================================================================
 
 import { useState } from "react";
 import Link from "next/link";
-import type { NavBourses, NavServices, NavContact,NavAbout } from "@/types";
+import type { NavBourses, NavServices, NavContact, NavAbout, NavHome } from "@/types";
 
-type NavDropdownData = NavBourses | NavServices | NavContact | NavAbout;
-/**
- * Menu déroulant informatif style Ecobank
- */
+type NavDropdownData = NavHome | NavBourses | NavServices | NavContact | NavAbout;
+
+// =============================================================================
+//  Composant principal
+// =============================================================================
 export default function NavDropdown({
   title,
   data,
@@ -4221,98 +4484,280 @@ export default function NavDropdown({
       onMouseEnter={() => setIsOpen(true)}
       onMouseLeave={() => setIsOpen(false)}
     >
-      <button className={`
-        px-4 py-2 text-xs font-bold uppercase tracking-widest transition-all flex items-center gap-2
-        ${isAction ? "bg-salma-primary text-white rounded-lg ml-4 shadow-md" : "text-salma-primary hover:text-salma-gold"}
-      `}>
+      {/* ===================================================================
+          BOUTON TRIGGER
+      =================================================================== */}
+      <button
+        className={`
+          relative px-4 py-2 flex items-center gap-1.5
+          text-[11px] font-bold uppercase tracking-widest
+          transition-all duration-200
+          outline-none focus-visible:ring-2 focus-visible:ring-salma-gold focus-visible:ring-offset-2 rounded-lg
+          ${isAction
+            ? `
+                border border-salma-border rounded-xl
+                text-salma-primary hover:border-salma-gold hover:text-salma-gold
+                bg-transparent hover:bg-salma-gold/5
+              `
+            : `
+                text-salma-text-muted hover:text-salma-primary
+                after:absolute after:bottom-0 after:left-4 after:right-4 after:h-[2px]
+                after:bg-salma-gold after:rounded-full after:scale-x-0
+                hover:after:scale-x-100 after:transition-transform after:duration-200 after:origin-center
+              `
+          }
+        `}
+        aria-haspopup="true"
+        aria-expanded={isOpen}
+      >
         {title}
-        {!isAction && <span className={`text-[10px] transition-transform ${isOpen ? "rotate-180" : ""}`}>▼</span>}
+        {/* Chevron animé */}
+        <svg
+          className={`
+            w-3 h-3 flex-shrink-0 transition-transform duration-200
+            ${isOpen ? "rotate-180" : "rotate-0"}
+            ${isAction ? "text-salma-gold" : "text-salma-border"}
+          `}
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+          aria-hidden="true"
+        >
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M19 9l-7 7-7-7" />
+        </svg>
       </button>
 
-      {/* LE PANNEAU INFORMATIF */}
-      {isOpen && !isAction && (
-        <div className="absolute top-[80px] left-1/2 -translate-x-1/2 w-[400px] bg-white border border-salma-border rounded-2xl shadow-salma-lg p-6 animate-fade-in">
-          {/* Petit triangle */}
-          <div className="absolute -top-2 left-1/2 -translate-x-1/2 w-4 h-4 bg-white border-l border-t border-salma-border rotate-45" />
-
-          {/* CAS BOURSES */}
-          {type === "bourses" && (() => {
-            const d = data as NavBourses;
-            return (
-              <div className="grid grid-cols-1 gap-6">
-                <Link href="/bourses?pays=chine" className="group block p-4 hover:bg-salma-bg rounded-xl transition-all">
-                  <p className="font-bold text-salma-primary flex items-center gap-2">🇨🇳 {d.china_label}</p>
-                  <p className="text-xs text-salma-text-muted mt-1">{d.china_desc}</p>
-                  <span className="text-[10px] font-bold text-salma-gold uppercase mt-2 block opacity-0 group-hover:opacity-100 transition-all">→ {d.china_cta}</span>
-                </Link>
-                <div className="h-px bg-salma-border" />
-                <Link href="/bourses?pays=allemagne" className="group block p-4 hover:bg-salma-bg rounded-xl transition-all">
-                  <p className="font-bold text-salma-primary flex items-center gap-2">🇩🇪 {d.germany_label}</p>
-                  <p className="text-xs text-salma-text-muted mt-1">{d.germany_desc}</p>
-                  <span className="text-[10px] font-bold text-salma-gold uppercase mt-2 block opacity-0 group-hover:opacity-100 transition-all">→ {d.germany_cta}</span>
-                </Link>
-              </div>
-            );
-          })()}
-
-          {/* CAS SERVICES */}
-          {type === "services" && (() => {
-            const d = data as NavServices;
-            return (
-              <div className="grid grid-cols-2 gap-4">
-                {d.items.map((item) => (
-                  <Link key={item.id} href={item.href} className="p-3 hover:bg-salma-bg rounded-xl transition-all border border-transparent hover:border-salma-border">
-                    <span className="text-xl mb-2 block">{item.icon}</span>
-                    <p className="text-xs font-bold text-salma-primary">{item.label}</p>
-                    <p className="text-[10px] text-salma-text-muted leading-tight mt-1">{item.desc}</p>
-                  </Link>
-                ))}
-              </div>
-            );
-          })()}
+      {/* ===================================================================
+          PANNEAUX DÉROULANTS
+      =================================================================== */}
+      {type === "home" && (() => {
+      const d = data as unknown as NavHome;
+      return (
+        <div className="p-2 space-y-1">
+          {d.sections.map((item) => (
+            <Link key={item.id} href={item.href}
+              className="flex items-center gap-3 p-3 rounded-xl hover:bg-salma-bg border border-transparent hover:border-salma-border transition-all"
+            >
+              <span className="text-lg">{item.icon}</span>
+              <span className="text-xs font-bold text-salma-primary">{item.label}</span>
+            </Link>
+          ))}
         </div>
-      )}
+      );
+    })()}
 
-      {/* CAS NOUS CONTACTER (Action Menu) */}
+      {/* ── CAS BOURSES ───────────────────────────────────────────────── */}
+      {isOpen && type === "bourses" && (() => {
+        const d = data as NavBourses;
+        return (
+          <DropdownPanel align="left" wide>
+            <div className="p-2 space-y-2">
+              {/* Chine */}
+              <Link
+                href="/bourses?pays=chine"
+                className="group flex items-start gap-4 p-4 rounded-xl hover:bg-salma-bg border border-transparent hover:border-salma-border transition-all duration-150"
+              >
+                <span className="text-2xl mt-0.5">🇨🇳</span>
+                <div className="flex-1 min-w-0">
+                  <p className="text-xs font-bold text-salma-primary group-hover:text-salma-accent transition-colors">
+                    {d.china_label}
+                  </p>
+                  <p className="text-[10px] text-salma-text-muted leading-snug mt-1">{d.china_desc}</p>
+                  <span className="inline-flex items-center gap-1 mt-2 text-[10px] font-bold text-salma-accent opacity-0 group-hover:opacity-100 transition-opacity">
+                    {d.china_cta} →
+                  </span>
+                </div>
+              </Link>
+
+              {/* Allemagne */}
+              <Link
+                href="/bourses?pays=allemagne"
+                className="group flex items-start gap-4 p-4 rounded-xl hover:bg-salma-bg border border-transparent hover:border-salma-border transition-all duration-150"
+              >
+                <span className="text-2xl mt-0.5">🇩🇪</span>
+                <div className="flex-1 min-w-0">
+                  <p className="text-xs font-bold text-salma-primary group-hover:text-salma-accent transition-colors">
+                    {d.germany_label}
+                  </p>
+                  <p className="text-[10px] text-salma-text-muted leading-snug mt-1">{d.germany_desc}</p>
+                  <span className="inline-flex items-center gap-1 mt-2 text-[10px] font-bold text-salma-accent opacity-0 group-hover:opacity-100 transition-opacity">
+                    {d.germany_cta} →
+                  </span>
+                </div>
+              </Link>
+            </div>
+
+            {/* Footer du dropdown */}
+            <div className="px-4 pb-3 pt-1 border-t border-salma-border/50">
+              <Link
+                href="/bourses"
+                className="text-[10px] font-bold text-salma-gold hover:text-salma-gold-light transition-colors flex items-center gap-1"
+              >
+                Voir toutes les bourses →
+              </Link>
+            </div>
+          </DropdownPanel>
+        );
+      })()}
+
+      {/* ── CAS SERVICES ──────────────────────────────────────────────── */}
+      {isOpen && type === "services" && (() => {
+        const d = data as NavServices;
+        return (
+          <DropdownPanel align="left" wide>
+            <div className="p-2 grid grid-cols-2 gap-1">
+              {d.items.map((item) => (
+                <Link
+                  key={item.id}
+                  href={item.href}
+                  className="group p-3 rounded-xl hover:bg-salma-bg border border-transparent hover:border-salma-border transition-all duration-150"
+                >
+                  <span className="text-xl mb-2 block">{item.icon}</span>
+                  <p className="text-xs font-bold text-salma-primary group-hover:text-salma-accent transition-colors">
+                    {item.label}
+                  </p>
+                  <p className="text-[10px] text-salma-text-muted leading-tight mt-1">{item.desc}</p>
+                </Link>
+              ))}
+            </div>
+          </DropdownPanel>
+        );
+      })()}
+
+      {/* ── CAS À PROPOS ──────────────────────────────────────────────── */}
+      {isOpen && type === "about" && (() => {
+        const d = data as NavAbout;
+        return (
+          <DropdownPanel align="left">
+            <div className="p-2 space-y-1">
+              <Link
+                href="/a-propos"
+                className="group flex items-start gap-3 p-4 rounded-xl hover:bg-salma-bg border border-transparent hover:border-salma-border transition-all"
+              >
+                <span className="text-xl">🏢</span>
+                <div>
+                  <p className="text-xs font-bold text-salma-primary group-hover:text-salma-accent transition-colors">
+                    {d.agency_label}
+                  </p>
+                  <p className="text-[10px] text-salma-text-muted mt-1">{d.agency_desc}</p>
+                </div>
+              </Link>
+              <Link
+                href="/a-propos#mission"
+                className="group flex items-start gap-3 p-4 rounded-xl hover:bg-salma-bg border border-transparent hover:border-salma-border transition-all"
+              >
+                <span className="text-xl">🎯</span>
+                <div>
+                  <p className="text-xs font-bold text-salma-primary group-hover:text-salma-accent transition-colors">
+                    {d.mission_label}
+                  </p>
+                  <p className="text-[10px] text-salma-text-muted mt-1">{d.mission_desc}</p>
+                </div>
+              </Link>
+            </div>
+            <div className="px-4 pb-3 pt-1 border-t border-salma-border/50">
+              <Link
+                href="/a-propos"
+                className="text-[10px] font-bold text-salma-gold hover:text-salma-gold-light transition-colors flex items-center gap-1"
+              >
+                {d.cta} →
+              </Link>
+            </div>
+          </DropdownPanel>
+        );
+      })()}
+
+      {/* ── CAS CONTACT (isAction) ────────────────────────────────────── */}
       {isOpen && isAction && (() => {
         const d = data as NavContact;
         return (
-          <div className="absolute top-[80px] right-0 w-[320px] bg-white border border-salma-border rounded-2xl shadow-salma-lg overflow-hidden animate-fade-in">
+          <DropdownPanel align="right">
+            {/* Header gradient navy */}
+            <div className="bg-salma-primary px-5 py-4 rounded-t-2xl">
+              <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-salma-gold">
+                {d.title}
+              </p>
+              <p className="text-xs text-white/60 mt-0.5">
+                Réponse en moins de 24h
+              </p>
+            </div>
+
             <div className="p-2 space-y-1">
-              <Link href="/contact" className="flex items-center gap-4 p-4 hover:bg-salma-primary hover:text-white rounded-xl transition-all group">
+              {/* RDV */}
+              <Link
+                href="/contact"
+                className="group flex items-center gap-4 p-4 hover:bg-salma-primary hover:text-white rounded-xl transition-all duration-150"
+              >
                 <span className="text-xl">📅</span>
                 <div>
                   <p className="text-xs font-bold">{d.rdv_label}</p>
-                  <p className="text-[10px] opacity-70">{d.rdv_desc}</p>
+                  <p className="text-[10px] opacity-60 group-hover:opacity-80">{d.rdv_desc}</p>
                 </div>
               </Link>
-              <a href="https://wa.me/237699450984" target="_blank" rel="noopener noreferrer" className="flex items-center gap-4 p-4 hover:bg-green-500 hover:text-white rounded-xl transition-all group">
+
+              {/* WhatsApp */}
+              <a
+                href="https://wa.me/237699450984"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-4 p-4 hover:bg-green-500 hover:text-white rounded-xl transition-all duration-150 group"
+              >
                 <span className="text-xl">💬</span>
                 <div>
-                  <p className="text-xs font-bold">{d.whatsapp_label}</p>
-                  <p className="text-[10px] opacity-70">{d.whatsapp_desc}</p>
+                  <p className="text-xs font-bold text-salma-primary group-hover:text-white">{d.whatsapp_label}</p>
+                  <p className="text-[10px] text-salma-text-muted group-hover:text-white/80">{d.whatsapp_desc}</p>
                 </div>
               </a>
             </div>
 
-            {/* MINI NEWSLETTER */}
-            <div className="bg-salma-bg p-6 border-t border-salma-border">
-              <p className="text-xs font-bold text-salma-primary mb-1">{d.newsletter_title}</p>
-              <p className="text-[10px] text-salma-text-muted mb-4">{d.newsletter_desc}</p>
+            {/* Mini newsletter */}
+            <div className="bg-salma-bg px-4 py-4 border-t border-salma-border rounded-b-2xl">
+              <p className="text-[10px] font-bold text-salma-primary mb-1">{d.newsletter_title}</p>
+              <p className="text-[9px] text-salma-text-muted mb-3 leading-snug">{d.newsletter_desc}</p>
               <div className="flex gap-2">
                 <input
                   type="email"
                   placeholder={d.newsletter_placeholder}
-                  className="flex-1 bg-white border border-salma-border rounded-lg px-3 py-2 text-[10px] outline-none focus:border-salma-gold"
+                  className="flex-1 bg-white border border-salma-border rounded-lg px-3 py-2 text-[10px] outline-none focus:border-salma-gold transition-colors"
                 />
-                <button className="bg-salma-gold text-salma-primary px-3 py-2 rounded-lg text-[10px] font-bold">
+                <button className="bg-salma-gold text-salma-primary px-3 py-2 rounded-lg text-[10px] font-bold hover:bg-salma-gold-light transition-colors">
                   {d.newsletter_btn}
                 </button>
               </div>
             </div>
-          </div>
+          </DropdownPanel>
         );
       })()}
+    </div>
+  );
+}
+
+// =============================================================================
+//  Sous-composant : Panel générique avec animation d'entrée
+// =============================================================================
+function DropdownPanel({
+  children,
+  align = "left",
+  wide = false,
+}: {
+  children: React.ReactNode;
+  align?: "left" | "right";
+  wide?: boolean;
+}) {
+  return (
+    <div
+      className={`
+        absolute top-[80px]
+        ${align === "right" ? "right-0" : "left-0"}
+        ${wide ? "w-[380px]" : "w-[300px]"}
+        bg-white border border-salma-border rounded-2xl
+        shadow-[0_20px_50px_rgba(27,54,93,0.15)]
+        overflow-hidden
+        animate-[dropdownReveal_0.2s_ease-out_forwards]
+        origin-top
+      `}
+    >
+      {children}
     </div>
   );
 }
@@ -4357,6 +4802,253 @@ export default function ConditionalLayout({ children }: { children: React.ReactN
 }
 
 // END OF FILE: src/components/layout/ConditionalLayout.tsx
+
+
+// FILE: src/components/layout/Topbar.tsx
+-----------------------------------------------
+"use client";
+// =============================================================================
+//  Topbar.tsx — SALMA · Barre d'information pré-header
+//
+//  Comportement :
+//    • Fond #0F172A (sombre profond) — contraste net avec la navbar blanche
+//    • Disparaît en scrollant vers le bas, réapparaît vers le haut
+//    • Desktop : adresse | téléphone · email · horaires | réseaux sociaux
+//    • Mobile  : téléphone cliquable + lien WhatsApp uniquement
+//    • Hauteur fixe 36px desktop / 32px mobile
+// =============================================================================
+
+import { useEffect, useRef, useState } from "react";
+import Link from "next/link";
+import { useLanguage } from "@/hooks/useLanguage";
+import { cmsSwitcher } from "@/dictionaries/data/cms-switcher";
+
+// =============================================================================
+//  Hook : détecte la direction du scroll (up / down)
+// =============================================================================
+function useScrollDirection() {
+  const [hidden, setHidden] = useState(false);
+  const lastY = useRef(0);
+
+  useEffect(() => {
+    const handler = () => {
+      const currentY = window.scrollY;
+      // Cache après 80px de scroll vers le bas
+      if (currentY > 80 && currentY > lastY.current) {
+        setHidden(true);
+      } else {
+        setHidden(false);
+      }
+      lastY.current = currentY;
+    };
+
+    window.addEventListener("scroll", handler, { passive: true });
+    return () => window.removeEventListener("scroll", handler);
+  }, []);
+
+  return hidden;
+}
+
+// =============================================================================
+//  Icônes SVG inline (pas de dépendance externe)
+// =============================================================================
+const Icons = {
+  location: (
+    <svg className="w-3 h-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+    </svg>
+  ),
+  phone: (
+    <svg className="w-3 h-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+    </svg>
+  ),
+  mail: (
+    <svg className="w-3 h-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+    </svg>
+  ),
+  clock: (
+    <svg className="w-3 h-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+    </svg>
+  ),
+  whatsapp: (
+    // WhatsApp brand icon simplifié
+    <svg className="w-3.5 h-3.5 flex-shrink-0" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+      <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z" />
+      <path d="M12 0C5.373 0 0 5.373 0 12c0 2.115.549 4.1 1.51 5.833L.057 23.25a.75.75 0 00.918.943l5.455-1.43A11.945 11.945 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 22c-1.907 0-3.694-.5-5.244-1.373l-.376-.217-3.89 1.02 1.04-3.796-.235-.389A9.955 9.955 0 012 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10z" />
+    </svg>
+  ),
+};
+
+// =============================================================================
+//  Liens réseaux sociaux
+// =============================================================================
+const SOCIAL_LINKS = [
+  {
+    label: "Facebook",
+    href: "https://facebook.com",
+    letter: "f",
+  },
+  {
+    label: "LinkedIn",
+    href: "https://linkedin.com",
+    letter: "in",
+  },
+  {
+    label: "Instagram",
+    href: "https://instagram.com",
+    letter: "ig",
+  },
+];
+
+// AVANT (textes en dur)
+const address = "Montée Anne rouge, Immeuble Kadji, Yaoundé";
+const phones  = "+237 699 450 984";
+const email   = "secretariatagtechnologies@gmail.com";
+
+// =============================================================================
+//  Composant principal
+// =============================================================================
+export default function Topbar() {
+  const hidden = useScrollDirection();
+  const { locale } = useLanguage();
+const [topbarContent, setTopbarContent] = useState<Record<string, any> | null>(null);
+
+useEffect(() => {
+  cmsSwitcher.getScopeContent("layout", locale)
+    .then(setTopbarContent);
+}, [locale]);
+
+const address = topbarContent?.footer?.contact?.address ?? "";
+const phones  = topbarContent?.footer?.contact?.phones  ?? "";
+const email   = topbarContent?.footer?.contact?.email   ?? "";
+const firstPhone = phones.split("/")[0].trim().replace(/\s/g, "");
+
+  return (
+    <div
+      className={`
+        w-full bg-[#0A0F1A] border-b border-white/5
+        transition-all duration-300 ease-in-out overflow-hidden
+        ${hidden ? "max-h-0 opacity-0" : "max-h-12 opacity-100"}
+      `}
+      aria-label="Informations de contact"
+    >
+      <div className="max-w-7xl mx-auto px-6">
+
+        {/* ── DESKTOP (≥1024px) ─────────────────────────────────────────── */}
+        <div className="hidden lg:flex items-center justify-between h-9 gap-4">
+
+          {/* Gauche : adresse */}
+          <div className="flex items-center gap-1.5 text-white/50 flex-shrink-0">
+            {Icons.location}
+            <span className="text-[10px] font-medium tracking-wide">
+              Montée Anne rouge, Immeuble Kadji, Yaoundé
+            </span>
+          </div>
+
+          {/* Centre : contacts + horaires */}
+          <div className="flex items-center gap-5">
+            {/* Téléphone */}
+            <a
+              href="tel:+237699450984"
+              className="flex items-center gap-1.5 text-white/60 hover:text-salma-gold transition-colors duration-150 group"
+            >
+              {Icons.phone}
+              <span className="text-[10px] font-medium tracking-wide group-hover:underline underline-offset-2">
+                +237 699 450 984
+              </span>
+            </a>
+
+            {/* Séparateur */}
+            <span className="w-px h-3 bg-white/10" aria-hidden="true" />
+
+            {/* Email */}
+            <a
+              href="mailto:secretariatagtechnologies@gmail.com"
+              className="flex items-center gap-1.5 text-white/60 hover:text-salma-gold transition-colors duration-150 group"
+            >
+              {Icons.mail}
+              <span className="text-[10px] font-medium tracking-wide group-hover:underline underline-offset-2">
+                secretariatagtechnologies@gmail.com
+              </span>
+            </a>
+
+            {/* Séparateur */}
+            <span className="w-px h-3 bg-white/10" aria-hidden="true" />
+
+            {/* Horaires */}
+            <div className="flex items-center gap-1.5 text-white/40">
+              {Icons.clock}
+              <span className="text-[10px] font-medium tracking-wide">
+                Lun – Sam · 8h – 18h
+              </span>
+            </div>
+          </div>
+
+          {/* Droite : réseaux sociaux */}
+          <div className="flex items-center gap-2 flex-shrink-0">
+            {SOCIAL_LINKS.map(({ label, href, letter }) => (
+              <a
+                key={label}
+                href={href}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label={label}
+                className="
+                  w-6 h-6 rounded-md
+                  flex items-center justify-center
+                  text-[9px] font-bold text-white/40
+                  border border-white/10
+                  hover:border-salma-gold hover:text-salma-gold
+                  transition-all duration-150
+                "
+              >
+                {letter}
+              </a>
+            ))}
+          </div>
+        </div>
+
+        {/* ── MOBILE (< 1024px) ─────────────────────────────────────────── */}
+        <div className="flex lg:hidden items-center justify-between h-8 gap-3">
+
+          {/* Téléphone cliquable */}
+          <a
+            href="tel:+237699450984"
+            className="flex items-center gap-1.5 text-white/60 hover:text-salma-gold transition-colors"
+          >
+            {Icons.phone}
+            <span className="text-[10px] font-medium">+237 699 450 984</span>
+          </a>
+
+          {/* WhatsApp */}
+          <a
+            href="https://wa.me/237699450984"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="
+              flex items-center gap-1.5
+              px-3 py-1 rounded-full
+              bg-green-500/15 text-green-400
+              border border-green-500/20
+              hover:bg-green-500/25
+              transition-colors duration-150
+            "
+          >
+            {Icons.whatsapp}
+            <span className="text-[10px] font-bold">WhatsApp</span>
+          </a>
+        </div>
+
+      </div>
+    </div>
+  );
+}
+
+// END OF FILE: src/components/layout/Topbar.tsx
 
 
 // FILE: src/components/ui/ChatbotWidget.tsx
@@ -4415,7 +5107,7 @@ export default function ChatbotWidget() {
     }
   };
   return (
-    <div className="fixed bottom-28 right-8 z-50 flex flex-col items-end">
+    <div className="fixed bottom-28 right-6 z-[70] flex flex-col items-end">
       {/* Fenêtre de Chat */}
       {isOpen && (
         <div className="mb-4 w-80 sm:w-96 h-[450px] bg-white dark:bg-salma-surface border border-salma-border rounded-3xl shadow-salma-lg flex flex-col overflow-hidden animate-fade-in">
@@ -4829,7 +5521,7 @@ export default function WhatsAppButton() {
       href={`https://wa.me/${phoneNumber}?text=${message}`}
       target="_blank"
       rel="noopener noreferrer"
-      className="fixed bottom-8 right-8 z-50 bg-[#25D366] text-white p-4 rounded-full shadow-2xl hover:scale-110 transition-transform active:scale-95 group"
+      className="fixed bottom-8  right-6 z-[70] bg-[#25D366] text-white p-4 rounded-full shadow-2xl hover:scale-110 transition-transform active:scale-95 group"
     >
       <div className="absolute -top-12 right-0 bg-white text-black text-[10px] font-bold px-3 py-1 rounded shadow-lg opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
        Besoin d&apos;aide ?
@@ -4978,68 +5670,424 @@ export default function LanguageSwitcher() {
 // FILE: src/components/Navbar.tsx
 -----------------------------------------------
 "use client";
+// =============================================================================
+//  Navbar.tsx — SALMA · Navigation principale + Topbar pré-header
+//  Fonctionnalités :
+//    • Topbar sombre (contacts, horaires, réseaux) — se masque au scroll bas
+//    • Lien Accueil dans le menu desktop
+//    • Effet scroll : ombre légère au scroll
+//    • CTA "Prendre RDV" gold visible directement en desktop
+//    • Indicateur de page active (underline gold animé)
+//    • Hamburger animé ☰ → ✕ avec transition CSS
+//    • Skeleton de chargement (évite le layout shift)
+//    • Contenu 100% via cmsSwitcher (i18n FR/EN)
+// =============================================================================
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { useLanguage } from "@/hooks/useLanguage";
 import { cmsSwitcher } from "@/dictionaries/data/cms-switcher";
 import NavDropdown from "@/components/layout/nav/NavDropdown";
 import MobileMenu from "@/components/layout/nav/MobileMenu";
 import LanguageSwitcher from "@/components/LanguageSwitcher";
+import Topbar from "@/components/layout/Topbar";
 import type { NavContent } from "@/types";
 
+// =============================================================================
+//  Hook : détecte si la page a été scrollée (pour l'ombre de la navbar)
+// =============================================================================
+function useScrolled(threshold = 20): boolean {
+  const [scrolled, setScrolled] = useState(false);
 
+  useEffect(() => {
+    const handler = () => setScrolled(window.scrollY > threshold);
+    handler();
+    window.addEventListener("scroll", handler, { passive: true });
+    return () => window.removeEventListener("scroll", handler);
+  }, [threshold]);
+
+  return scrolled;
+}
+
+// =============================================================================
+//  Skeleton : affiché pendant le chargement du contenu CMS
+// =============================================================================
+function NavbarSkeleton() {
+  return (
+    <>
+      <div className="w-full h-9 bg-[#0A0F1A]" />
+      <nav className="sticky top-0 z-[100] w-full h-20 bg-white/95 border-b border-salma-border">
+        <div className="max-w-7xl mx-auto px-6 h-full flex items-center justify-between">
+          <div className="flex flex-col gap-1">
+            <div className="h-6 w-24 bg-salma-surface rounded animate-pulse" />
+            <div className="h-2 w-32 bg-salma-surface rounded animate-pulse" />
+          </div>
+          <div className="hidden lg:flex items-center gap-6">
+            {[1, 2, 3, 4].map((i) => (
+              <div key={i} className="h-4 w-20 bg-salma-surface rounded animate-pulse" />
+            ))}
+            <div className="h-9 w-32 bg-salma-surface rounded-full animate-pulse" />
+          </div>
+        </div>
+      </nav>
+    </>
+  );
+}
+
+// =============================================================================
+//  Composant principal
+// =============================================================================
 export default function Navbar() {
   const { locale } = useLanguage();
+  const pathname = usePathname();
+  const scrolled = useScrolled(20);
+
   const [content, setContent] = useState<NavContent | null>(null);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
-  // Chargement du contenu via le switcher
+  // Charge le contenu i18n via le switcher CMS
   useEffect(() => {
-  cmsSwitcher.getScopeContent("layout", locale).then(
-    (data) => setContent(data as NavContent)
-  );
-}, [locale]);
+    cmsSwitcher
+      .getScopeContent("layout", locale)
+      .then((data) => setContent(data as NavContent));
+  }, [locale]);
 
-  if (!content) return null; // Ou un squelette de chargement
+  // Ferme le menu mobile si la route change
+  useEffect(() => {
+    setIsMobileMenuOpen(false);
+  }, [pathname]);
+
+  // Empêche le scroll du body quand le menu mobile est ouvert
+  useEffect(() => {
+    document.body.style.overflow = isMobileMenuOpen ? "hidden" : "";
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [isMobileMenuOpen]);
+
+  const toggleMobileMenu = useCallback(
+    () => setIsMobileMenuOpen((prev) => !prev),
+    []
+  );
+
+  // Guard défensif : skeleton tant que les clés critiques ne sont pas présentes.
+  // Protège contre un fichier layout incomplet ou un cast NavContent incorrect.
+  if (
+    !content?.nav_home ||
+    !content?.nav_bourses ||
+    !content?.nav_services ||
+    !content?.nav_about ||
+    !content?.nav_contact
+  ) {
+    return <NavbarSkeleton />;
+  }
+
+  const isActive = (href: string) =>
+    href === "/" ? pathname === "/" : pathname.startsWith(href);
 
   return (
-    <nav className="sticky top-0 z-[100] w-full bg-white/95 backdrop-blur-md border-b border-salma-border shadow-sm">
-      <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
-        
-        {/* LOGO - Sans mention admin */}
-        <Link href="/" className="flex flex-col group">
-          <span className="text-2xl font-serif font-bold text-salma-primary leading-none">SALMA</span>
-          <span className="text-[10px] uppercase tracking-[0.3em] text-salma-gold font-sans font-bold">Bourses & Mobilité</span>
-        </Link>
+    <>
+      {/* =================================================================
+          TOPBAR — Informations entreprise, contacts, réseaux
+      ================================================================= */}
+      <Topbar />
 
-        {/* MENU DESKTOP */}
-        <div className="hidden lg:flex items-center gap-2">
-          <NavDropdown title={content.nav_bourses.title} type="bourses" data={content.nav_bourses} />
-          <NavDropdown title={content.nav_services.title} type="services" data={content.nav_services} />
-          <NavDropdown title={content.nav_about.title} type="about" data={content.nav_about} />
-          <NavDropdown title={content.nav_contact.title} type="contact" data={content.nav_contact} isAction />
-          
-          <div className="h-6 w-px bg-salma-border mx-4" />
-          <LanguageSwitcher />
+      {/* =================================================================
+          NAVBAR PRINCIPALE (sticky)
+      ================================================================= */}
+      <nav
+        className={`
+          sticky top-0 z-[100] w-full
+          transition-all duration-300 ease-in-out
+          ${
+            scrolled
+              ? "bg-white/98 backdrop-blur-md shadow-[0_2px_20px_rgba(27,54,93,0.08)] border-b border-salma-border"
+              : "bg-white/95 backdrop-blur-sm border-b border-salma-border/60"
+          }
+        `}
+      >
+        <div className="max-w-7xl mx-auto px-6">
+          <div className="h-20 flex items-center justify-between gap-8">
+
+            {/* =============================================================
+                LOGO
+            ============================================================= */}
+            <Link
+              href="/"
+              className="flex flex-col flex-shrink-0 group"
+              aria-label="SALMA — Retour à l'accueil"
+            >
+              <span
+                className={`
+                  text-2xl font-serif font-bold leading-none transition-colors duration-200
+                  ${isActive("/") ? "text-salma-primary" : "text-salma-primary group-hover:text-salma-primary-light"}
+                `}
+              >
+                SALMA
+              </span>
+              <span className="text-[9px] uppercase tracking-[0.35em] text-salma-gold font-sans font-bold mt-0.5">
+                Bourses & Mobilité
+              </span>
+            </Link>
+
+            {/* =============================================================
+                MENU DESKTOP (≥1024px)
+            ============================================================= */}
+            <div className="hidden lg:flex items-center gap-0 flex-1 justify-center">
+
+              {/* Accueil */}
+              <NavDropdownWithIndicator
+              active={isActive("/")}
+              title={content.nav_home.title}
+              type="home"
+              data={content.nav_home}
+            />
+
+              {/* Bourses */}
+              <NavDropdownWithIndicator
+                active={isActive("/bourses")}
+                title={content.nav_bourses.title}
+                type="bourses"
+                data={content.nav_bourses}
+              />
+
+              {/* Services */}
+              <NavDropdownWithIndicator
+                active={isActive("/services")}
+                title={content.nav_services.title}
+                type="services"
+                data={content.nav_services}
+              />
+
+              {/* À propos */}
+              <NavDropdownWithIndicator
+                active={isActive("/a-propos")}
+                title={content.nav_about.title}
+                type="about"
+                data={content.nav_about}
+              />
+
+            </div>
+
+            {/* =============================================================
+                ACTIONS DESKTOP : Lang + Contact dropdown + CTA
+            ============================================================= */}
+            <div className="hidden lg:flex items-center gap-3 flex-shrink-0">
+
+              <div className="h-6 w-px bg-salma-border" />
+              <LanguageSwitcher />
+
+              <NavDropdown
+                title={content.nav_contact.title}
+                type="contact"
+                data={content.nav_contact}
+                isAction
+              />
+
+              {/* CTA "Prendre RDV" */}
+              <Link
+                href="/contact"
+                className="
+                  relative inline-flex items-center gap-2
+                  px-5 py-2.5 rounded-full
+                  text-[11px] font-bold uppercase tracking-widest
+                  bg-salma-gold text-salma-primary
+                  shadow-[0_4px_14px_rgba(201,168,76,0.35)]
+                  hover:bg-salma-gold-light
+                  hover:shadow-[0_6px_20px_rgba(201,168,76,0.45)]
+                  active:scale-[0.97]
+                  transition-all duration-200
+                  overflow-hidden group
+                "
+                aria-label="Prendre rendez-vous"
+              >
+                <span
+                  className="
+                    absolute inset-0 -translate-x-full
+                    bg-gradient-to-r from-transparent via-white/30 to-transparent
+                    group-hover:translate-x-full transition-transform duration-500
+                  "
+                  aria-hidden="true"
+                />
+                <svg
+                  className="w-3.5 h-3.5 flex-shrink-0 relative"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                  aria-hidden="true"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2.5}
+                    d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+                  />
+                </svg>
+                <span className="relative">
+                  {locale === "fr" ? "Prendre RDV" : "Book a Call"}
+                </span>
+              </Link>
+            </div>
+
+            {/* =============================================================
+                HAMBURGER ANIMÉ (< 1024px)
+            ============================================================= */}
+            <button
+              onClick={toggleMobileMenu}
+              className={`
+                lg:hidden relative w-10 h-10 flex items-center justify-center
+                rounded-xl border transition-all duration-200
+                ${
+                  isMobileMenuOpen
+                    ? "bg-salma-primary border-salma-primary text-white"
+                    : "bg-white border-salma-border text-salma-primary hover:border-salma-gold hover:text-salma-gold"
+                }
+              `}
+              aria-label={isMobileMenuOpen ? "Fermer le menu" : "Ouvrir le menu"}
+              aria-expanded={isMobileMenuOpen}
+              aria-controls="mobile-menu"
+            >
+              <span className="flex flex-col gap-[5px] w-5">
+                <span
+                  className={`block h-[2px] rounded-full bg-current transition-all duration-300 origin-center
+                    ${isMobileMenuOpen ? "rotate-45 translate-y-[7px]" : ""}`}
+                />
+                <span
+                  className={`block h-[2px] rounded-full bg-current transition-all duration-300
+                    ${isMobileMenuOpen ? "opacity-0 scale-x-0" : ""}`}
+                />
+                <span
+                  className={`block h-[2px] rounded-full bg-current transition-all duration-300 origin-center
+                    ${isMobileMenuOpen ? "-rotate-45 -translate-y-[7px]" : ""}`}
+                />
+              </span>
+            </button>
+
+          </div>
         </div>
 
-        {/* BOUTON MOBILE */}
-        <button 
-          className="lg:hidden p-2 text-salma-primary" 
-          onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-        >
-          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={isMobileMenuOpen ? "M6 18L18 6" : "M4 6h16M4 12h16M4 18h16"} />
-          </svg>
-        </button>
-      </div>
+        {/* Breadcrumb discret — pages internes uniquement */}
+        {pathname !== "/" && <ActivePageBar pathname={pathname} />}
+      </nav>
 
-      {/* MENU MOBILE (Accordions) */}
+      {/* Menu mobile */}
       {isMobileMenuOpen && (
-        <MobileMenu content={content} onClose={() => setIsMobileMenuOpen(false)} />
+        <MobileMenu
+          content={content}
+          onClose={() => setIsMobileMenuOpen(false)}
+        />
       )}
-    </nav>
+    </>
+  );
+}
+
+// =============================================================================
+//  Lien simple avec underline gold actif (pour Accueil)
+// =============================================================================
+function NavLinkSimple({
+  href,
+  label,
+  active,
+}: {
+  href: string;
+  label: string;
+  active: boolean;
+}) {
+  return (
+    <div className="relative h-20 flex items-center">
+      <Link
+        href={href}
+        className={`
+          relative px-4 py-2
+          text-[11px] font-bold uppercase tracking-widest
+          transition-colors duration-200
+          outline-none focus-visible:ring-2 focus-visible:ring-salma-gold focus-visible:ring-offset-2 rounded-lg
+          ${active ? "text-salma-primary" : "text-salma-text-muted hover:text-salma-primary"}
+        `}
+      >
+        {label}
+      </Link>
+      {active && (
+        <span
+          className="
+            absolute bottom-0 left-4 right-4 h-[2px]
+            bg-salma-gold rounded-full
+            animate-[expandWidth_0.3s_ease-out_forwards]
+          "
+          aria-hidden="true"
+        />
+      )}
+    </div>
+  );
+}
+
+// =============================================================================
+//  NavDropdown avec wrapper pour l'indicateur de page active
+// =============================================================================
+function NavDropdownWithIndicator({
+  active,
+  title,
+  type,
+  data,
+}: {
+  active: boolean;
+  title: string;
+  type: string;
+  data: Parameters<typeof NavDropdown>[0]["data"];
+}) {
+  return (
+    <div className="relative">
+      <NavDropdown title={title} type={type} data={data} />
+      {active && (
+        <span
+          className="
+            absolute bottom-0 left-4 right-4 h-[2px]
+            bg-salma-gold rounded-full
+            animate-[expandWidth_0.3s_ease-out_forwards]
+          "
+          aria-hidden="true"
+        />
+      )}
+    </div>
+  );
+}
+
+// =============================================================================
+//  Breadcrumb discret sous la navbar (pages internes)
+// =============================================================================
+function ActivePageBar({ pathname }: { pathname: string }) {
+  const { locale } = useLanguage();
+
+  const ROUTE_LABELS: Record<string, { fr: string; en: string }> = {
+    "/bourses":  { fr: "Bourses d'études", en: "Scholarships" },
+    "/services": { fr: "Nos services",     en: "Our services" },
+    "/a-propos": { fr: "À propos",         en: "About us"     },
+    "/contact":  { fr: "Contact",          en: "Contact"      },
+  };
+
+  const matchedKey = Object.keys(ROUTE_LABELS).find((key) =>
+    pathname.startsWith(key)
+  );
+  if (!matchedKey) return null;
+
+  const label =
+    ROUTE_LABELS[matchedKey][locale as "fr" | "en"] ??
+    ROUTE_LABELS[matchedKey].fr;
+
+  return (
+    <div className="border-t border-salma-border/40 bg-salma-surface/50">
+      <div className="max-w-7xl mx-auto px-6 h-7 flex items-center gap-2">
+        <Link
+          href="/"
+          className="text-[10px] text-salma-text-muted hover:text-salma-gold transition-colors font-medium"
+        >
+          {locale === "fr" ? "Accueil" : "Home"}
+        </Link>
+        <span className="text-[10px] text-salma-border" aria-hidden="true">›</span>
+        <span className="text-[10px] text-salma-gold font-semibold">{label}</span>
+      </div>
+    </div>
   );
 }
 
@@ -5226,50 +6274,373 @@ export function ThemeProvider({ children, ...props }: ThemeProviderProps) {
 // END OF FILE: src/contexts/ThemeContext.tsx
 
 
+// FILE: src/dictionaries/data/static/about/en.ts
+-----------------------------------------------
+export const enAbout = {
+  aboutPage: {
+    title: "About SALMA",
+    subtitle: "AG Technologies' Expertise",
+    missionTitle: "Our Mission",
+    missionDesc: "To facilitate access to international education for all Cameroonian talents.",
+    visionTitle: "Why trust us?",
+    visionDesc: "Located in Yaoundé, we operate with total transparency.",
+  }
+};
+
+// END OF FILE: src/dictionaries/data/static/about/en.ts
+
+
+// FILE: src/dictionaries/data/static/about/fr.ts
+-----------------------------------------------
+export const frAbout = {
+  aboutPage: {
+    title: "À propos de SALMA",
+    subtitle: "L'expertise d'AG Technologies",
+    missionTitle: "Notre Mission",
+    missionDesc: "Faciliter l'accès à l'éducation internationale pour tous les talents camerounais.",
+    visionTitle: "Pourquoi nous faire confiance ?",
+    visionDesc: "Installés à Yaoundé, nous opérons avec une transparence totale.",
+  }
+};
+
+// END OF FILE: src/dictionaries/data/static/about/fr.ts
+
+
+// FILE: src/dictionaries/data/static/bourses/en.ts
+-----------------------------------------------
+export const enBourses = {
+  catalog: {
+    title: "All Scholarships",
+    subtitle: "China & Germany",
+    description: "Find the scholarship that matches your study project.",
+    searchPlaceholder: "Search for a scholarship...",
+    noResults: "No scholarships match your search.",
+    found: "scholarships found"
+  },
+  scholarships: {
+    deadline: "Deadline",
+    language: "Language required",
+    viewDetails: "View Details",
+  }
+};
+
+// END OF FILE: src/dictionaries/data/static/bourses/en.ts
+
+
+// FILE: src/dictionaries/data/static/bourses/fr.ts
+-----------------------------------------------
+export const frBourses = {
+  catalog: {
+    title: "Toutes nos bourses",
+    subtitle: "Chine & Allemagne",
+    description: "Trouvez la bourse qui correspond à votre projet d'études.",
+    searchPlaceholder: "Rechercher une bourse...",
+    noResults: "Aucune bourse ne correspond à votre recherche.",
+    found: "bourses trouvées"
+  },
+  scholarships: {
+    deadline: "Date limite",
+    language: "Langue requise",
+    viewDetails: "Consulter l'offre",
+  }
+};
+
+// END OF FILE: src/dictionaries/data/static/bourses/fr.ts
+
+
+// FILE: src/dictionaries/data/static/contact/en.ts
+-----------------------------------------------
+export const enContact = {
+  contact: {
+    title: "Let's talk about your project",
+    subtitle: "Contact us",
+    form: {
+      name: "Full Name",
+      email: "Email Address",
+      phone: "Phone (WhatsApp)",
+      message: "Your message",
+      send: "Send my request",
+      success: "Request sent successfully!"
+    }
+  },
+  faq: {
+    title: "Frequently Asked Questions",
+    subtitle: "Everything about our services",
+    items: [
+      { q: "What are the visa processing times?", a: "Average of 03 weeks for China." },
+      { q: "Is the refund guarantee real?", a: "Yes, it is a contractual commitment from AG Technologies." }
+    ]
+  }
+};
+
+// END OF FILE: src/dictionaries/data/static/contact/en.ts
+
+
+// FILE: src/dictionaries/data/static/contact/fr.ts
+-----------------------------------------------
+export const frContact = {
+  contact: {
+    title: "Parlons de votre projet",
+    subtitle: "Contactez-nous",
+    form: {
+      name: "Nom complet",
+      email: "Adresse Email",
+      phone: "Téléphone (WhatsApp)",
+      message: "Votre message",
+      send: "Envoyer ma demande",
+      success: "Demande envoyée avec succès !"
+    }
+  },
+  faq: {
+    title: "Questions fréquentes",
+    subtitle: "Tout savoir sur nos services",
+    items: [
+      { q: "Quels sont les délais pour le visa ?", a: "En moyenne 03 semaines pour la Chine." },
+      { q: "La garantie remboursement est-elle réelle ?", a: "Oui, c'est un engagement contractuel d'AG Technologies." }
+    ]
+  }
+};
+
+// END OF FILE: src/dictionaries/data/static/contact/fr.ts
+
+
+// FILE: src/dictionaries/data/static/home/en.ts
+-----------------------------------------------
+export const enHome = {
+  hero: {
+    badge: "AG Technologies Expertise",
+    title: "Achieve Your Dream of Studying in China & Germany",
+    description: "Full support, visa processing in 3 weeks, and a satisfaction guarantee. Join top-tier global universities today.",
+    ctaPrimary: "Find my scholarship",
+    ctaSecondary: "Our visa services",
+    trustIndicator: {
+      count: "+500 students",
+      text: "already supported this year"
+    },
+    imageAlt: "Study in China with SALMA",
+    visaBadge: {
+      number: "03",
+      label: "Weeks for your Visa"
+    }
+  },
+  trust: {
+    expertise: {
+      title: "AGT Expertise",
+      desc: "End-to-end support by travel professionals."
+    },
+    speed: {
+      title: "Visa in 3 Weeks",
+      desc: "Optimized procedures for a fast departure."
+    },
+    guarantee: {
+      title: "Satisfaction Guaranteed",
+      desc: "Your success is our top priority."
+    }
+  },
+  stats: {
+    visas: { value: "500+", label: "Visas Obtained" },
+    partners: { value: "25+", label: "Partner Universities" },
+    experience: { value: "05+", label: "Years of Experience" },
+    satisfaction: { value: "100%", label: "Success Rate" }
+  },
+  featuredScholarships: {
+    title: "Featured Scholarships",
+    subtitle: "Outstanding Opportunities",
+    viewAll: "View all scholarships",
+  },
+  successStories: {
+    title: "They succeeded with SALMA",
+    subtitle: "Success Stories"
+  }
+};
+
+// END OF FILE: src/dictionaries/data/static/home/en.ts
+
+
+// FILE: src/dictionaries/data/static/home/fr.ts
+-----------------------------------------------
+export const frHome = {
+  hero: {
+    badge: "Expertise AG Technologies",
+    title: "Réalisez votre rêve d'études en Chine & Allemagne",
+    description: "Accompagnement complet, obtention de visa en 3 semaines et garantie satisfait ou remboursé. Rejoignez les meilleures universités mondiales.",
+    ctaPrimary: "Trouver ma bourse",
+    ctaSecondary: "Nos services de visa",
+    trustIndicator: {
+      count: "+500 étudiants",
+      text: "déjà accompagnés cette année"
+    },
+    imageAlt: "Étudier en Chine avec SALMA",
+    visaBadge: {
+      number: "03",
+      label: "Semaines pour votre Visa"
+    }
+  },
+  trust: {
+    expertise: {
+      title: "Expertise AGT",
+      desc: "Un accompagnement de A à Z par des professionnels."
+    },
+    speed: {
+      title: "Visa en 3 semaines",
+      desc: "Des procédures optimisées pour un départ rapide."
+    },
+    guarantee: {
+      title: "Satisfait ou Remboursé",
+      desc: "Votre réussite est notre priorité absolue."
+    }
+  },
+  stats: {
+    visas: { value: "500+", label: "Visas Obtenus" },
+    partners: { value: "25+", label: "Universités Partenaires" },
+    experience: { value: "05+", label: "Années d'Expérience" },
+    satisfaction: { value: "100%", label: "Taux de Réussite" }
+  },
+  featuredScholarships: {
+    title: "Bourses à la une",
+    subtitle: "Opportunités Exceptionnelles",
+    viewAll: "Voir toutes les bourses",
+  },
+  successStories: {
+    title: "Ils ont réussi avec SALMA",
+    subtitle: "Histoires de Succès"
+    // Les stories individuelles seront fetchées depuis l'API ou un repo dédié
+  }
+};
+
+// END OF FILE: src/dictionaries/data/static/home/fr.ts
+
+
 // FILE: src/dictionaries/data/static/layout/en.ts
 -----------------------------------------------
-/**
- * Static data for Layout (Navbar, Footer) - English
- * Used if NEXT_PUBLIC_STATIC_CONTENT=true
- */
+// src/dictionaries/data/static/layout/en.ts
+// =============================================================================
+//  Layout EN — Navigation content + footer + cookies
+//  Structure mirrors NavContent exactly (nav.types.ts)
+// =============================================================================
+
 export const enLayout = {
+  // ── Simple keys (Footer, Cookies, basic nav) ─────────────────────────────
+  nav: {
+    home: "Home",
+    services: "Services",
+    bourses: "Scholarships",
+    about: "About",
+    contact: "Contact",
+    admin: "Admin",
+  },
+  footer: {
+    tagline:
+      "Your trusted partner for international mobility to China and Germany.",
+    slogan: "Satisfied or Refunded — Excellence serving your future.",
+    links: {
+      title: "Navigation",
+      home: "Home",
+      bourses: "Scholarships",
+      services: "Services",
+      about: "About",
+      contact: "Contact",
+    },
+    contact: {
+      title: "Contact Us",
+      address: "Montée Anne rouge, Kadji Building, Yaoundé",
+      phones: "+237 6 99 45 09 84 / 6 51 74 03 28",
+      email: "secretariatagtechnologies@gmail.com",
+    },
+    rights: "© 2026 SALMA by AG Technologies. All rights reserved.",
+  },
+  cookies: {
+    text: "We use cookies to improve your experience. Check our",
+    link: "privacy policy",
+    accept: "Accept",
+    decline: "Decline",
+  },
+
+  // ── Navigation dropdowns (NavContent) ────────────────────────────────────
+
+  /** Scholarships dropdown */
   nav_bourses: {
     title: "Scholarships",
-    china_label: "Destination China",
-    china_desc: "Access to top 25 universities in the Middle Kingdom.",
-    china_cta: "View opportunities",
-    germany_label: "Destination Germany",
-    germany_desc: "Full expertise in the German academic system.",
-    germany_cta: "Explore scholarships",
+    china_label: "Scholarships in China",
+    china_desc:
+      "Chinese public universities, full or partial funding. Fields: medicine, engineering, management.",
+    china_cta: "Explore China scholarships",
+    germany_label: "Scholarships in Germany",
+    germany_desc:
+      "DAAD programs, English-language Masters, reduced tuition. Ideal for scientific profiles.",
+    germany_cta: "Explore Germany scholarships",
   },
+
+  /** Services dropdown */
   nav_services: {
     title: "Services",
     items: [
-      { id: "s1", label: "Study Visa", desc: "Guaranteed admission in 3 weeks", icon: "🎓", href: "/services/study-visa" },
-      { id: "s2", label: "Tourist Visa", desc: "Explore the world stress-free", icon: "✈️", href: "/services/tourist-visa" },
-      { id: "s3", label: "Work Visa", desc: "International career opportunities", icon: "💼", href: "/services/work-visa" },
-      { id: "s4", label: "Insurance", desc: "Compliant travel protection", icon: "🛡️", href: "/services/insurance" },
-    ]
+      {
+        id: "visa-etude",
+        label: "Study Visa",
+        desc: "Full application support, guaranteed admission.",
+        icon: "🎓",
+        href: "/services#visa-etude",
+      },
+      {
+        id: "visa-touriste",
+        label: "Tourist Visa",
+        desc: "Departure in 3 weeks flat.",
+        icon: "✈️",
+        href: "/services#visa-touriste",
+      },
+      {
+        id: "visa-travail",
+        label: "Work Visa",
+        desc: "Professional opportunities abroad.",
+        icon: "💼",
+        href: "/services#visa-travail",
+      },
+      {
+        id: "assurance",
+        label: "Travel Insurance",
+        desc: "Health coverage compliant with consulates.",
+        icon: "🛡️",
+        href: "/services#assurance",
+      },
+    ],
   },
-  nav_contact: {
-    title: "Contact Us",
-    rdv_label: "Book an appointment",
-    rdv_desc: "Free in-person consultation",
-    whatsapp_label: "Direct WhatsApp",
-    whatsapp_desc: "Immediate expert response",
-    newsletter_title: "Scholarship Alerts",
-    newsletter_desc: "Don't miss any opportunity.",
-    newsletter_placeholder: "Your email...",
-    newsletter_btn: "Subscribe",
-  },
+
+  /** About dropdown */
   nav_about: {
-    title: "About Us",
-    agency_label: "The Agency",
-    agency_desc: "AG Technologies: academic mobility expert for over 5 years.",
-    mission_label: "Our Commitment",
-    mission_desc: "Total transparency and guaranteed success for your project.",
+    title: "About",
+    agency_label: "AG Technologies",
+    agency_desc:
+      "International mobility firm since 2019, based in Yaoundé, Cameroon.",
+    mission_label: "Our mission",
+    mission_desc:
+      "Making studying abroad accessible to every Cameroonian student.",
     cta: "Discover our story",
   },
+
+  /** Contact dropdown */
+  nav_contact: {
+    title: "Contact",
+    rdv_label: "Book an appointment",
+    rdv_desc: "Free 30-minute consultation with an advisor.",
+    whatsapp_label: "WhatsApp",
+    whatsapp_desc: "Reply within 2h · +237 699 450 984",
+    newsletter_title: "Stay informed",
+    newsletter_desc: "New scholarships, deadlines and weekly tips.",
+    newsletter_placeholder: "your@email.com",
+    newsletter_btn: "Subscribe",
+  },
+  // en.ts
+nav_home: {
+  title: "Home",
+  sections: [
+    { id: "hero",      label: "Overview",           icon: "🏠", href: "/#hero"      },
+    { id: "bourses",   label: "Featured scholarships", icon: "🎓", href: "/#bourses" },
+    { id: "stats",     label: "Our numbers",        icon: "📊", href: "/#stats"     },
+    { id: "temoignages", label: "Testimonials",     icon: "⭐", href: "/#temoignages"},
+    { id: "contact",   label: "Contact us",         icon: "✉️", href: "/#contact"   },
+  ]
+}
 };
 
 // END OF FILE: src/dictionaries/data/static/layout/en.ts
@@ -5277,90 +6648,261 @@ export const enLayout = {
 
 // FILE: src/dictionaries/data/static/layout/fr.ts
 -----------------------------------------------
-/**
- * Données statiques pour le Layout (Navbar, Footer) - Français
- * Ce fichier sera utilisé si NEXT_PUBLIC_STATIC_CONTENT=true
- */
+// src/dictionaries/data/static/layout/fr.ts
+// =============================================================================
+//  Layout FR — Contenu de navigation + footer + cookies
+//  Structure calquée EXACTEMENT sur NavContent (nav.types.ts)
+// =============================================================================
+
 export const frLayout = {
-  // Menu Bourses
+  // ── Clés simples (Footer, Cookies, nav basique) ──────────────────────────
+  nav: {
+    home: "Accueil",
+    services: "Services",
+    bourses: "Bourses",
+    about: "À propos",
+    contact: "Contact",
+    admin: "Admin",
+  },
+  footer: {
+    tagline:
+      "Votre partenaire de confiance pour la mobilité internationale vers la Chine et l'Allemagne.",
+    slogan: "Satisfait ou Remboursé — L'excellence au service de votre avenir.",
+    links: {
+      title: "Navigation",
+      home: "Accueil",
+      bourses: "Bourses",
+      services: "Services",
+      about: "À propos",
+      contact: "Contact",
+    },
+    contact: {
+      title: "Contactez-nous",
+      address: "Montée Anne rouge, Immeuble Kadji, Yaoundé",
+      phones: "+237 6 99 45 09 84 / 6 51 74 03 28",
+      email: "secretariatagtechnologies@gmail.com",
+    },
+    rights: "© 2026 SALMA by AG Technologies. Tous droits réservés.",
+  },
+  cookies: {
+    text: "Nous utilisons des cookies pour améliorer votre expérience. Consultez notre",
+    link: "politique de confidentialité",
+    accept: "Accepter",
+    decline: "Refuser",
+  },
+
+  // ── Dropdowns de navigation (NavContent) ─────────────────────────────────
+
+  /** Dropdown Bourses */
   nav_bourses: {
     title: "Bourses",
-    china_label: "Destination Chine",
-    china_desc: "Accès aux 25 meilleures universités de l'Empire du Milieu.",
-    china_cta: "Voir les opportunités",
-    germany_label: "Destination Allemagne",
-    germany_desc: "Expertise complète du système académique allemand.",
-    germany_cta: "Explorer les bourses",
+    china_label: "Bourses en Chine",
+    china_desc:
+      "Universités publiques chinoises, financement complet ou partiel. Filières : médecine, ingénierie, management.",
+    china_cta: "Explorer les bourses Chine",
+    germany_label: "Bourses en Allemagne",
+    germany_desc:
+      "Programmes DAAD, Master en anglais, frais de scolarité réduits. Idéal pour les profils scientifiques.",
+    germany_cta: "Explorer les bourses Allemagne",
   },
-  // Menu Services
+
+  /** Dropdown Services */
   nav_services: {
     title: "Services",
     items: [
-      { id: "s1", label: "Visa Étude", desc: "Admission garantie en 3 semaines", icon: "🎓", href: "/services/visa-etude" },
-      { id: "s2", label: "Visa Touriste", desc: "Découvrez le monde sans stress", icon: "✈️", href: "/services/visa-touriste" },
-      { id: "s3", label: "Visa Travail", desc: "Opportunités pro à l'international", icon: "💼", href: "/services/visa-travail" },
-      { id: "s4", label: "Assurance", desc: "Protection voyage conforme", icon: "🛡️", href: "/services/assurance" },
-    ]
+      {
+        id: "visa-etude",
+        label: "Visa Étude",
+        desc: "Dossier complet, admission garantie.",
+        icon: "🎓",
+        href: "/services#visa-etude",
+      },
+      {
+        id: "visa-touriste",
+        label: "Visa Touriste",
+        desc: "Départ en 3 semaines chrono.",
+        icon: "✈️",
+        href: "/services#visa-touriste",
+      },
+      {
+        id: "visa-travail",
+        label: "Visa Travail",
+        desc: "Opportunités pro à l'étranger.",
+        icon: "💼",
+        href: "/services#visa-travail",
+      },
+      {
+        id: "assurance",
+        label: "Assurance Voyage",
+        desc: "Couverture santé conforme aux consulats.",
+        icon: "🛡️",
+        href: "/services#assurance",
+      },
+    ],
   },
-  // Menu Contact (Le bloc "Action" type Ecobank)
-  nav_contact: {
-    title: "Nous Contacter",
-    rdv_label: "Prendre rendez-vous",
-    rdv_desc: "Consultation gratuite en agence",
-    whatsapp_label: "WhatsApp Direct",
-    whatsapp_desc: "Réponse immédiate de nos experts",
-    newsletter_title: "Alerte Bourses",
-    newsletter_desc: "Ne ratez aucune opportunité.",
-    newsletter_placeholder: "Votre email...",
-    newsletter_btn: "S'abonner",
-  }
-  ,
-  // Menu About 
+
+  /** Dropdown À propos */
   nav_about: {
-    title: "À Propos",
-    agency_label: "L'Agence",
-    agency_desc: "AG Technologies : expert en mobilité académique depuis plus de 5 ans.",
-    mission_label: "Notre Engagement",
-    mission_desc: "Transparence totale et garantie de réussite pour votre projet.",
+    title: "À propos",
+    agency_label: "AG Technologies",
+    agency_desc:
+      "Cabinet spécialisé en mobilité internationale depuis 2019, basé à Yaoundé.",
+    mission_label: "Notre mission",
+    mission_desc:
+      "Rendre l'étude à l'étranger accessible à chaque étudiant camerounais.",
     cta: "Découvrir notre histoire",
   },
+
+  /** Dropdown Contact */
+  nav_contact: {
+    title: "Contact",
+    rdv_label: "Prendre un rendez-vous",
+    rdv_desc: "Consultation gratuite de 30 minutes avec un conseiller.",
+    whatsapp_label: "WhatsApp",
+    whatsapp_desc: "Réponse en moins de 2h · +237 699 450 984",
+    newsletter_title: "Restez informé",
+    newsletter_desc: "Nouvelles bourses, dates limites et conseils chaque semaine.",
+    newsletter_placeholder: "votre@email.com",
+    newsletter_btn: "S'abonner",
+  },
+
+  // fr.ts
+nav_home: {
+  title: "Accueil",
+  sections: [
+    { id: "hero",      label: "Présentation",      icon: "🏠", href: "/#hero"      },
+    { id: "bourses",   label: "Bourses vedettes",   icon: "🎓", href: "/#bourses"   },
+    { id: "stats",     label: "Nos chiffres",       icon: "📊", href: "/#stats"     },
+    { id: "temoignages", label: "Témoignages",      icon: "⭐", href: "/#temoignages"},
+    { id: "contact",   label: "Nous contacter",     icon: "✉️", href: "/#contact"   },
+  ]
+}
 };
 
 // END OF FILE: src/dictionaries/data/static/layout/fr.ts
 
 
+// FILE: src/dictionaries/data/static/services/en.ts
+-----------------------------------------------
+export const enServices = {
+  servicesPage: {
+    title: "Our Mobility Services",
+    subtitle: "Comprehensive expertise for your journey",
+    description: "Whether you are traveling to study, work, or visit, AG Technologies guarantees a simplified process.",
+    items: {
+      study: { title: "Study Visa", desc: "Guaranteed admission to top universities." },
+      tourist: { title: "Tourist Visa", desc: "Explore the world in 3 weeks." },
+      work: { title: "Work Visa", desc: "Professional opportunities and complete support." },
+      insurance: { title: "Travel Insurance", desc: "International health protection compliant with consular requirements." }
+    }
+  }
+};
+
+// END OF FILE: src/dictionaries/data/static/services/en.ts
+
+
+// FILE: src/dictionaries/data/static/services/fr.ts
+-----------------------------------------------
+export const frServices = {
+  servicesPage: {
+    title: "Nos Services de Mobilité",
+    subtitle: "Une expertise complète pour votre voyage",
+    description: "Que vous partiez pour étudier, travailler ou visiter, AG Technologies vous garantit une procédure simplifiée.",
+    items: {
+      study: { title: "Visa Étude", desc: "Admission garantie dans les meilleures universités." },
+      tourist: { title: "Visa Touriste", desc: "Partez à la découverte du monde en 3 semaines." },
+      work: { title: "Visa Travail", desc: "Opportunités professionnelles et accompagnement complet." },
+      insurance: { title: "Assurance Voyage", desc: "Protection santé conforme aux exigences consulaires." }
+    }
+  }
+};
+
+// END OF FILE: src/dictionaries/data/static/services/fr.ts
+
+
 // FILE: src/dictionaries/data/cms-switcher.ts
 -----------------------------------------------
-import { frLayout } from "./static/layout/fr";
-import { enLayout } from "./static/layout/en";
-import { cmsPublicRepository } from "@/repositories/cms.repository";
+// src/dictionaries/data/cms-switcher.ts
+// ==============================================================================
+//  Switcher intelligent de contenu avec Fallback de sécurité
+//  Gère le basculement entre Fichiers Statiques et API Django
+// ==============================================================================
 
-/**
- * Switcher intelligent de contenu.
- * Permet de basculer entre les fichiers statiques (dev) et le backend (prod).
- */
+import { cmsPublicRepository } from "@/repositories/cms.repository";
+import { Locale } from "@/config/i18n";
+
+// Imports des fichiers statiques (FR)
+import { frLayout } from "./static/layout/fr";
+import { frHome } from "./static/home/fr";
+import { frBourses } from "./static/bourses/fr";
+import { frServices } from "./static/services/fr";
+import { frAbout } from "./static/about/fr";
+import { frContact } from "./static/contact/fr";
+
+// Imports des fichiers statiques (EN)
+import { enLayout } from "./static/layout/en";
+import { enHome } from "./static/home/en";
+import { enBourses } from "./static/bourses/en";
+import { enServices } from "./static/services/en";
+import { enAbout } from "./static/about/en";
+import { enContact } from "./static/contact/en";
+
+// Types des scopes autorisés
+export type CmsScope = "layout" | "home" | "bourses" | "services" | "contact" | "about";
+
+// On définit un type générique pour le contenu pour éviter le "any"
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type DictionaryContent = Record<string, any>;
+
+// Registre central des contenus statiques
+const staticRegistry: Record<Locale, Record<CmsScope, DictionaryContent>> = {
+  fr: {
+    layout: frLayout,
+    home: frHome,
+    bourses: frBourses,
+    services: frServices,
+    about: frAbout,
+    contact: frContact,
+  },
+  en: {
+    layout: enLayout,
+    home: enHome,
+    bourses: enBourses,
+    services: enServices,
+    about: enAbout,
+    contact: enContact,
+  }
+};
+
 export const cmsSwitcher = {
   /**
-   * Récupère le contenu d'un scope spécifique (ex: layout)
+   * Récupère le contenu d'un scope spécifique.
+   * RÈGLE : Si NEXT_PUBLIC_STATIC_CONTENT=true ou si l'API échoue -> Retourne le statique.
    */
-  getScopeContent: async (scope: "layout" | "home", locale: "fr" | "en") => {
-    const isStatic = process.env.NEXT_PUBLIC_STATIC_CONTENT === 'true';
+  getScopeContent: async (scope: CmsScope, locale: Locale): Promise<DictionaryContent> => {
+    const isStaticMode = process.env.NEXT_PUBLIC_STATIC_CONTENT === 'true';
+    const fallbackData = staticRegistry[locale][scope];
 
-    if (isStatic) {
-      // Chargement statique depuis le dossier /static
-      if (scope === "layout") return locale === "fr" ? frLayout : enLayout;
-      // Ajoutez d'autres scopes ici (home, bourses, etc.)
-      return {};
+    // 1. Si on est en mode statique forcé
+    if (isStaticMode) {
+      return fallbackData;
     }
 
-    // Sinon, appel au backend via le repository CMS existant
-    // On suppose que le backend renvoie un objet structuré par scope
+    // 2. Tentative de récupération via l'API (Prod)
     try {
       const pageData = await cmsPublicRepository.getPageBySlug(scope);
-      return pageData; 
-    } catch (error) {
-      console.error(`Erreur Switcher sur le scope ${scope}:`, error);
-      return locale === "fr" ? frLayout : enLayout; // Fallback sécu
+      
+      if (!pageData || !pageData.blocs) {
+        return fallbackData;
+      }
+
+      // TODO: Implémenter le mapping API -> Dictionnaire ici quand les clés seront synchronisées
+      return fallbackData; 
+
+    } catch (_error) {
+      // 3. FALLBACK : On utilise le préfixe "_" pour indiquer à TS que la variable est ignorée
+      console.warn(`[CMS Switcher] Serveur indisponible pour le scope "${scope}". Utilisation du fallback.`);
+      return fallbackData;
     }
   }
 };
@@ -10185,6 +11727,27 @@ export interface NavContent {
   nav_about: NavAbout;
 }
 
+export interface NavHomeSection {
+  id: string;
+  label: string;
+  icon: string;
+  href: string;
+}
+
+export interface NavHome {
+  title: string;
+  sections: NavHomeSection[];
+}
+
+// Et dans NavContent :
+export interface NavContent {
+  nav_home: NavHome;      // ← ajouter
+  nav_bourses: NavBourses;
+  nav_services: NavServices;
+  nav_contact: NavContact;
+  nav_about: NavAbout;
+}
+
 // END OF FILE: src/types/pages/nav.types.ts
 
 
@@ -10850,6 +12413,111 @@ Quand tu travailles sur ce projet, demande-moi toujours les fichiers suivants si
 // END OF FILE: prompt.md
 
 
+// FILE: prompt_livraison.md
+-----------------------------------------------
+# 🚀 PROMPT DE CONTINUITÉ — PHASE DE LIVRAISON (Projet SALMA)
+## AG Technologies · Yaoundé, Cameroun
+### À donner à toute IA pour reprendre le projet avec le contexte complet
+
+---
+
+> **INSTRUCTION SYSTÈME** : Tu es un développeur fullstack senior (Next.js 15 / Django DRF) qui travaille sur la dernière ligne droite du projet SALMA. Avant de coder quoi que ce soit, tu dois TOUJOURS commencer par l'**audit complet** de la roadmap ci-dessous, puis m'aider sur la tâche demandée. Ne saute jamais l'audit.
+
+---
+
+## 📌 1. CONTEXTE ACTUEL DU PROJET
+
+**SALMA** est une plateforme bilingue (FR/EN) de bourses d'études (Chine/Allemagne). 
+**Statut actuel :** Le backend V1 est déployé. Le frontend a un build stable. L'authentification JWT fonctionne et le layout du Dashboard Admin est accessible. Nous sommes dans la phase de **stabilisation, polish UI, et mise en production**.
+
+### Stack technique
+| Couche | Techno | Détails |
+|--------|--------|---------|
+| **Frontend** | Next.js 15 (App Router) | TypeScript strict, Tailwind CSS v4, i18n FR/EN |
+| **Backend** | Django + DRF | JWT (SimpleJWT), PostgreSQL (prod) |
+| **API** | REST — 107 endpoints | `https://api-x75k2m8-v1.agtgroupholding.com/api/docs/` |
+
+### Philosophie métier (CRITIQUE)
+- **Conversion avant tout :** Le site ne dévoile pas tout (pas de prix affichés publiquement). Le but est d'inciter à la prise de contact/RDV.
+- **Visibilité dynamique :** Chaque champ d'une bourse obéit au `field_visibility` (Record<string, boolean>) contrôlé par l'admin.
+
+### Charte Graphique (Tailwind v4)
+Primaire: `#1B365D` (Navy) | Accent: `#00AEEF` (Azur) | Or: `#C9A84C` (Gold) | Fond: `#FFFFFF` (Clair) / `#0F172A` (Sombre).
+
+---
+
+## 📌 2. ARCHITECTURE FRONTEND (Règles d'or)
+
+```text
+Composant (UI) 
+    ↓ ne fetch jamais directement, appelle :
+Dictionnaire de données (`/dictionaries/data/`)
+    ↓ orchestre et appelle :
+Repository (`/repositories/`)
+    ↓ gère le endpoint et appelle :
+api-client.ts (gère le JWT et les erreurs)
+```
+- **Zéro** appel fetch direct dans un composant UI.
+- Tout texte visible → dictionnaire **i18n** via `cmsSwitcher`.
+
+---
+
+## 📌 3. ROADMAP DE LIVRAISON (À AUDITER À CHAQUE SESSION)
+
+> **INSTRUCTION AUDIT** : Indique le statut de chaque item : ✅ (fait), 🔧 (en cours), ❌ (à faire).
+
+### 🟠 SPRINT 1 : Polish Frontend & Mécanisme CMS (Vitrine)
+- [ ] **Généralisation `cmsSwitcher` :** Créer les fichiers statiques finaux (`home`, `about`, `services`, `contact`, `footer`) et remplacer les appels directs.
+- [ ] **UI/UX Client :** Changer photo Hero, retirer "Travel Agency", activer Mode Sombre, ajouter micro-animations (hover, scroll).
+- [ ] **Détail Bourse (`/bourses/[id]`) :** Appliquer le respect strict du `field_visibility` et lier le bouton WhatsApp (message pré-rempli).
+- [ ] **Error Boundaries :** Créer `not-found.tsx` et `global-error.tsx` aux couleurs de SALMA.
+- [ ] **Audit Responsive :** Mobile-first (iPhone SE) et tablettes.
+
+### 🔵 SPRINT 2 : Alignement Backend & Seeders
+- [ ] **Seeders Django (`seed.py`) :** Mettre à jour `SitePage`, `ContentBlock`, `SiteConfig` avec les clés exactes du frontend et les textes finaux validés.
+- [ ] **Test Switcher :** Passer `NEXT_PUBLIC_STATIC_CONTENT=false` et vérifier que la vitrine affiche les données de l'API sans casser.
+
+### 🟡 SPRINT 3 : Dashboard Admin & Intégrations
+- [ ] **CMS & Médias :** Pages admin pour éditer les blocs de texte et uploader des images.
+- [ ] **Contacts & Newsletter :** Tableau des leads (marquer lu, notes) et liste des abonnés.
+- [ ] **Témoignages & KPI :** Modération des avis et graphiques de conversion.
+- [ ] **Intégrations :** Brancher Gemini API sur le Chatbot, configurer SMTP pour les alertes RDV.
+- [ ] **Sécurité :** Ajouter un Anti-Spam (Turnstile/reCAPTCHA) sur les formulaires publics.
+
+### 🟢 SPRINT 4 : Tests End-to-End
+- [ ] **Test CMS :** Modif admin ➔ Vérifier mise à jour vitrine (ISR).
+- [ ] **Test Bourses :** Création ➔ Catalogue. Masquer un champ ➔ Disparition sur la page détail.
+- [ ] **Test Conversion :** Visite ➔ Chatbot ➔ Formulaire ➔ Vérifier KPI et réception email agence.
+
+### 🟣 SPRINT 5 : Optimisation & SEO (Production)
+- [ ] **Lighthouse 95+ :** Optimisation images (WebP, next/image), Lazy Loading.
+- [ ] **SEO :** Metadata dynamiques, `sitemap.xml`, `robots.txt`, balises `hreflang` pour le bilinguisme.
+- [ ] **Code Review :** Supprimer console.log, code mort, ajouter JSDoc, 0 erreur TypeScript.
+
+### 🎓 SPRINT 6 : Capitalisation & Documentation
+- [ ] **Livrables Client :** Cahier des charges final, Rapport de projet, Guide d'utilisation Admin.
+- [ ] **DevOps :** Guide de déploiement, CI/CD (GitHub Actions), Cron Job de backup BDD.
+- [ ] **Boilerplates AGT :** Extraire les templates Frontend et Backend pour les futurs projets.
+- [ ] **Livre Blanc :** Documenter les Design Patterns utilisés pour l'équipe technique.
+
+---
+
+## 📌 4. PROCÉDURE À SUIVRE À CHAQUE SESSION
+
+1. **LIRE** ce prompt entièrement.
+2. **DEMANDER** les fichiers de contexte à jour si nécessaire.
+3. **AUDITER** la section 3 (Roadmap) et afficher le statut RÉEL (✅, 🔧, ❌).
+4. **RÉSUMER** l'avancement global.
+5. **DEMANDER** : "Sur quelle tâche de la roadmap veux-tu qu'on travaille aujourd'hui ?"
+6. **EXÉCUTER** la tâche en respectant l'architecture stricte et le TypeScript.
+l'EXECUTION SE FAIT DE FACON INTERACTIVE ETAPE PAR ETAPE,UNE CHOSE A LA FOIS ET TU DEMANDE TOUJOURS MON AVIS POUR FAIRE QUOI QUE CE SOIT. AVANT DE GENERER DU CODE ON DISCUTE D'ABORD DE CE QUE TU VQS Y FQIRE ET TU NE GENRE QUE A MON SIGNAL
+```
+
+
+
+// END OF FILE: prompt_livraison.md
+
+
 // FILE: README.md
 -----------------------------------------------
 # 🌍 SALMA — Plateforme de Bourses d'Études (by AG Technologies)
@@ -10883,261 +12551,114 @@ Le site sera disponible sur `http://localhost:3000`.
 
 // FILE: todo.md
 -----------------------------------------------
-# 📋 TODO SALMA — Version Mise à Jour
-> AG Technologies · Dernière mise à jour : 27/02/2026  
-> Stack : Next.js 15 · Tailwind v4 · TypeScript strict · Django DRF · JWT
+# 🚀 ROADMAP DE STABILISATION — PROJET SALMA
+
+## 🟠 SPRINT 1 : Polish Frontend & Mécanisme CMS (Vitrine)
+*Objectif : Figer l'UI, assurer la cohérence de chaque page et préparer la transition vers le contenu dynamique.*
+
+- [x] **Généralisation du `cmsSwitcher` :**
+  - [x] Créer les fichiers statiques finaux (`home`, `about`, `services`, `contact`, `footer`) dans `src/dictionaries/data/static/`. pour le moment avec le memes clés que ceux des dictionnaires actuels
+- [ ] **Polissage systématique page par page  en incluant les appels directs à `dictionary.xxx` par `cmsSwitcher.getScopeContent(...)` dans tous les composants:**
+  - [ ] **Composants UI :** Audit des boutons, badges et cartes dans `src/components/ui/`.
+  - [ ] **Page Accueil :** Nettoyage des sections Hero, Stats, TrustBar et Témoignages.
+  - [ ] **Page Catalogue :** Vérification des filtres et du squelette de chargement.
+  - [ ] **Page Services :** Harmonisation des cartes de services.
+  - [ ] **Page À Propos & Contact :** Vérification des textes et des champs de formulaire.
+- [ ] **Validation des remarques Client (UI/UX) :**
+  - [ ] Changer la photo Hero de la page d'accueil (plus claire, haute qualité).
+  - [ ] Retirer définitivement "Travel Agency" de la Navbar et du Footer.
+  - [ ] Ajustement final du **Mode Sombre** (contrastes et bordures).
+  - [ ] Ajout des micro-animations (apparition au scroll, effets hover).
+- [ ] **Page Détail & Conversion :**
+  - [ ] Créer la page `/bourses/[id]/page.tsx` (Détail de la bourse).
+  - [ ] Appliquer le respect strict du `field_visibility`.
+  - [ ] Lier le bouton WhatsApp avec message pré-rempli dynamique.
+- [ ] **Fiabilisation :**
+  - [ ] Créer `not-found.tsx` et `error.tsx` (Error Boundaries).
+  - [ ] Audit Responsive complet (iPhone SE ➔ Desktop).
+## 🔵 SPRINT 2 : Alignement Backend & Seeders
+*Objectif : Mettre à jour la base de données Django pour qu'elle corresponde exactement aux clés CMS définies au Sprint 1.*
+
+- [ ] **Mise à jour des Seeders Django (`seed.py`) :**
+  - [ ] Mettre à jour les `SitePage` et `ContentBlock` avec les clés exactes du frontend.
+  - [ ] Mettre à jour les `SiteConfig` (réseaux sociaux, téléphones, emails).
+  - [ ] Insérer les textes finaux validés en FR et EN.
+- [ ] **Test du Switcher :**
+  - [ ] Passer `NEXT_PUBLIC_STATIC_CONTENT=false` dans le `.env`.
+  - [ ] Vérifier que le frontend affiche correctement les données venant de l'API sans casser l'UI.
+
+## 🟡 SPRINT 3 : Dashboard Admin & Intégrations Externes
+*Objectif : Rendre l'admin 100% fonctionnel pour le client et brancher les services tiers.*
+
+- [ ] **Module CMS & Médias :**
+  - [ ] Créer la page Admin CMS : formulaires pour éditer les blocs de texte et changer les images.
+  - [ ] Créer la page Admin Médias : upload d'images, suppression, copie d'URL.
+- [ ] **Module Contacts & Newsletter :**
+  - [ ] Créer la page Admin Contacts : tableau des leads, marquer comme lu, ajouter des notes.
+  - [ ] Créer la page Admin Newsletter : liste des abonnés.
+- [ ] **Module Témoignages :**
+  - [ ] Créer la page Admin Témoignages : approuver/rejeter pour affichage public.
+- [ ] **Module KPI & Analytics :**
+  - [ ] Créer la page Admin KPI : graphiques de visites, taux de conversion, bourses les plus vues.
+- [ ] **Intégrations Externes (Backend) :**
+  - [ ] **Gemini API :** Brancher l'API Google Gemini sur l'endpoint Chatbot de Django (en utilisant les FAQ de la BD comme contexte).
+  - [ ] **Emails :** Configurer SMTP (SendGrid ou Mailjet) dans Django pour notifier l'agence lors d'une prise de RDV.
+- [ ] **Anti-Spam (Sécurité) :** Intégrer Cloudflare Turnstile ou Google reCAPTCHA v3 (invisible) sur les formulaires de Contact et Newsletter.
+  - [ ] **Rate Limiting :** Configurer un throttle sur Django (ex: max 5 requêtes/min sur `/api/contact`) pour éviter les attaques DDoS.
+
+## 🟢 SPRINT 4 : Tests End-to-End (Dynamisme & Temps Réel)
+*Objectif : Se mettre dans la peau du client (Admin) et du prospect (Visiteur) pour traquer les bugs.*
+
+- [ ] **Test CMS :** Modifier un texte/image dans l'admin ➔ Vérifier la mise à jour sur la vitrine (tester la revalidation ISR).
+- [ ] **Test Bourses :**
+  - [ ] Créer une bourse ➔ Vérifier son apparition dans le catalogue.
+  - [ ] Masquer un champ (ex: `exigence_langue`) ➔ Vérifier sa disparition sur la page détail.
+- [ ] **Test Entonnoir de conversion :**
+  - [ ] Visiter une bourse ➔ Poser une question au Chatbot ➔ Remplir le formulaire de contact.
+  - [ ] Vérifier que le KPI a bien tracké la visite et la conversion.
+  - [ ] Vérifier la réception de l'email côté agence et la notification dans l'admin.
+
+## 🟣 SPRINT 5 : Optimisation, SEO & Code Review (Production)
+*Objectif : Atteindre un score Lighthouse de 95+, un code propre et un référencement optimal.*
+
+- [ ] **Performance & Lighthouse :**
+  - [ ] Optimiser toutes les images (formats WebP, tailles adaptées via `next/image`).
+  - [ ] Vérifier le Lazy Loading des composants lourds (vidéos, chatbot).
+- [ ] **SEO & Accessibilité :**
+  - [ ] Ajouter les balises `metadata` dynamiques (Title, Description, OpenGraph) sur toutes les pages (surtout `/bourses/[id]`).
+  - [ ] Générer un `sitemap.xml` et un `robots.txt` dynamiques.
+  - [ ] Vérifier les contrastes de couleurs et les balises `aria-label` pour l'accessibilité.
+- [ ] **SEO Multilingue :** S'assurer que les balises `<link rel="alternate" hreflang="x">` sont générées dynamiquement pour que Google indexe le FR et le EN.
+- [ ] **Monitoring & Logs (Optionnel mais recommandé) :**
+  - [ ] Brancher un outil comme Sentry ou GlitchTip pour remonter les erreurs JS (front) et Python (back) en temps réel sur un canal Slack/Discord.
+- [ ] **Code Review & Nettoyage :**
+  - [ ] Supprimer tous les `console.log`, codes commentés inutiles et fichiers morts.
+  - [ ] Ajouter des commentaires JSDoc sur les fonctions complexes.
+  - [ ] Vérifier qu'il n'y a aucune erreur TypeScript (`npm run build` doit passer sans aucun warning).
+- [ ] **Sécurité :**
+  - [ ] Vérifier la configuration CORS sur Django (n'autoriser que le domaine Vercel en prod).
+  - [ ] S'assurer que le tracking KPI respecte le choix de la bannière de cookies.
 
 ---
+## 🎓 SPRINT 6 : Capitalisation, Documentation & Standardisation
+*Objectif : Livrer un produit documenté au client, extraire des bases réutilisables (boilerplates) et figer les standards techniques pour faire monter l'équipe en compétence sur les futurs projets.*
 
-## ✅ DÉJÀ FAIT
-- [x] Configuration client API (`api-client.ts` avec `fetch`, Base URL, gestion d'erreurs)
-- [x] Thème clair forcé, architecture sémantique CSS variables prête
-- [x] Système i18n (dictionnaires fr/en, hook `useLanguage`, `useTheme`)
-- [x] Layout admin avec sidebar
-- [x] Dashboard admin : tableau des bourses (statique + modal d'ajout/édition)
-- [x] Architecture App Router Next.js 15 (routes admin/vitrine séparées)
-
----
-
-## 🔴 PHASE 1 — SOCLE TECHNIQUE (Bloquant)
-> Doit être fait AVANT toute liaison backend
-
-### 1.1 Types TypeScript exhaustifs
-- [x] `src/types/api/scholarship.types.ts` — modèle complet (tous les champs Django + `field_visibility: Record<string, boolean>`)
-- [x] `src/types/api/service.types.ts`
-- [x] `src/types/api/cms.types.ts` (pages, sections, champs CMS)
-- [x] `src/types/api/contact.types.ts` (demandes + rendez-vous)
-- [x] `src/types/api/newsletter.types.ts` (abonnés + annonces)
-- [x] `src/types/api/testimonial.types.ts`
-- [x] `src/types/api/chatbot.types.ts` (questions/réponses FAQ)
-- [x] `src/types/api/media.types.ts`
-- [x] `src/types/api/kpi.types.ts` (snapshots, temps-réel, conversion)
-- [x] `src/types/api/auth.types.ts` (JWT tokens, user, profil admin)
-- [x] `src/types/index.ts` — barrel export de tous les types
-
-### 1.2 Repositories (couche d'accès données)
-> Un repository = 1 module d'API. Ne connaît que `api-client.ts`.
-
-- [x] `src/repositories/scholarship.repository.ts` (25 endpoints : public + admin CRUD + images)
-- [x] `src/repositories/service.repository.ts` (11 endpoints)
-- [x] `src/repositories/cms.repository.ts` (20 endpoints : pages, sections, champs)
-- [] `src/repositories/contact.repository.ts` (5 endpoints)
-- [x] `src/repositories/newsletter.repository.ts` (12 endpoints)
-- [x] `src/repositories/testimonial.repository.ts` (8 endpoints)
-- [x] `src/repositories/chatbot.repository.ts` (6 endpoints)
-- [x] `src/repositories/media.repository.ts` (5 endpoints)
-- [x] `src/repositories/kpi.repository.ts` (6 endpoints)
-- [x] `src/repositories/auth.repository.ts` (9 endpoints : login, refresh, profil, reset pwd)
-- [x] `src/repositories/events.repository.ts` (tracking visiteurs — POST `/api/evenements`)
-
-### 1.3 Dictionnaires (couche d'abstraction)
-> Un dictionnaire orchestre les repositories. Les Server Components ne connaissent que les dictionnaires.
-
-- [x] `src/dictionaries/data/scholarship.data-dictionary.ts`
-- [x] `src/dictionaries/data/cms.data-dictionary.ts`
-- [x] `src/dictionaries/data/contact.data-dictionary.ts`
-- [x] `src/dictionaries/data/newsletter.data-dictionary.ts`
-- [x] `src/dictionaries/data/kpi.data-dictionary.ts`
-- [x] Pattern : toutes les fonctions `async`, retournent des données typées, centralisent le `revalidate` ISR
-
-### 1.4 Authentification JWT (admin)
-- [x] `src/lib/auth.ts` — helpers pour stocker/lire/rafraîchir tokens (cookies httpOnly côté server)
-- [x] `src/middleware.ts` — protection routes `/admin/*`, redirection vers `/admin/login`
-- [x] Page `/admin/login` — formulaire typé, appel `auth.repository.ts`, stockage token
-- [x] `src/hooks/useAuth.ts` — état auth côté client (token valide, user info)
-- [x] Gestion refresh token automatique (intercepteur dans `api-client.ts`)
-- [x] Logout (purge cookies + redirect)
-
----
-
-## 🟠 PHASE 2 — VITRINE DYNAMIQUE (Liaison Backend)
-
-### 2.1 Home Page
-- [x] Fetch stats réelles (KPI temps-réel) en SSR → KPIBar
-- [x] Bourses à la une — Server Component avec `scholarship.data-dictionary.getFeatured()`
-- [x] `ScholarshipCard` : affichage conditionnel selon `field_visibility` (ne montrer que ce que l'admin autorise)
-- [x] Bouton WhatsApp flottant contextuel (message pré-rempli selon la page courante)
-- [x] Section vidéo de pitch (intégration YouTube/Vimeo ou fichier uploadé)
-- [x] Tracking événement `PAGE_VIEW` + `BOURSE_VUE` via `events.repository.ts`
-
-### 2.2 Catalogue complet `/bourses`
-- [x] Server Component : fetch liste avec filtres (pays, niveau, domaine, statut)
-- [x] Filtres dynamiques côté client (URL params) sans rechargement page
-- [x] Pagination serveur (cursor ou offset)
-- [x] "Scholarship Matcher" — outil 3 clics (Niveau → Budget → Pays → résultats filtrés)
-- [x] Skeleton loaders pendant fetch
-
-### 2.3 Page de détail `/bourses/[slug]`
-- [x] Route dynamique SSG + ISR (revalidate 60s)
-- [x] Affichage conditionnel de CHAQUE champ selon `field_visibility`
-- [x] **Jamais afficher le prix** côté vitrine (contrôle via `field_visibility`)
-- [x] CTA fort : "En savoir plus → contacter l'agence" + bouton WhatsApp contextuel
-- [x] Métadonnées dynamiques (OpenGraph, SEO)
-
-### 2.4 Formulaire de contact
-- [x] Envoi réel vers `POST /api/contact`
-- [x] Validation côté client (Zod ou validation native TypeScript)
-- [x] Confirmation mail simulé (état success UI)
-- [x] Tracking événement `CONTACT_SOUMIS`
-
-### 2.5 Prise de rendez-vous
-- [x] Formulaire dédié (nom, email, tel, date souhaitée, objet)
-- [x] Envoi vers API contact avec type `rendez-vous`
-- [x] Notification agence : email (simulé via backend) + toast dans dashboard admin
-
-### 2.6 Témoignages
-- [x] Section témoignages sur la Home (fetch `GET /api/temoignages`)
-- [x] Seuls les témoignages `approuvés` s'affichent
-
----
-
-## 🟡 PHASE 3 — DASHBOARD ADMIN COMPLET
-
-### 3.1 Layout & Navigation admin
-- [ ] Sidebar responsive (collapse sur mobile)
-- [ ] Navigation vers toutes les sections : Bourses, CMS, Médias, Contacts, Newsletter, Témoignages, Chatbot, KPI
-- [ ] Badge notifications (nouvelles demandes de contact non lues)
-
-### 3.2 Gestion des bourses (CRUD complet)
-- [ ] Tableau avec pagination, recherche, filtres (statut, pays)
-- [ ] Formulaire création/édition COMPLET avec tous les champs du modèle Django
-- [ ] **Toggle de visibilité par champ** — l'admin coche/décoche ce qui s'affiche sur le site
-- [ ] Upload image principale (via `media.repository.ts`)
-- [ ] Galerie d'images additionnelles (add/remove/set-principale)
-- [ ] Duplication d'une bourse
-- [ ] Publication / Dépublication rapide (toggle statut)
-
-### 3.3 Gestionnaire CMS (contrôle total du contenu vitrine)
-- [ ] Interface par page (Home, À propos, Contact, etc.)
-- [ ] Chaque section éditable inline : titre, sous-titre, texte, image, CTA
-- [ ] Preview en temps réel ou lien vers la page vitrine
-- [ ] Sauvegarde via `cms.repository.ts` → ISR invalide le cache automatiquement
-
-### 3.4 Bibliothèque de médias
-- [ ] Upload drag-and-drop (images, documents)
-- [ ] Grille avec preview, nom, poids, date
-- [ ] Copier l'URL, supprimer, renommer (métadonnées)
-- [ ] Filtres par type (image / document)
-
-### 3.5 Gestion des contacts & candidatures
-- [ ] Liste des demandes (contact + rendez-vous)
-- [ ] Statuts : `nouveau`, `en cours`, `traité`
-- [ ] Marquer comme traité, noter, archiver
-- [ ] Filtres par type et période
-
-### 3.6 Newsletter & abonnés
-- [ ] Liste des abonnés (email, date, source)
-- [ ] Créer & envoyer une annonce (simulé côté backend → TODO Mailjet/SendGrid)
-- [ ] Segmentation de base (actif / inactif)
-
-### 3.7 Témoignages
-- [ ] Liste avec statut `en attente` / `approuvé` / `rejeté`
-- [ ] Approuver/rejeter en un clic
-- [ ] Ordre d'affichage drag-and-drop
-
-### 3.8 KPI & Analytics
-- [ ] Vue d'ensemble : visiteurs, vues bourses, contacts, taux de conversion
-- [ ] Graphiques temporels (snapshots par période)
-- [ ] Détail par bourse (quelle bourse génère le plus de contacts ?)
-- [ ] Événements bruts filtrables
-- [ ] Commande backend : déclencher `generate_kpi` depuis l'interface (bouton admin)
-
----
-
-## 🟢 PHASE 4 — FEATURES AVANCÉES & POLISH
-
-### 4.1 Chatbot IA (Gemini)
-- [ ] Widget chatbot flottant sur la vitrine (ouverture/fermeture)
-- [ ] Fetch FAQ depuis `GET /api/chatbot/questions` (base de connaissances en BD)
-- [ ] Intégration Gemini API : recherche dans les FAQs + génération de réponse naturelle
-- [ ] Si aucune réponse → incitation à contacter l'agence ou prendre RDV
-- [ ] Interface admin : gestion des Q&A (CRUD questions, catégories, statut actif/inactif)
-
-### 4.2 Mode sombre
-- [ ] Compléter les CSS variables pour le thème sombre
-- [ ] Tester chaque page/composant en dark mode
-- [ ] Toggle fonctionnel dans la navbar (ThemeSwitcher)
-
-### 4.3 Responsive & UX
-- [ ] Audit responsive complet (mobile-first, priorité smartphones Cameroun)
-- [ ] Navbar : retirer "Travel Agency"
-- [ ] Changer photo hero page d'accueil
-- [ ] Animations page load (staggered reveals CSS)
-- [ ] Hover effects sur les cards (scale, shadow, description au survol)
-- [ ] Skeleton loaders génériques réutilisables
-
-### 4.4 Cookies & Confidentialité
-- [ ] Bannière de consentement cookies (RGPD-friendly)
-- [ ] Page `/confidentialite` — politique de confidentialité
-- [ ] Stockage consentement (localStorage) → activer/bloquer le tracking KPI
-
-### 4.5 Collecte de prospects (Newsletter vitrine)
-- [ ] Formulaire newsletter dans le footer + popup exit-intent
-- [ ] Champs : email, prénom, niveau d'études, pays cible → base de prospects qualifiée
-- [ ] Double opt-in simulé côté backend
-
-### 4.6 Notifications & alertes agence
-- [ ] Après soumission rendez-vous → email à l'agence (backend simulé)
-- [ ] Toast notification dans le dashboard admin (polling ou WebSocket basique)
-- [ ] Futur : notif WhatsApp Business API
-
-### 4.7 SEO & Performance
-- [ ] Métadonnées dynamiques sur toutes les pages (title, description, OG)
-- [ ] `robots.txt` et `sitemap.xml` dynamiques
-- [ ] Optimisation images (next/image, WebP, lazy loading)
-- [ ] Audit Lighthouse > 90 (Performance, A11y, SEO, Best Practices)
-- [ ] Ajout du domaine backend à `next.config.ts` (remotePatterns)
-
----
-
-## 🔵 PHASE 5 — DÉPLOIEMENT & INFRASTRUCTURE
-
-- [ ] Variables d'environnement production (`.env.production`)
-- [ ] Config `next.config.ts` pour domaine backend prod
-- [ ] Deploy Vercel (frontend) + Hostinger (backend Django)
-- [ ] Config CORS backend pour domaine Vercel
-- [ ] DNS : `salma-studies.com` → Vercel (front) + `api.salma-studies.com` → Hostinger (back)
-- [ ] Commande management Django : `generate_kpi` planifiée (cron Hostinger)
-- [ ] Migration SQLite → PostgreSQL/MySQL (prod)
-- [ ] Test end-to-end post-déploiement
-
----
-
-## 🗂️ ARCHITECTURE CIBLE (Séparation des responsabilités)
-
-```
-Composant (UI) 
-    ↓ connaît uniquement
-Dictionnaire de données (`/dictionaries/data/`)
-    ↓ appelle
-Repository (`/repositories/`)
-    ↓ appelle
-api-client.ts
-    ↓ appelle
-Backend Django (REST API)
-```
-
-**Règles d'or :**
-- Les Server Components fetchent via les dictionnaires de données uniquement
-- Les Client Components utilisent des hooks ou reçoivent les données en props
-- Zéro appel fetch direct dans un composant UI
-- Tout texte visible → dictionnaire i18n (fr/en)
-- Tout champ de bourse → soumis au `field_visibility` de l'admin
-
----
-
-## 📌 ORDRE D'EXÉCUTION RECOMMANDÉ
-
-1. **Types TypeScript** (1.1) — base de tout
-2. **Repositories** (1.2) — briques d'accès API
-3. **Auth JWT** (1.4) — protège le dashboard
-4. **Dictionnaires de données** (1.3) — orchestration
-5. **Dashboard bourses CRUD** (3.2) — valeur immédiate pour le client
-6. **Dashboard CMS** (3.3) — autonomie totale du boss
-7. **Vitrine dynamique** (2.x) — liaison backend
-8. **KPI Dashboard** (3.8) — analytics
-9. **Chatbot Gemini** (4.1)
-10. **Polish UX** (4.2, 4.3) + Déploiement (Phase 5)
+- [ ] **Documentation Client (Livrables finaux) :**
+  - [ ] Mettre à jour le **Cahier des charges** (Version Finale) pour refléter exactement ce qui a été produit.
+  - [ ] Rédiger le **Rapport de fin de projet** (Bilan, fonctionnalités livrées, performances atteintes).
+  - [ ] Créer le **Guide d'utilisation Admin** (Manuel illustré pour le client : comment ajouter une bourse, gérer le CMS, lire les KPI).
+- [ ] **Documentation DevOps & Déploiement :**
+  - [ ] Rédiger le **Guide de déploiement complet** (Setup Vercel, configuration VPS Hostinger, variables d'environnement, commandes de mise à jour et maintenance).
+  - [ ] **CI/CD (Intégration Continue) :** Mettre en place un workflow GitHub Actions pour automatiser le linting (`npm run lint`) et le déploiement.
+  - [ ] **Stratégie de Backup :** Configurer un Cron Job sur le VPS Hostinger pour dumper la base de données PostgreSQL chaque nuit et l'envoyer sur un stockage externe (ex: AWS S3 ou un autre serveur).
+- [ ] **Création de Templates (Boilerplates internes AGT) :**
+  - [ ] **Template Frontend :** Extraire un socle Next.js 15 propre (Tailwind v4, i18n, architecture `dictionaries/repositories`, `api-client.ts` avec intercepteurs JWT).
+  - [ ] **Template Backend :** Extraire un socle Django DRF (Custom User Model, SimpleJWT, architecture modulaire par `apps/`, configuration CORS/Sécurité de prod).
+- [ ] **Livre Blanc de l'Équipe (Design Patterns & Standards) :**
+  - [ ] **Frontend Patterns :** Documenter l'approche *Server Components vs Client Components*, la séparation des responsabilités (UI -> Dictionnaire -> Repository), et la gestion du state.
+  - [ ] **Backend Patterns :** Documenter l'architecture modulaire, les bonnes pratiques DRF (Fat Models / Thin Views), et la gestion des permissions.
+  - [ ] **VPS & Sécurité :** Standardiser le setup serveur (Nginx, Gunicorn, SSL, pare-feu, gestion des secrets).
+  - [ ] **Catalogue de Features :** Lister les modules "prêts à vendre" pour les futures spécifications (CMS Headless, Chatbot IA Gemini, Tracking KPI, Système de Visibilité dynamique).
 
 // END OF FILE: todo.md
 

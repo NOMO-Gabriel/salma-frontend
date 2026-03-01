@@ -52,3 +52,24 @@ export interface NavContent {
   nav_contact: NavContact;
   nav_about: NavAbout;
 }
+
+export interface NavHomeSection {
+  id: string;
+  label: string;
+  icon: string;
+  href: string;
+}
+
+export interface NavHome {
+  title: string;
+  sections: NavHomeSection[];
+}
+
+// Et dans NavContent :
+export interface NavContent {
+  nav_home: NavHome;      // ← ajouter
+  nav_bourses: NavBourses;
+  nav_services: NavServices;
+  nav_contact: NavContact;
+  nav_about: NavAbout;
+}

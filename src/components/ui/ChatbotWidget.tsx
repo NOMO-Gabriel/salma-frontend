@@ -52,7 +52,7 @@ export default function ChatbotWidget() {
     }
   };
   return (
-    <div className="fixed bottom-28 right-8 z-50 flex flex-col items-end">
+    <div className="fixed bottom-28 right-6 z-[70] flex flex-col items-end">
       {/* Fenêtre de Chat */}
       {isOpen && (
         <div className="mb-4 w-80 sm:w-96 h-[450px] bg-white dark:bg-salma-surface border border-salma-border rounded-3xl shadow-salma-lg flex flex-col overflow-hidden animate-fade-in">
