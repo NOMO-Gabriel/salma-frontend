@@ -53,7 +53,7 @@ export default function Hero() {
         <div className="relative hidden lg:block h-[600px] w-full animate-fade-in" style={{ animationDelay: '0.2s' }}>
           <div className="absolute inset-0 rounded-3xl overflow-hidden shadow-salma-lg border-8 border-white dark:border-salma-surface transform rotate-2">
             <Image 
-              src="/image.jpg" 
+              src="/agt_home.jpg" 
               alt={dictionary.hero.imageAlt} 
               fill 
               className="object-cover"
