@@ -73,3 +73,16 @@ export interface NavContent {
   nav_contact: NavContact;
   nav_about: NavAbout;
 }
+
+// ... (l'ajout de A propos')
+export interface NavAbout {
+  title: string;
+  agency_label: string;
+  agency_desc: string;
+  mission_label: string;
+  mission_desc: string;
+  privacy_label: string; // Ajouté
+  privacy_desc: string;  // Ajouté
+  cta: string;
+}
+// ...

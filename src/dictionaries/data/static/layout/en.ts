@@ -100,6 +100,8 @@ export const enLayout = {
     mission_label: "Our mission",
     mission_desc:
       "Making studying abroad accessible to every Cameroonian student.",
+    privacy_label: "Privacy & GDPR", // Ajouté
+    privacy_desc: "How we protect your personal and academic data.", // Ajouté
     cta: "Discover our story",
   },
 

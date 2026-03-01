@@ -218,6 +218,7 @@ export default function MobileMenu({
             {[
               { href: "/a-propos", label: locale === "fr" ? "À propos" : "About us", icon: "🏢" },
               { href: "/contact",  label: locale === "fr" ? "Contact"  : "Contact",  icon: "✉️" },
+              { href: "/confidentialite", label: locale === "fr" ? "Confidentialité" : "Privacy", icon: "🛡️" },
             ].map(({ href, label, icon }) => (
               <Link
                 key={href}

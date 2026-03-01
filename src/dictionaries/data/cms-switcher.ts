@@ -14,6 +14,8 @@ import { frBourses } from "./static/bourses/fr";
 import { frServices } from "./static/services/fr";
 import { frAbout } from "./static/about/fr";
 import { frContact } from "./static/contact/fr";
+import { frPrivacy } from "./static/privacy/fr";
+
 
 // Imports des fichiers statiques (EN)
 import { enLayout } from "./static/layout/en";
@@ -22,9 +24,10 @@ import { enBourses } from "./static/bourses/en";
 import { enServices } from "./static/services/en";
 import { enAbout } from "./static/about/en";
 import { enContact } from "./static/contact/en";
+import { enPrivacy } from "./static/privacy/en";
 
 // Types des scopes autorisés
-export type CmsScope = "layout" | "home" | "bourses" | "services" | "contact" | "about";
+export type CmsScope = "layout" | "home" | "bourses" | "services" | "contact" | "about" | "privacy";
 
 // On définit un type générique pour le contenu pour éviter le "any"
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -39,6 +42,7 @@ const staticRegistry: Record<Locale, Record<CmsScope, DictionaryContent>> = {
     services: frServices,
     about: frAbout,
     contact: frContact,
+    privacy: frPrivacy,
   },
   en: {
     layout: enLayout,
@@ -47,6 +51,7 @@ const staticRegistry: Record<Locale, Record<CmsScope, DictionaryContent>> = {
     services: enServices,
     about: enAbout,
     contact: enContact,
+    privacy: enPrivacy,
   }
 };
 
@@ -75,8 +80,8 @@ export const cmsSwitcher = {
       // TODO: Implémenter le mapping API -> Dictionnaire ici quand les clés seront synchronisées
       return fallbackData; 
 
-    } catch (_error) {
-      // 3. FALLBACK : On utilise le préfixe "_" pour indiquer à TS que la variable est ignorée
+    } catch {
+      // Suppression de (_error) car il n'est pas utilisé
       console.warn(`[CMS Switcher] Serveur indisponible pour le scope "${scope}". Utilisation du fallback.`);
       return fallbackData;
     }

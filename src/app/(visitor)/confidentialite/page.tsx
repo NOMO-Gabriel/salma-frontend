@@ -1,18 +1,83 @@
+"use client";
+
+import { useEffect, useState } from "react";
+import { useLanguage } from "@/hooks/useLanguage";
+import { cmsSwitcher } from "@/dictionaries/data/cms-switcher";
 import SectionTitle from "@/components/ui/SectionTitle";
 
+// --- Définition des types pour TypeScript ---
+interface PrivacySection {
+  id: string;
+  title: string;
+  content: string;
+}
+
+interface PrivacyContent {
+  title: string;
+  subtitle: string;
+  lastUpdated: string;
+  intro: string;
+  sections: PrivacySection[];
+}
+
 export default function PrivacyPage() {
+  const { locale } = useLanguage();
+  // Utilisation du type PrivacyContent au lieu de any
+  const [content, setContent] = useState<PrivacyContent | null>(null);
+
+  useEffect(() => {
+    cmsSwitcher.getScopeContent("privacy", locale).then((data) => {
+      // On cast la réponse vers notre interface
+      if (data && data.privacyPage) {
+        setContent(data.privacyPage as PrivacyContent);
+      }
+    });
+  }, [locale]);
+
+  if (!content) {
+    return (
+      <div className="py-20 bg-salma-bg min-h-screen flex items-center justify-center">
+        <div className="animate-pulse text-salma-text-muted">Chargement...</div>
+      </div>
+    );
+  }
+
   return (
     <div className="py-20 bg-salma-bg min-h-screen">
-      <div className="container mx-auto px-6 max-w-4xl bg-white dark:bg-salma-surface p-12 rounded-[2rem] border border-salma-border">
-        <SectionTitle title="Politique de Confidentialité" subtitle="RGPD & Protection" />
-        <div className="prose prose-salma dark:prose-invert">
-          <h3>1. Collecte des données</h3>
-          <p>Nous collectons les informations que vous nous fournissez via les formulaires de contact (Nom, Email, Téléphone) pour traiter vos demandes de bourses.</p>
-          <h3>2. Utilisation des données</h3>
-          {/* FIX : Échappement de l'apostrophe */}
-          <p>Vos données sont utilisées exclusivement par AG Technologies pour l&apos;accompagnement de votre dossier et l&apos;envoi de notre newsletter si vous l&apos;avez accepté.</p>
-          <h3>3. Vos droits</h3>
-          <p>Vous disposez d&apos;un droit d&apos;accès, de rectification et de suppression de vos données sur simple demande à : secretariatagtechnologies@gmail.com</p>
+      <div className="container mx-auto px-6 max-w-4xl">
+        <div className="bg-white dark:bg-salma-surface p-8 md:p-16 rounded-[2.5rem] border border-salma-border shadow-salma-sm">
+          
+          <header className="mb-12">
+            <SectionTitle title={content.title} subtitle={content.subtitle} />
+            <p className="text-xs font-bold text-salma-gold uppercase tracking-widest mb-6">
+              {content.lastUpdated}
+            </p>
+            <p className="text-lg text-salma-primary dark:text-white font-medium leading-relaxed italic border-l-4 border-salma-gold pl-6">
+              {content.intro}
+            </p>
+          </header>
+
+          <div className="space-y-12">
+            {content.sections.map((section: PrivacySection) => (
+              <section key={section.id} id={section.id} className="scroll-mt-24">
+                <h3 className="text-xl font-serif font-bold text-salma-primary dark:text-salma-gold mb-4 flex items-center gap-3">
+                  {section.title}
+                </h3>
+                <div className="text-salma-text-muted leading-relaxed whitespace-pre-line pl-0 md:pl-7">
+                  {section.content}
+                </div>
+              </section>
+            ))}
+          </div>
+
+          <footer className="mt-16 pt-8 border-t border-salma-border text-center">
+            <p className="text-sm text-salma-text-muted">
+              Pour toute question relative à vos données : 
+              <a href="mailto:secretariatagtechnologies@gmail.com" className="text-salma-primary dark:text-salma-gold font-bold ml-1 hover:underline">
+                secretariatagtechnologies@gmail.com
+              </a>
+            </p>
+          </footer>
         </div>
       </div>
     </div>

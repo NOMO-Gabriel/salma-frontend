@@ -209,6 +209,19 @@ export default function NavDropdown({
                   </p>
                   <p className="text-[10px] text-salma-text-muted mt-1">{d.mission_desc}</p>
                 </div>
+              
+              </Link>
+              <Link
+                href="/confidentialite"
+                className="group flex items-start gap-3 p-4 rounded-xl hover:bg-salma-bg border border-transparent hover:border-salma-border transition-all"
+              >
+                <span className="text-xl">🛡️</span>
+                <div>
+                  <p className="text-xs font-bold text-salma-primary group-hover:text-salma-accent transition-colors">
+                    {d.privacy_label}
+                  </p>
+                  <p className="text-[10px] text-salma-text-muted mt-1">{d.privacy_desc}</p>
+                </div>
               </Link>
             </div>
             <div className="px-4 pb-3 pt-1 border-t border-salma-border/50">

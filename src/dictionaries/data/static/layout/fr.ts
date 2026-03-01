@@ -95,11 +95,12 @@ export const frLayout = {
   nav_about: {
     title: "À propos",
     agency_label: "AG Technologies",
-    agency_desc:
-      "Cabinet spécialisé en mobilité internationale depuis 2019, basé à Yaoundé.",
+    agency_desc:"Cabinet spécialisé en mobilité internationale depuis 2019, basé à Yaoundé.",
     mission_label: "Notre mission",
     mission_desc:
       "Rendre l'étude à l'étranger accessible à chaque étudiant camerounais.",
+    privacy_label: "Confidentialité & RGPD", // Ajouté
+    privacy_desc: "Comment nous protégeons vos données personnelles et académiques.", // Ajouté
     cta: "Découvrir notre histoire",
   },
 
