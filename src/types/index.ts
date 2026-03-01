@@ -36,3 +36,6 @@ export * from "@/types/api/kpi.types";
 
 // navbar
 export * from "@/types/pages/nav.types"
+
+// HeroCaroussel
+export * from "@/types/pages/hero.types"

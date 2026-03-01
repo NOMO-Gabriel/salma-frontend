@@ -125,5 +125,86 @@ nav_home: {
     { id: "temoignages", label: "Testimonials",     icon: "⭐", href: "/#temoignages"},
     { id: "contact",   label: "Contact us",         icon: "✉️", href: "/#contact"   },
   ]
-}
+},
+
+
+  hero_carousel: {
+    slides: [
+      {
+        id: "slide-1",
+        badge: "🎓 Scholarships 2025 – 2026 now open",
+        title: "Achieve your dream\nof studying in China\n& Germany",
+        subtitle: "Full support, visa in 3 weeks and Satisfaction Guaranteed. Join 500+ students we've helped succeed.",
+        ctas: [
+          { label: "Find my scholarship", href: "/bourses", variant: "gold" },
+          { label: "Book a consultation", href: "/contact", variant: "navy" },
+        ],
+        stats: [
+          { value: "500+", label: "Students" },
+          { value: "3 wks", label: "Visa time" },
+          { value: "100%", label: "Success rate" },
+        ],
+        scholarship: {
+          flag: "🇨🇳",
+          country: "China",
+          title: "CSC Scholarship — Chinese Government",
+          level: "Bachelor · Master · PhD",
+          coverage: "Full scholarship",
+          deadline: "Deadline: March 31, 2026",
+          href: "/bourses?pays=chine",
+          cta: "View this scholarship →",
+        },
+      },
+      {
+        id: "slide-2",
+        badge: "⭐ 500+ students trust us",
+        title: "A local team\nthat knows\nyour process",
+        subtitle: "Based in Yaoundé, we guide every Cameroonian student from A to Z: application, visa, housing, orientation.",
+        ctas: [
+          { label: "See testimonials", href: "/#temoignages", variant: "gold" },
+          { label: "Our services",    href: "/services",     variant: "navy" },
+        ],
+        stats: [
+          { value: "5+", label: "Years of experience" },
+          { value: "25+", label: "Universities" },
+          { value: "2",   label: "Countries" },
+        ],
+        scholarship: {
+          flag: "🇩🇪",
+          country: "Germany",
+          title: "DAAD Scholarship — Academic Exchange",
+          level: "Master · PhD",
+          coverage: "Partial + reduced fees",
+          deadline: "Deadline: April 15, 2026",
+          href: "/bourses?pays=allemagne",
+          cta: "View this scholarship →",
+        },
+      },
+      {
+        id: "slide-3",
+        badge: "🚀 Limited spots — Applications open",
+        title: "The world's best\nuniversities are\nwaiting for you",
+        subtitle: "China: Top 10 worldwide, medicine, engineering, management. Germany: DAAD, English Masters, reduced tuition.",
+        ctas: [
+          { label: "China scholarships 🇨🇳",   href: "/bourses?pays=chine",     variant: "gold" },
+          { label: "Germany scholarships 🇩🇪",  href: "/bourses?pays=allemagne", variant: "navy" },
+        ],
+        stats: [
+          { value: "50+", label: "Active scholarships" },
+          { value: "CSC", label: "Official partner" },
+          { value: "DAAD", label: "Germany network" },
+        ],
+        scholarship: {
+          flag: "🌍",
+          country: "China & Germany",
+          title: "New scholarships available",
+          level: "All levels",
+          coverage: "Full or partial",
+          deadline: "Apply now",
+          href: "/bourses",
+          cta: "View all scholarships →",
+        },
+      },
+    ],
+  },
 };
