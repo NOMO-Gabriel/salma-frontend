@@ -41,8 +41,10 @@ export const frHome = {
     viewAll: "Voir toutes les bourses",
   },
   successStories: {
-    title: "Ils ont réussi avec SALMA",
-    subtitle: "Histoires de Succès"
-    // Les stories individuelles seront fetchées depuis l'API ou un repo dédié
-  }
+    title:       "Ils ont réussi avec SALMA",
+    subtitle:    "Histoires de Succès",
+    description: "Plus de 500 étudiants ont déjà transformé leur avenir grâce à SALMA.",
+    trustBadge:  "500+ étudiants accompagnés",
+    verified:    "Vérifié SALMA",
+  },
 };

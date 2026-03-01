@@ -45,8 +45,8 @@ function useScrolled(threshold = 20): boolean {
 function NavbarSkeleton() {
   return (
     <>
-      <div className="w-full h-9 bg-[#0A0F1A]" />
-      <nav className="sticky top-0 z-[100] w-full h-20 bg-white/95 border-b border-salma-border">
+      <div className="w-full h-9 bg-salma-surface border-t-2 border-t-salma-gold/40 border-b border-b-salma-border/15" />
+      <nav className="sticky top-0 z-[100] w-full h-20 bg-white/95 border-b border-salma-border/10">
         <div className="max-w-7xl mx-auto px-6 h-full flex items-center justify-between">
           <div className="flex flex-col gap-1">
             <div className="h-6 w-24 bg-salma-surface rounded animate-pulse" />
@@ -103,7 +103,6 @@ export default function Navbar() {
   // Guard défensif : skeleton tant que les clés critiques ne sont pas présentes.
   // Protège contre un fichier layout incomplet ou un cast NavContent incorrect.
   if (
-    !content?.nav_home ||
     !content?.nav_bourses ||
     !content?.nav_services ||
     !content?.nav_about ||
@@ -131,8 +130,8 @@ export default function Navbar() {
           transition-all duration-300 ease-in-out
           ${
             scrolled
-              ? "bg-white/98 backdrop-blur-md shadow-[0_2px_20px_rgba(27,54,93,0.08)] border-b border-salma-border"
-              : "bg-white/95 backdrop-blur-sm border-b border-salma-border/60"
+              ? "bg-white/98 backdrop-blur-md shadow-[0_2px_16px_rgba(27,54,93,0.06)] border-b border-salma-border/20"
+              : "bg-white/95 backdrop-blur-sm border-b border-salma-border/10"
           }
         `}
       >
@@ -166,12 +165,11 @@ export default function Navbar() {
             <div className="hidden lg:flex items-center gap-0 flex-1 justify-center">
 
               {/* Accueil */}
-              <NavDropdownWithIndicator
-              active={isActive("/")}
-              title={content.nav_home.title}
-              type="home"
-              data={content.nav_home}
-            />
+              <NavLinkSimple
+                href="/"
+                active={isActive("/")}
+                label={locale === "fr" ? "Accueil" : "Home"}
+              />
 
               {/* Bourses */}
               <NavDropdownWithIndicator
@@ -314,42 +312,42 @@ export default function Navbar() {
 // =============================================================================
 //  Lien simple avec underline gold actif (pour Accueil)
 // =============================================================================
-// function NavLinkSimple({
-//   href,
-//   label,
-//   active,
-// }: {
-//   href: string;
-//   label: string;
-//   active: boolean;
-// }) {
-//   return (
-//     <div className="relative h-20 flex items-center">
-//       <Link
-//         href={href}
-//         className={`
-//           relative px-4 py-2
-//           text-[11px] font-bold uppercase tracking-widest
-//           transition-colors duration-200
-//           outline-none focus-visible:ring-2 focus-visible:ring-salma-gold focus-visible:ring-offset-2 rounded-lg
-//           ${active ? "text-salma-primary" : "text-salma-text-muted hover:text-salma-primary"}
-//         `}
-//       >
-//         {label}
-//       </Link>
-//       {active && (
-//         <span
-//           className="
-//             absolute bottom-0 left-4 right-4 h-[2px]
-//             bg-salma-gold rounded-full
-//             animate-[expandWidth_0.3s_ease-out_forwards]
-//           "
-//           aria-hidden="true"
-//         />
-//       )}
-//     </div>
-//   );
-// }
+function NavLinkSimple({
+  href,
+  label,
+  active,
+}: {
+  href: string;
+  label: string;
+  active: boolean;
+}) {
+  return (
+    <div className="relative h-20 flex items-center">
+      <Link
+        href={href}
+        className={`
+          relative px-4 py-2
+          text-[11px] font-bold uppercase tracking-widest
+          transition-colors duration-200
+          outline-none focus-visible:ring-2 focus-visible:ring-salma-gold focus-visible:ring-offset-2 rounded-lg
+          ${active ? "text-salma-primary" : "text-salma-text-muted hover:text-salma-primary"}
+        `}
+      >
+        {label}
+      </Link>
+      {active && (
+        <span
+          className="
+            absolute bottom-0 left-4 right-4 h-[2px]
+            bg-salma-gold rounded-full
+            animate-[expandWidth_0.3s_ease-out_forwards]
+          "
+          aria-hidden="true"
+        />
+      )}
+    </div>
+  );
+}
 
 // =============================================================================
 //  NavDropdown avec wrapper pour l'indicateur de page active

@@ -8,7 +8,12 @@
 import type { MediaAssetMinimal } from "./media.types";
 // --- Énumérations (correspondent aux choices Django) -------------------------
 
-export type ScholarshipStatus = "brouillon" | "publie" | "expire" | "archive";
+// src/types/api/scholarship.types.ts
+
+// On combine les statuts de gestion (admin) et les statuts logiques (public)
+export type ScholarshipStatus = 
+  | "publie" | "brouillon" | "archive" | "expire" // Statuts DB
+  | "ouvert" | "ferme" | "urgent" | "en_attente";  // Statuts Métier/Prototype
 export type ScholarshipLevel = "licence" | "master" | "doctorat" | "postdoc" | "formation" | "autre";
 export type ScholarshipCoverage = "complete" | "partielle" | "logement" | "transport" | "autre";
 export type ScholarshipCountry = "chine" | "allemagne" | "france" | "canada" | "autre";

@@ -40,8 +40,12 @@ export const enHome = {
     subtitle: "Outstanding Opportunities",
     viewAll: "View all scholarships",
   },
+
   successStories: {
-    title: "They succeeded with SALMA",
-    subtitle: "Success Stories"
-  }
+    title:       "They Succeeded with SALMA",
+    subtitle:    "Success Stories",
+    description: "More than 500 students have already transformed their future thanks to SALMA.",
+    trustBadge:  "500+ students supported",
+    verified:    "SALMA Verified",
+  },
 };

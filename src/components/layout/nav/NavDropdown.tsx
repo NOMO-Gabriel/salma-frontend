@@ -1,19 +1,25 @@
 "use client";
 // =============================================================================
 //  NavDropdown.tsx — SALMA · Menu déroulant desktop
-//  Améliorations polish :
-//    • Chevron animé (rotate 180° à l'ouverture)
-//    • Bouton trigger avec underline gold au hover
-//    • Dropdowns avec entrée animée (fade + translateY)
-//    • Cards hover avec background subtil et border gold
-//    • Dropdown Contact avec gradient header navy
+//  Pattern : hover → ouvre le dropdown / clic → navigue vers la page principale
+//  Délai de fermeture 150ms pour permettre de glisser vers le panneau
 // =============================================================================
 
-import { useState } from "react";
+import { useState, useRef, useCallback } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import type { NavBourses, NavServices, NavContact, NavAbout, NavHome } from "@/types";
 
 type NavDropdownData = NavHome | NavBourses | NavServices | NavContact | NavAbout;
+
+// Href principale de chaque dropdown (destination au clic)
+const HREF_MAP: Record<string, string> = {
+  home:     "/",
+  bourses:  "/bourses",
+  services: "/services",
+  about:    "/a-propos",
+  contact:  "/contact",
+};
 
 // =============================================================================
 //  Composant principal
@@ -30,17 +36,46 @@ export default function NavDropdown({
   isAction?: boolean;
 }) {
   const [isOpen, setIsOpen] = useState(false);
+  const closeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const router = useRouter();
+
+  const handleMouseEnter = useCallback(() => {
+    if (closeTimer.current) clearTimeout(closeTimer.current);
+    setIsOpen(true);
+  }, []);
+
+  const handleMouseLeave = useCallback(() => {
+    closeTimer.current = setTimeout(() => setIsOpen(false), 150);
+  }, []);
+
+  const handleClick = useCallback(() => {
+    // isAction (Contact) n'a pas de page dédiée dans le menu — on ouvre juste le dropdown
+    if (isAction) return;
+    const href = HREF_MAP[type];
+    if (href) {
+      setIsOpen(false);
+      router.push(href);
+    }
+  }, [isAction, type, router]);
+
+  const href = HREF_MAP[type];
 
   return (
     <div
       className="relative h-20 flex items-center"
-      onMouseEnter={() => setIsOpen(true)}
-      onMouseLeave={() => setIsOpen(false)}
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
     >
       {/* ===================================================================
           BOUTON TRIGGER
+          • Clic  → navigation directe vers la page principale
+          • Hover → ouvre le dropdown (géré par le parent div)
       =================================================================== */}
       <button
+        onClick={handleClick}
+        aria-haspopup="true"
+        aria-expanded={isOpen}
+        title={href ? `Aller à ${title}` : title}
         className={`
           relative px-4 py-2 flex items-center gap-1.5
           text-[11px] font-bold uppercase tracking-widest
@@ -57,11 +92,10 @@ export default function NavDropdown({
                 after:absolute after:bottom-0 after:left-4 after:right-4 after:h-[2px]
                 after:bg-salma-gold after:rounded-full after:scale-x-0
                 hover:after:scale-x-100 after:transition-transform after:duration-200 after:origin-center
+                cursor-pointer
               `
           }
         `}
-        aria-haspopup="true"
-        aria-expanded={isOpen}
       >
         {title}
         {/* Chevron animé */}
@@ -82,36 +116,42 @@ export default function NavDropdown({
 
       {/* ===================================================================
           PANNEAUX DÉROULANTS
+          Le panneau hérite du handleMouseEnter/Leave du parent pour éviter
+          la fermeture quand la souris glisse du bouton vers le panneau
       =================================================================== */}
-     {isOpen && type === "home" && (() => {
-  const d = data as NavHome;
-  return (
-    <DropdownPanel align="left">
-      <div className="p-2 space-y-1">
-        {d.sections.map((item) => (
-          <Link key={item.id} href={item.href}
-            className="group flex items-center gap-3 p-3 rounded-xl hover:bg-salma-bg border border-transparent hover:border-salma-border transition-all duration-150"
-          >
-            <span className="text-lg">{item.icon}</span>
-            <span className="text-xs font-bold text-salma-primary group-hover:text-salma-accent transition-colors">
-              {item.label}
-            </span>
-          </Link>
-        ))}
-      </div>
-    </DropdownPanel>
-  );
-})()}
+
+      {/* ── CAS HOME ──────────────────────────────────────────────────── */}
+      {isOpen && type === "home" && (() => {
+        const d = data as NavHome;
+        return (
+          <DropdownPanel align="left">
+            <div className="p-2 space-y-1">
+              {d.sections.map((item) => (
+                <Link key={item.id} href={item.href}
+                  className="group flex items-center gap-3 p-3 rounded-xl hover:bg-salma-bg border border-transparent hover:border-salma-border transition-all duration-150"
+                  onClick={() => setIsOpen(false)}
+                >
+                  <span className="text-lg">{item.icon}</span>
+                  <span className="text-xs font-bold text-salma-primary group-hover:text-salma-accent transition-colors">
+                    {item.label}
+                  </span>
+                </Link>
+              ))}
+            </div>
+          </DropdownPanel>
+        );
+      })()}
+
       {/* ── CAS BOURSES ───────────────────────────────────────────────── */}
       {isOpen && type === "bourses" && (() => {
         const d = data as NavBourses;
         return (
           <DropdownPanel align="left" wide>
             <div className="p-2 space-y-2">
-              {/* Chine */}
               <Link
                 href="/bourses?pays=chine"
                 className="group flex items-start gap-4 p-4 rounded-xl hover:bg-salma-bg border border-transparent hover:border-salma-border transition-all duration-150"
+                onClick={() => setIsOpen(false)}
               >
                 <span className="text-2xl mt-0.5">🇨🇳</span>
                 <div className="flex-1 min-w-0">
@@ -125,10 +165,10 @@ export default function NavDropdown({
                 </div>
               </Link>
 
-              {/* Allemagne */}
               <Link
                 href="/bourses?pays=allemagne"
                 className="group flex items-start gap-4 p-4 rounded-xl hover:bg-salma-bg border border-transparent hover:border-salma-border transition-all duration-150"
+                onClick={() => setIsOpen(false)}
               >
                 <span className="text-2xl mt-0.5">🇩🇪</span>
                 <div className="flex-1 min-w-0">
@@ -142,12 +182,11 @@ export default function NavDropdown({
                 </div>
               </Link>
             </div>
-
-            {/* Footer du dropdown */}
             <div className="px-4 pb-3 pt-1 border-t border-salma-border/50">
               <Link
                 href="/bourses"
                 className="text-[10px] font-bold text-salma-gold hover:text-salma-gold-light transition-colors flex items-center gap-1"
+                onClick={() => setIsOpen(false)}
               >
                 Voir toutes les bourses →
               </Link>
@@ -167,6 +206,7 @@ export default function NavDropdown({
                   key={item.id}
                   href={item.href}
                   className="group p-3 rounded-xl hover:bg-salma-bg border border-transparent hover:border-salma-border transition-all duration-150"
+                  onClick={() => setIsOpen(false)}
                 >
                   <span className="text-xl mb-2 block">{item.icon}</span>
                   <p className="text-xs font-bold text-salma-primary group-hover:text-salma-accent transition-colors">
@@ -186,48 +226,41 @@ export default function NavDropdown({
         return (
           <DropdownPanel align="left">
             <div className="p-2 space-y-1">
-              <Link
-                href="/a-propos"
+              <Link href="/a-propos"
                 className="group flex items-start gap-3 p-4 rounded-xl hover:bg-salma-bg border border-transparent hover:border-salma-border transition-all"
+                onClick={() => setIsOpen(false)}
               >
                 <span className="text-xl">🏢</span>
                 <div>
-                  <p className="text-xs font-bold text-salma-primary group-hover:text-salma-accent transition-colors">
-                    {d.agency_label}
-                  </p>
+                  <p className="text-xs font-bold text-salma-primary group-hover:text-salma-accent transition-colors">{d.agency_label}</p>
                   <p className="text-[10px] text-salma-text-muted mt-1">{d.agency_desc}</p>
                 </div>
               </Link>
-              <Link
-                href="/a-propos#mission"
+              <Link href="/a-propos#mission"
                 className="group flex items-start gap-3 p-4 rounded-xl hover:bg-salma-bg border border-transparent hover:border-salma-border transition-all"
+                onClick={() => setIsOpen(false)}
               >
                 <span className="text-xl">🎯</span>
                 <div>
-                  <p className="text-xs font-bold text-salma-primary group-hover:text-salma-accent transition-colors">
-                    {d.mission_label}
-                  </p>
+                  <p className="text-xs font-bold text-salma-primary group-hover:text-salma-accent transition-colors">{d.mission_label}</p>
                   <p className="text-[10px] text-salma-text-muted mt-1">{d.mission_desc}</p>
                 </div>
-              
               </Link>
-              <Link
-                href="/confidentialite"
+              <Link href="/confidentialite"
                 className="group flex items-start gap-3 p-4 rounded-xl hover:bg-salma-bg border border-transparent hover:border-salma-border transition-all"
+                onClick={() => setIsOpen(false)}
               >
                 <span className="text-xl">🛡️</span>
                 <div>
-                  <p className="text-xs font-bold text-salma-primary group-hover:text-salma-accent transition-colors">
-                    {d.privacy_label}
-                  </p>
+                  <p className="text-xs font-bold text-salma-primary group-hover:text-salma-accent transition-colors">{d.privacy_label}</p>
                   <p className="text-[10px] text-salma-text-muted mt-1">{d.privacy_desc}</p>
                 </div>
               </Link>
             </div>
             <div className="px-4 pb-3 pt-1 border-t border-salma-border/50">
-              <Link
-                href="/a-propos"
+              <Link href="/a-propos"
                 className="text-[10px] font-bold text-salma-gold hover:text-salma-gold-light transition-colors flex items-center gap-1"
+                onClick={() => setIsOpen(false)}
               >
                 {d.cta} →
               </Link>
@@ -241,21 +274,14 @@ export default function NavDropdown({
         const d = data as NavContact;
         return (
           <DropdownPanel align="right">
-            {/* Header gradient navy */}
             <div className="bg-salma-primary px-5 py-4 rounded-t-2xl">
-              <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-salma-gold">
-                {d.title}
-              </p>
-              <p className="text-xs text-white/60 mt-0.5">
-                Réponse en moins de 24h
-              </p>
+              <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-salma-gold">{d.title}</p>
+              <p className="text-xs text-white/60 mt-0.5">Réponse en moins de 24h</p>
             </div>
-
             <div className="p-2 space-y-1">
-              {/* RDV */}
-              <Link
-                href="/contact"
+              <Link href="/contact"
                 className="group flex items-center gap-4 p-4 hover:bg-salma-primary hover:text-white rounded-xl transition-all duration-150"
+                onClick={() => setIsOpen(false)}
               >
                 <span className="text-xl">📅</span>
                 <div>
@@ -263,13 +289,9 @@ export default function NavDropdown({
                   <p className="text-[10px] opacity-60 group-hover:opacity-80">{d.rdv_desc}</p>
                 </div>
               </Link>
-
-              {/* WhatsApp */}
-              <a
-                href="https://wa.me/237699450984"
-                target="_blank"
-                rel="noopener noreferrer"
+              <a href="https://wa.me/237699450984" target="_blank" rel="noopener noreferrer"
                 className="flex items-center gap-4 p-4 hover:bg-green-500 hover:text-white rounded-xl transition-all duration-150 group"
+                onClick={() => setIsOpen(false)}
               >
                 <span className="text-xl">💬</span>
                 <div>
@@ -278,8 +300,6 @@ export default function NavDropdown({
                 </div>
               </a>
             </div>
-
-            {/* Mini newsletter */}
             <div className="bg-salma-bg px-4 py-4 border-t border-salma-border rounded-b-2xl">
               <p className="text-[10px] font-bold text-salma-primary mb-1">{d.newsletter_title}</p>
               <p className="text-[9px] text-salma-text-muted mb-3 leading-snug">{d.newsletter_desc}</p>

@@ -15,6 +15,7 @@ import ContactForm from "@/sections/visitor/ContactForm";
 import { scholarshipDictionary } from "@/dictionaries/data/scholarship.data-dictionary";
 import { testimonialPublicRepository } from "@/repositories/testimonial.repository";
 import { kpiRepository } from "@/repositories/kpi.repository";
+import VideoTestimonial from "@/sections/visitor/VideoTestimonial"
 
 function SectionSkeleton({ height = "h-64" }: { height?: string }) {
   return (
@@ -60,6 +61,7 @@ export default async function HomeV2() {
 
       <Suspense fallback={<SectionSkeleton height="h-64" />}>
         <SuccessStories testimonials={testimonials} />
+        <VideoTestimonial />
       </Suspense>
 
       <ContactForm />

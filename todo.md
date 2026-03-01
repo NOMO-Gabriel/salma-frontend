@@ -12,9 +12,8 @@
   - [ ] **Page Services :** Harmonisation des cartes de services.
   - [ ] **Page À Propos & Contact :** Vérification des textes et des champs de formulaire.
 - [ ] **Validation des remarques Client (UI/UX) :**
-  - [ ] Changer la photo Hero de la page d'accueil (plus claire, haute qualité).
+  - [x] Changer la photo Hero de la page d'accueil (plus claire, haute qualité).
   - [ ] Retirer définitivement "Travel Agency" de la Navbar et du Footer.
-  - [ ] Ajustement final du **Mode Sombre** (contrastes et bordures).
   - [ ] Ajout des micro-animations (apparition au scroll, effets hover).
 - [ ] **Page Détail & Conversion :**
   - [ ] Créer la page `/bourses/[id]/page.tsx` (Détail de la bourse).
@@ -23,6 +22,7 @@
 - [ ] **Fiabilisation :**
   - [ ] Créer `not-found.tsx` et `error.tsx` (Error Boundaries).
   - [ ] Audit Responsive complet (iPhone SE ➔ Desktop).
+
 ## 🔵 SPRINT 2 : Alignement Backend & Seeders
 *Objectif : Mettre à jour la base de données Django pour qu'elle corresponde exactement aux clés CMS définies au Sprint 1.*
 
