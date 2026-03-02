@@ -1,62 +1,305 @@
 # 🚀 ROADMAP DE STABILISATION — PROJET SALMA
 
-A-
-## 🟠 SPRINT 1 : Polish Frontend & Mécanisme CMS (Vitrine)
-*Objectif : Figer l'UI, assurer la cohérence de chaque page et préparer la transition vers le contenu dynamique.*
+## SPRINT 1 - Excellence Visuelle & Pilotage Métier
+C'est une erreur de ma part, je rectifie immédiatement. Voici la version intégrale et exhaustive du **SPRINT 1**, où chaque composant, chaque page et chaque répertoire de logique est décomposé selon tes critères de validation stricts.
 
-- [x] **Généralisation du `cmsSwitcher` :**
-  - [x] Créer les fichiers statiques finaux (`home`, `about`, `services`, `contact`, `footer`) dans `src/dictionaries/data/static/`. pour le moment avec le memes clés que ceux des dictionnaires actuels
-- [-] **Polissage systématique page par page  en incluant les appels directs à `dictionary.xxx` par `cmsSwitcher.getScopeContent(...)` dans tous les composants:**
-  - [ ] **Composants UI :** Audit des boutons, badges et cartes dans `src/components/ui/`.
-  - [-] **Page Accueil :** Nettoyage des sections Hero, Stats, TrustBar et Témoignages.
-  - [ ] **Page Catalogue :** Vérification des filtres et du squelette de chargement.
-  - [ ] **Page Services :** Harmonisation des cartes de services.
-  - [ ] **Page À Propos & Contact :** Vérification des textes et des champs de formulaire.
-- [ ] **Validation des remarques Client (UI/UX) :**
-  - [x] Changer la photo Hero de la page d'accueil (plus claire, haute qualité).
-  - [ ] Retirer définitivement "Travel Agency" de la Navbar et du Footer.
-  - [ ] Ajout des micro-animations (apparition au scroll, effets hover).
-- [ ] **Page Détail & Conversion :**
-  - [ ] Créer la page `/bourses/[id]/page.tsx` (Détail de la bourse).
-  - [ ] Appliquer le respect strict du `field_visibility`.
-  - [ ] Lier le bouton WhatsApp avec message pré-rempli dynamique.
-- [-] **Fiabilisation :**
-  - [x] Créer `not-found.tsx` et `error.tsx` (Error Boundaries).
-  - [ ] Audit Responsive complet (iPhone SE ➔ Desktop).
+---
 
-## 🔵 SPRINT 2 : Alignement Backend & Seeders
-*Objectif : Mettre à jour la base de données Django pour qu'elle corresponde exactement aux clés CMS définies au Sprint 1.*
+### 🟠 A : Polish Frontend & Excellence Ingénierie (Vitrine)
+*Objectif : Atteindre un niveau de finition "Premium" et une rigueur de code absolue sur l'ensemble du dossier `src`.*
 
-- [ ] **Mise à jour des Seeders Django (`seed.py`) :**
-  - [ ] Mettre à jour les `SitePage` et `ContentBlock` avec les clés exactes du frontend.
-  - [ ] Mettre à jour les `SiteConfig` (réseaux sociaux, téléphones, emails).
-  - [ ] Insérer les textes finaux validés en FR et EN.
-- [ ] **Test du Switcher :**
-  - [ ] Passer `NEXT_PUBLIC_STATIC_CONTENT=false` dans le `.env`.
-  - [ ] Vérifier que le frontend affiche correctement les données venant de l'API sans casser l'UI.
+- [x] **1.1 Préparation du terrain & Stabilisation du Build**
+  - [x] Généralisation du `cmsSwitcher` et suppression des anciens dictionnaires.
+  - [x] Nettoyage des métadonnées et correction des erreurs de build/ESLint.
+  - [x] Mise en place des Error Boundaries (`not-found`, `error`) typées.
 
-## 🟡 SPRINT 3 : Dashboard Admin & Intégrations Externes
-*Objectif : Rendre l'admin 100% fonctionnel pour le client et brancher les services tiers.*
+- [ ] **1.2 Audit & Polish des Composants Atomiques (`src/components/ui/`)**
+  - [ ] **`SalmaButton.tsx`**
+    - [ ] Design (UI/UX, animations, hover)
+    - [ ] Séparation des responsabilités
+    - [ ] Respect de l'architecture (Switcher, Types)
+    - [ ] Responsive (Mobile-first)
+    - [ ] Modularité et réutilisabilité
+    - [ ] JSDoc (Documentation pro)
+  - [ ] **`SalmaBadge.tsx`**
+    - [ ] Design (UI/UX, animations, hover)
+    - [ ] Séparation des responsabilités
+    - [ ] Respect de l'architecture (Switcher, Types)
+    - [ ] Responsive (Mobile-first)
+    - [ ] Modularité et réutilisabilité
+    - [ ] JSDoc (Documentation pro)
+  - [ ] **`SectionTitle.tsx`**
+    - [ ] Design (UI/UX, animations, hover)
+    - [ ] Séparation des responsabilités
+    - [ ] Respect de l'architecture (Switcher, Types)
+    - [ ] Responsive (Mobile-first)
+    - [ ] Modularité et réutilisabilité
+    - [ ] JSDoc (Documentation pro)
+  - [ ] **`ScholarshipCard.tsx`**
+    - [ ] Design (UI/UX, animations, hover)
+    - [ ] Séparation des responsabilités
+    - [ ] Respect de l'architecture (Switcher, Types)
+    - [ ] Responsive (Mobile-first)
+    - [ ] Modularité et réutilisabilité
+    - [ ] JSDoc (Documentation pro)
+  - [ ] **`NewsletterForm.tsx`**
+    - [ ] Design (UI/UX, animations, hover)
+    - [ ] Séparation des responsabilités
+    - [ ] Respect de l'architecture (Switcher, Types)
+    - [ ] Responsive (Mobile-first)
+    - [ ] Modularité et réutilisabilité
+    - [ ] JSDoc (Documentation pro)
+  - [ ] **`ThemeSwitcher.tsx`**
+    - [ ] Design (UI/UX, animations, hover)
+    - [ ] Séparation des responsabilités
+    - [ ] Respect de l'architecture (Switcher, Types)
+    - [ ] Responsive (Mobile-first)
+    - [ ] Modularité et réutilisabilité
+    - [ ] JSDoc (Documentation pro)
+  - [ ] **`LanguageSwitcher.tsx`**
+    - [ ] Design (UI/UX, animations, hover)
+    - [ ] Séparation des responsabilités
+    - [ ] Respect de l'architecture (Switcher, Types)
+    - [ ] Responsive (Mobile-first)
+    - [ ] Modularité et réutilisabilité
+    - [ ] JSDoc (Documentation pro)
+  - [ ] **`MapPreview.tsx`**
+    - [ ] Design (UI/UX, animations, hover)
+    - [ ] Séparation des responsabilités
+    - [ ] Respect de l'architecture (Switcher, Types)
+    - [ ] Responsive (Mobile-first)
+    - [ ] Modularité et réutilisabilité
+    - [ ] JSDoc (Documentation pro)
 
-- [ ] **Module CMS & Médias :**
-  - [ ] Créer la page Admin CMS : formulaires pour éditer les blocs de texte et changer les images.
-  - [ ] Créer la page Admin Médias : upload d'images, suppression, copie d'URL.
-- [ ] **Module Contacts & Newsletter :**
-  - [ ] Créer la page Admin Contacts : tableau des leads, marquer comme lu, ajouter des notes.
-  - [ ] Créer la page Admin Newsletter : liste des abonnés.
-- [ ] **Module Témoignages :**
-  - [ ] Créer la page Admin Témoignages : approuver/rejeter pour affichage public.
-- [ ] **Module KPI & Analytics :**
-  - [ ] Créer la page Admin KPI : graphiques de visites, taux de conversion, bourses les plus vues.
-- [ ] **Intégrations Externes (Backend) :**
-  - [ ] **Gemini API :** Brancher l'API Google Gemini sur l'endpoint Chatbot de Django (en utilisant les FAQ de la BD comme contexte).
-  - [ ] **Emails :** Configurer SMTP (SendGrid ou Mailjet) dans Django pour notifier l'agence lors d'une prise de RDV.
-- [ ] **Anti-Spam (Sécurité) :** Intégrer Cloudflare Turnstile ou Google reCAPTCHA v3 (invisible) sur les formulaires de Contact et Newsletter.
-  - [ ] **Rate Limiting :** Configurer un throttle sur Django (ex: max 5 requêtes/min sur `/api/contact`) pour éviter les attaques DDoS.
+- [ ] **1.3 Audit & Polish du Layout et des Widgets Globaux**
+  - [ ] **`Navbar.tsx` & `MobileMenu.tsx`**
+    - [ ] Design (UI/UX, animations, hover)
+    - [ ] Séparation des responsabilités
+    - [ ] Respect de l'architecture (Switcher, Types)
+    - [ ] Responsive (Mobile-first)
+    - [ ] Modularité et réutilisabilité
+    - [ ] JSDoc (Documentation pro)
+  - [ ] **`Footer.tsx`**
+    - [ ] Design (UI/UX, animations, hover)
+    - [ ] Séparation des responsabilités
+    - [ ] Respect de l'architecture (Switcher, Types)
+    - [ ] Responsive (Mobile-first)
+    - [ ] Modularité et réutilisabilité
+    - [ ] JSDoc (Documentation pro)
+  - [ ] **`WhatsAppButton.tsx`**
+    - [ ] Design (UI/UX, animations, hover)
+    - [ ] Séparation des responsabilités
+    - [ ] Respect de l'architecture (Switcher, Types)
+    - [ ] Responsive (Mobile-first)
+    - [ ] Modularité et réutilisabilité
+    - [ ] JSDoc (Documentation pro)
+  - [ ] **`ChatbotWidget.tsx`**
+    - [ ] Design (UI/UX, animations, hover)
+    - [ ] Séparation des responsabilités (Fallback statique complet)
+    - [ ] Respect de l'architecture (Switcher, Types)
+    - [ ] Responsive (Mobile-first)
+    - [ ] Modularité et réutilisabilité
+    - [ ] JSDoc (Documentation pro)
+  - [ ] **`CookieBanner.tsx`**
+    - [ ] Design (UI/UX, animations, hover)
+    - [ ] Séparation des responsabilités
+    - [ ] Respect de l'architecture (Switcher, Types)
+    - [ ] Responsive (Mobile-first)
+    - [ ] Modularité et réutilisabilité
+    - [ ] JSDoc (Documentation pro)
+
+- [ ] **1.4 Audit & Polish des Sections de la Page d'Accueil (`src/sections/visitor/`)**
+  - [ ] **`HeroCarousel.tsx`**
+    - [ ] Design (UI/UX, animations, hover)
+    - [ ] Séparation des responsabilités
+    - [ ] Respect de l'architecture (Switcher, Types)
+    - [ ] Responsive (Mobile-first)
+    - [ ] Modularité et réutilisabilité
+    - [ ] JSDoc (Documentation pro)
+  - [ ] **`TrustBar.tsx`**
+    - [ ] Design (UI/UX, animations, hover)
+    - [ ] Séparation des responsabilités
+    - [ ] Respect de l'architecture (Switcher, Types)
+    - [ ] Responsive (Mobile-first)
+    - [ ] Modularité et réutilisabilité
+    - [ ] JSDoc (Documentation pro)
+  - [ ] **`StatsCounter.tsx`**
+    - [ ] Design (UI/UX, animations, hover)
+    - [ ] Séparation des responsabilités
+    - [ ] Respect de l'architecture (Switcher, Types)
+    - [ ] Responsive (Mobile-first)
+    - [ ] Modularité et réutilisabilité
+    - [ ] JSDoc (Documentation pro)
+  - [ ] **`FeaturedScholarships.tsx`**
+    - [ ] Design (UI/UX, animations, hover)
+    - [ ] Séparation des responsabilités
+    - [ ] Respect de l'architecture (Switcher, Types)
+    - [ ] Responsive (Mobile-first)
+    - [ ] Modularité et réutilisabilité
+    - [ ] JSDoc (Documentation pro)
+  - [ ] **`SuccessStories.tsx`**
+    - [ ] Design (UI/UX, animations, hover)
+    - [ ] Séparation des responsabilités
+    - [ ] Respect de l'architecture (Switcher, Types)
+    - [ ] Responsive (Mobile-first)
+    - [ ] Modularité et réutilisabilité
+    - [ ] JSDoc (Documentation pro)
+  - [ ] **`VideoTestimonial.tsx`**
+    - [ ] Design (UI/UX, animations, hover)
+    - [ ] Séparation des responsabilités
+    - [ ] Respect de l'architecture (Switcher, Types)
+    - [ ] Responsive (Mobile-first)
+    - [ ] Modularité et réutilisabilité
+    - [ ] JSDoc (Documentation pro)
+  - [ ] **`LocationSection.tsx`**
+    - [ ] Design (UI/UX, animations, hover)
+    - [ ] Séparation des responsabilités
+    - [ ] Respect de l'architecture (Switcher, Types)
+    - [ ] Responsive (Mobile-first)
+    - [ ] Modularité et réutilisabilité
+    - [ ] JSDoc (Documentation pro)
+
+- [ ] **1.5 Audit & Polish des Pages de Navigation**
+  - [ ] **`Accueil (page.tsx)`**
+    - [ ] Design (UI/UX, animations, hover)
+    - [ ] Séparation des responsabilités
+    - [ ] Respect de l'architecture (Switcher, Types)
+    - [ ] Responsive (Mobile-first)
+    - [ ] Modularité et réutilisabilité
+    - [ ] JSDoc (Documentation pro)
+  - [ ] **`Catalogue (Bourses)`**
+    - [ ] Design (UI/UX, animations, hover)
+    - [ ] Séparation des responsabilités
+    - [ ] Respect de l'architecture (Switcher, Types)
+    - [ ] Responsive (Mobile-first)
+    - [ ] Modularité et réutilisabilité
+    - [ ] JSDoc (Documentation pro)
+  - [ ] **`Détail Bourse`**
+    - [ ] Design (UI/UX, animations, hover)
+    - [ ] Séparation des responsabilités (Respect strict `field_visibility`)
+    - [ ] Respect de l'architecture (Switcher, Types)
+    - [ ] Responsive (Mobile-first)
+    - [ ] Modularité et réutilisabilité
+    - [ ] JSDoc (Documentation pro)
+  - [ ] **`Services`**
+    - [ ] Design (UI/UX, animations, hover)
+    - [ ] Séparation des responsabilités
+    - [ ] Respect de l'architecture (Switcher, Types)
+    - [ ] Responsive (Mobile-first)
+    - [ ] Modularité et réutilisabilité
+    - [ ] JSDoc (Documentation pro)
+  - [ ] **`À Propos`**
+    - [ ] Design (UI/UX, animations, hover)
+    - [ ] Séparation des responsabilités
+    - [ ] Respect de l'architecture (Switcher, Types)
+    - [ ] Responsive (Mobile-first)
+    - [ ] Modularité et réutilisabilité
+    - [ ] JSDoc (Documentation pro)
+  - [ ] **`Contact`**
+    - [ ] Design (UI/UX, animations, hover)
+    - [ ] Séparation des responsabilités
+    - [ ] Respect de l'architecture (Switcher, Types)
+    - [ ] Responsive (Mobile-first)
+    - [ ] Modularité et réutilisabilité
+    - [ ] JSDoc (Documentation pro)
+  - [ ] **`Politique de Confidentialité`**
+    - [ ] Design (UI/UX, animations, hover)
+    - [ ] Séparation des responsabilités
+    - [ ] Respect de l'architecture (Switcher, Types)
+    - [ ] Responsive (Mobile-first)
+    - [ ] Modularité et réutilisabilité
+    - [ ] JSDoc (Documentation pro)
+
+- [ ] **1.6 Audit de la Logique et de l'Infrastructure (`src/` par répertoire)**
+  - [ ] **`hooks/`**
+    - [ ] Clarté du code
+    - [ ] Commentaires professionnels
+    - [ ] Modularité et réutilisabilité
+  - [ ] **`repositories/`**
+    - [ ] Clarté du code
+    - [ ] Commentaires professionnels
+    - [ ] Modularité et réutilisabilité
+  - [ ] **`lib/`**
+    - [ ] Clarté du code
+    - [ ] Commentaires professionnels
+    - [ ] Modularité et réutilisabilité
+  - [ ] **`contexts/`**
+    - [ ] Clarté du code
+    - [ ] Commentaires professionnels
+    - [ ] Modularité et réutilisabilité
+  - [ ] **`config/`**
+    - [ ] Clarté du code
+    - [ ] Commentaires professionnels
+    - [ ] Modularité et réutilisabilité
+  - [ ] **`dictionaries/`**
+    - [ ] Clarté du code
+    - [ ] Commentaires professionnels
+    - [ ] Modularité et réutilisabilité
+  - [ ] **`types/`**
+    - [ ] Clarté du code
+    - [ ] Commentaires professionnels
+    - [ ] Modularité et réutilisabilité
+
+---
+
+### 🔵 B : Dashboard Admin & Intégration API (Développeur Frontend 2)
+*Objectif : Rendre le dashboard 100% opérationnel (Liaison API) puis appliquer l'excellence UI/UX.*
+
+- [ ] **1.3 Intégration Backend & Liaison API (Fonctionnel First)**
+  - [ ] **Module Bourses** (Liaison CRUD & Duplication)
+  - [ ] **Module CMS** (Édition Pages, Blocs, Config, Vidéos)
+  - [ ] **Module Contacts & RDV** (Lecture, Marquage lu, Notes admin)
+  - [ ] **Module Newsletter** (Gestion abonnés & Envoi annonces)
+  - [ ] **Module Témoignages** (Approbation & Modération)
+  - [ ] **Module Chatbot / FAQ** (Gestion de la base de connaissances)
+  - [ ] **Module KPI & Analytics** (Récupération des snapshots & temps réel)
+  - [ ] **Module Médiathèque** (Upload, Suppression, Copie lien)
+  - [ ] **Tests fonctionnels & Débogage** (Validation des flux de données)
+
+- [ ] **1.4 Audit & Polish (Appliqué à chaque module ci-dessus)**
+  - [ ] Design (UI/UX, animations, hover cohérents avec la vitrine)
+  - [ ] Séparation des responsabilités
+  - [ ] Respect de l'architecture (Repositories, Types)
+  - [ ] Responsive (Tablette & Desktop)
+  - [ ] Modularité et réutilisabilité
+  - [ ] JSDoc (Documentation pro)
+
+---
+
+### 🟡 C : Ingénierie Backend & Services Externes (Développeur Backend)
+*Objectif : Automatiser les services tiers, valider la donnée et certifier la qualité du code.*
+
+- [ ] **1.5 Intégration des Services Externes (Priorité Matinale)**
+  - [ ] **Gemini API** (Logique de réponse contextuelle via FAQ)
+  - [ ] **SMTP / Emails** (Flux de notifications automatiques pour l'agence)
+  - [ ] **Anti-Spam** (Intégration Turnstile/reCAPTCHA v3 sur les endpoints)
+  - [ ] **Rate Limiting** (Sécurisation des quotas par IP)
+
+- [ ] **1.6 Tests Unitaires & Débogage Complet (App par App)**
+  - [ ] **App Authentication** (JWT, Permissions, Roles)
+  - [ ] **App Medias** (Stockage, Nettoyage fichiers orphelins)
+  - [ ] **App Scholarships** (Logique métier, Visibilité dynamique)
+  - [ ] **App CMS** (Intégrité des blocs et configurations)
+  - [ ] **App Services** (Gestion des prestations AGT)
+  - [ ] **App Contacts** (Validation des entrées, Liaison bourses)
+  - [ ] **App Newsletter** (Logique d'inscription et file d'attente d'envoi)
+  - [ ] **App Testimonials** (Workflow de modération)
+  - [ ] **App Chatbot** (Recherche vectorielle ou par mots-clés)
+  - [ ] **App KPI** (Agrégation des snapshots quotidiens)
+
+- [ ] **1.7 Audit Qualité & Alignement (Appliqué à chaque App ci-dessus)**
+  - [ ] Logique métier (Fat Models / Thin Views)
+  - [ ] Séparation des responsabilités
+  - [ ] Respect de l'architecture (Serializers, Viewsets)
+  - [ ] Modularité et propreté du code
+  - [ ] Python Docstrings (Documentation pro)
+  - [ ] Alignement des Seeders (Synchronisation finale des clés avec le Frontend)
+
+---
 
 
-B-
-## 🟢 SPRINT 4 : Tests End-to-End (Dynamisme & Temps Réel)
+## SPRINT 2 -Performance, Fiabilité & Validation Client
+## 🟢 A : Tests End-to-End (Dynamisme & Temps Réel)
 *Objectif : Se mettre dans la peau du client (Admin) et du prospect (Visiteur) pour traquer les bugs.*
 
 - [ ] **Test CMS :** Modifier un texte/image dans l'admin ➔ Vérifier la mise à jour sur la vitrine (tester la revalidation ISR).
@@ -68,7 +311,7 @@ B-
   - [ ] Vérifier que le KPI a bien tracké la visite et la conversion.
   - [ ] Vérifier la réception de l'email côté agence et la notification dans l'admin.
 
-## 🟣 SPRINT 5 : Optimisation, SEO & Code Review (Production)
+## 🟣 B : Optimisation, SEO & Code Review (Production)
 *Objectif : Atteindre un score Lighthouse de 95+, un code propre et un référencement optimal.*
 
 - [ ] **Performance & Lighthouse :**
@@ -91,8 +334,8 @@ B-
 
 ---
 
-C-
-## 🎓 SPRINT 6 : Capitalisation, Documentation & Standardisation
+## SPRINT 3-Livraison Stratégique & Capitalisation Technique
+## 🎓 A: Capitalisation, Documentation & Standardisation
 *Objectif : Livrer un produit documenté au client, extraire des bases réutilisables (boilerplates) et figer les standards techniques pour faire monter l'équipe en compétence sur les futurs projets.*
 
 - [ ] **Documentation Client (Livrables finaux) :**
