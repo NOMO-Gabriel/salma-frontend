@@ -1,5 +1,5 @@
 Next.js Project Context
-Generated On: 2026-03-02 05:08:05
+Generated On: 2026-03-02 08:50:11
 Root: /home/gabriel/Documents/projets/AGT/SALMA/salma-frontend
 ===============================================
 
@@ -2882,12 +2882,12 @@ export default function AdminGroupLayout({ children }: { children: ReactNode }) 
 
 // FILE: src/app/error.tsx
 -----------------------------------------------
+// src/app/error.tsx
 "use client";
 
 import { useEffect } from "react";
-import { getDictionary } from "@/dictionaries";
-import { defaultLocale } from "@/config/i18n";
 import SalmaButton from "@/components/ui/SalmaButton";
+import { frLayout } from "@/dictionaries/data/static/layout/fr";
 
 export default function GlobalError({
   error,
@@ -2896,10 +2896,8 @@ export default function GlobalError({
   error: Error & { digest?: string };
   reset: () => void;
 }) {
-  // On utilise getDictionary directement car useLanguage peut échouer 
-  // si l'erreur vient du Provider lui-même.
-  const dict = getDictionary(defaultLocale);
-  const t = dict.errors.global;
+  // Utilisation directe du dictionnaire statique pour éviter tout texte en dur
+  const t = frLayout.errors.global;
 
   useEffect(() => {
     console.error("Crash SALMA:", error);
@@ -3199,8 +3197,8 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "SALMA — Agence de Voyage & Bourses d'études",
-  description: "Spécialiste des bourses d'études en Chine et en Allemagne.",
+  title: "SALMA — Bourses d'études & Mobilité Internationale",
+  description: "Spécialiste de l'accompagnement pour les bourses d'études en Chine et en Allemagne. Votre réussite est notre priorité.",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
@@ -3227,10 +3225,8 @@ import { defaultLocale } from "@/config/i18n";
 import SalmaButton from "@/components/ui/SalmaButton";
 
 export default function NotFound() {
-  // Note: En 404 globale, on utilise la langue par défaut 
-  // car le hook useLanguage n'est pas disponible ici (hors du provider)
   const dict = getDictionary(defaultLocale);
-  const { notFound: t } = dict.errors;
+  const t = dict.errors.notFound;
 
   return (
     <div className="min-h-[70vh] flex flex-col items-center justify-center text-center px-6">
@@ -9142,8 +9138,6 @@ export const frHome = {
 //  Structure mirrors NavContent exactly (nav.types.ts)
 // =============================================================================
 
-import { error } from "console";
-
 export const enLayout = {
   // ── Simple keys (Footer, Cookies, basic nav) ─────────────────────────────
   nav: {
@@ -12362,12 +12356,28 @@ export default function HeroSlide({ slide, animating }: Props) {
 -----------------------------------------------
 "use client";
 
+import { useEffect, useState } from "react";
 import Image from "next/image";
 import { useLanguage } from "@/hooks/useLanguage";
+import { cmsSwitcher } from "@/dictionaries/data/cms-switcher";
 import SalmaButton from "@/components/ui/SalmaButton";
+import type { HomeTexts } from "@/types";
 
 export default function Hero() {
-  const { dictionary } = useLanguage();
+  const { locale } = useLanguage();
+  const [content, setContent] = useState<HomeTexts | null>(null);
+
+  useEffect(() => {
+    cmsSwitcher.getScopeContent("home", locale).then((data) => {
+      setContent(data as HomeTexts);
+    });
+  }, [locale]);
+
+  if (!content) {
+    return <div className="min-h-[85vh] bg-white animate-pulse" />;
+  }
+
+  const { hero: t } = content;
 
   return (
     <section className="relative min-h-[85vh] flex items-center overflow-hidden bg-white dark:bg-salma-bg">
@@ -12377,37 +12387,36 @@ export default function Hero() {
         
         <div className="flex flex-col items-start space-y-6 animate-fade-in">
           <span className="px-4 py-1.5 rounded-full bg-salma-accent/10 text-salma-accent text-xs font-black uppercase tracking-widest border border-salma-accent/20">
-            {dictionary.hero.badge}
+            {t.badge}
           </span>
           
           <h1 className="text-4xl md:text-6xl font-serif font-bold leading-tight text-salma-primary dark:text-white">
-            {dictionary.hero.title}
+            {t.title}
           </h1>
           
           <p className="text-lg md:text-xl text-salma-text-muted max-w-lg leading-relaxed">
-            {dictionary.hero.description}
+            {t.description}
           </p>
 
           <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto pt-4">
             <SalmaButton variant="primary" size="lg">
-              {dictionary.hero.ctaPrimary}
+              {t.ctaPrimary}
             </SalmaButton>
             <SalmaButton variant="outline" size="lg">
-              {dictionary.hero.ctaSecondary}
+              {t.ctaSecondary}
             </SalmaButton>
           </div>
 
-          {/* Indicateur de confiance corrigé */}
           <div className="pt-8 flex items-center gap-4 border-t border-salma-border w-full">
             <div className="flex -space-x-3">
               {[1, 2, 3].map((i) => (
-                <div key={i} className="w-10 h-10 rounded-full border-2 border-white bg-gray-200 overflow-hidden">
-                   <Image src={`https://i.pravatar.cc/100?img=${i+10}`} width={40} height={40} alt="User" />
+                <div key={i} className="w-10 h-10 rounded-full border-2 border-white bg-gray-200 overflow-hidden relative">
+                   <Image src={`https://i.pravatar.cc/100?img=${i+10}`} fill alt="User" className="object-cover" />
                 </div>
               ))}
             </div>
             <p className="text-xs text-salma-text-muted font-medium">
-              <span className="text-salma-gold font-bold">{dictionary.hero.trustIndicator.count}</span> {dictionary.hero.trustIndicator.text}
+              <span className="text-salma-gold font-bold">{t.trustIndicator.count}</span> {t.trustIndicator.text}
             </p>
           </div>
         </div>
@@ -12416,19 +12425,18 @@ export default function Hero() {
           <div className="absolute inset-0 rounded-3xl overflow-hidden shadow-salma-lg border-8 border-white dark:border-salma-surface transform rotate-2">
             <Image 
               src="/agt_home.jpg" 
-              alt={dictionary.hero.imageAlt} 
+              alt={t.imageAlt} 
               fill 
               className="object-cover"
               priority
-               sizes="(max-width: 768px) 100vw, 50vw" 
+              sizes="(max-width: 768px) 100vw, 50vw" 
             />
           </div>
           
-          {/* Badge délai corrigé */}
           <div className="absolute -bottom-6 -left-6 bg-salma-gold p-6 rounded-2xl shadow-xl text-salma-primary max-w-[180px] -rotate-3">
-            <span className="block text-4xl font-bold">{dictionary.hero.visaBadge.number}</span>
+            <span className="block text-4xl font-bold">{t.visaBadge.number}</span>
             <span className="text-xs font-black uppercase tracking-tight leading-none">
-              {dictionary.hero.visaBadge.label}
+              {t.visaBadge.label}
             </span>
           </div>
         </div>
@@ -14365,6 +14373,8 @@ export * from "@/types/api/kpi.types";
 
 
 // pages
+// --- Home ---
+export * from "@/types/pages/home.types";
 
 // navbar
 export * from "@/types/pages/nav.types"
@@ -14498,6 +14508,55 @@ export interface HeroSlideData {
   scholarship: HeroScholarship;
 }
 // END OF FILE: src/types/pages/hero.types.ts
+
+// FILE: src/types/pages/home.types.ts
+-----------------------------------------------
+// src/types/pages/home.types.ts
+
+export interface HomeHeroTexts {
+  badge: string;
+  title: string;
+  description: string;
+  ctaPrimary: string;
+  ctaSecondary: string;
+  trustIndicator: {
+    count: string;
+    text: string;
+  };
+  imageAlt: string;
+  visaBadge: {
+    number: string;
+    label: string;
+  };
+}
+
+export interface HomeTexts {
+  hero: HomeHeroTexts;
+  trust: {
+    expertise: { title: string; desc: string };
+    speed: { title: string; desc: string };
+    guarantee: { title: string; desc: string };
+  };
+  stats: {
+    visas: { value: string; label: string };
+    partners: { value: string; label: string };
+    experience: { value: string; label: string };
+    satisfaction: { value: string; label: string };
+  };
+  featuredScholarships: {
+    title: string;
+    subtitle: string;
+    viewAll: string;
+  };
+  successStories: {
+    title: string;
+    subtitle: string;
+    description: string;
+    trustBadge: string;
+    verified: string;
+  };
+}
+// END OF FILE: src/types/pages/home.types.ts
 
 // FILE: src/types/pages/nav.types.ts
 -----------------------------------------------
@@ -14651,60 +14710,306 @@ export interface ServicesTexts {
 -----------------------------------------------
 # 🚀 ROADMAP DE STABILISATION — PROJET SALMA
 
-## 🟠 SPRINT 1 : Polish Frontend & Mécanisme CMS (Vitrine)
-*Objectif : Figer l'UI, assurer la cohérence de chaque page et préparer la transition vers le contenu dynamique.*
+## SPRINT 1 - Excellence Visuelle & Pilotage Métier
+C'est une erreur de ma part, je rectifie immédiatement. Voici la version intégrale et exhaustive du **SPRINT 1**, où chaque composant, chaque page et chaque répertoire de logique est décomposé selon tes critères de validation stricts.
 
-- [x] **Généralisation du `cmsSwitcher` :**
-  - [x] Créer les fichiers statiques finaux (`home`, `about`, `services`, `contact`, `footer`) dans `src/dictionaries/data/static/`. pour le moment avec le memes clés que ceux des dictionnaires actuels
-- [-] **Polissage systématique page par page  en incluant les appels directs à `dictionary.xxx` par `cmsSwitcher.getScopeContent(...)` dans tous les composants:**
-  - [ ] **Composants UI :** Audit des boutons, badges et cartes dans `src/components/ui/`.
-  - [-] **Page Accueil :** Nettoyage des sections Hero, Stats, TrustBar et Témoignages.
-  - [ ] **Page Catalogue :** Vérification des filtres et du squelette de chargement.
-  - [ ] **Page Services :** Harmonisation des cartes de services.
-  - [ ] **Page À Propos & Contact :** Vérification des textes et des champs de formulaire.
-- [ ] **Validation des remarques Client (UI/UX) :**
-  - [x] Changer la photo Hero de la page d'accueil (plus claire, haute qualité).
-  - [ ] Retirer définitivement "Travel Agency" de la Navbar et du Footer.
-  - [ ] Ajout des micro-animations (apparition au scroll, effets hover).
-- [ ] **Page Détail & Conversion :**
-  - [ ] Créer la page `/bourses/[id]/page.tsx` (Détail de la bourse).
-  - [ ] Appliquer le respect strict du `field_visibility`.
-  - [ ] Lier le bouton WhatsApp avec message pré-rempli dynamique.
-- [-] **Fiabilisation :**
-  - [x] Créer `not-found.tsx` et `error.tsx` (Error Boundaries).
-  - [ ] Audit Responsive complet (iPhone SE ➔ Desktop).
+---
 
-## 🔵 SPRINT 2 : Alignement Backend & Seeders
-*Objectif : Mettre à jour la base de données Django pour qu'elle corresponde exactement aux clés CMS définies au Sprint 1.*
+### 🟠 A : Polish Frontend & Excellence Ingénierie (Vitrine)
+*Objectif : Atteindre un niveau de finition "Premium" et une rigueur de code absolue sur l'ensemble du dossier `src`.*
 
-- [ ] **Mise à jour des Seeders Django (`seed.py`) :**
-  - [ ] Mettre à jour les `SitePage` et `ContentBlock` avec les clés exactes du frontend.
-  - [ ] Mettre à jour les `SiteConfig` (réseaux sociaux, téléphones, emails).
-  - [ ] Insérer les textes finaux validés en FR et EN.
-- [ ] **Test du Switcher :**
-  - [ ] Passer `NEXT_PUBLIC_STATIC_CONTENT=false` dans le `.env`.
-  - [ ] Vérifier que le frontend affiche correctement les données venant de l'API sans casser l'UI.
+- [x] **1.1 Préparation du terrain & Stabilisation du Build**
+  - [x] Généralisation du `cmsSwitcher` et suppression des anciens dictionnaires.
+  - [x] Nettoyage des métadonnées et correction des erreurs de build/ESLint.
+  - [x] Mise en place des Error Boundaries (`not-found`, `error`) typées.
 
-## 🟡 SPRINT 3 : Dashboard Admin & Intégrations Externes
-*Objectif : Rendre l'admin 100% fonctionnel pour le client et brancher les services tiers.*
+- [ ] **1.2 Audit & Polish des Composants Atomiques (`src/components/ui/`)**
+  - [ ] **`SalmaButton.tsx`**
+    - [ ] Design (UI/UX, animations, hover)
+    - [ ] Séparation des responsabilités
+    - [ ] Respect de l'architecture (Switcher, Types)
+    - [ ] Responsive (Mobile-first)
+    - [ ] Modularité et réutilisabilité
+    - [ ] JSDoc (Documentation pro)
+  - [ ] **`SalmaBadge.tsx`**
+    - [ ] Design (UI/UX, animations, hover)
+    - [ ] Séparation des responsabilités
+    - [ ] Respect de l'architecture (Switcher, Types)
+    - [ ] Responsive (Mobile-first)
+    - [ ] Modularité et réutilisabilité
+    - [ ] JSDoc (Documentation pro)
+  - [ ] **`SectionTitle.tsx`**
+    - [ ] Design (UI/UX, animations, hover)
+    - [ ] Séparation des responsabilités
+    - [ ] Respect de l'architecture (Switcher, Types)
+    - [ ] Responsive (Mobile-first)
+    - [ ] Modularité et réutilisabilité
+    - [ ] JSDoc (Documentation pro)
+  - [ ] **`ScholarshipCard.tsx`**
+    - [ ] Design (UI/UX, animations, hover)
+    - [ ] Séparation des responsabilités
+    - [ ] Respect de l'architecture (Switcher, Types)
+    - [ ] Responsive (Mobile-first)
+    - [ ] Modularité et réutilisabilité
+    - [ ] JSDoc (Documentation pro)
+  - [ ] **`NewsletterForm.tsx`**
+    - [ ] Design (UI/UX, animations, hover)
+    - [ ] Séparation des responsabilités
+    - [ ] Respect de l'architecture (Switcher, Types)
+    - [ ] Responsive (Mobile-first)
+    - [ ] Modularité et réutilisabilité
+    - [ ] JSDoc (Documentation pro)
+  - [ ] **`ThemeSwitcher.tsx`**
+    - [ ] Design (UI/UX, animations, hover)
+    - [ ] Séparation des responsabilités
+    - [ ] Respect de l'architecture (Switcher, Types)
+    - [ ] Responsive (Mobile-first)
+    - [ ] Modularité et réutilisabilité
+    - [ ] JSDoc (Documentation pro)
+  - [ ] **`LanguageSwitcher.tsx`**
+    - [ ] Design (UI/UX, animations, hover)
+    - [ ] Séparation des responsabilités
+    - [ ] Respect de l'architecture (Switcher, Types)
+    - [ ] Responsive (Mobile-first)
+    - [ ] Modularité et réutilisabilité
+    - [ ] JSDoc (Documentation pro)
+  - [ ] **`MapPreview.tsx`**
+    - [ ] Design (UI/UX, animations, hover)
+    - [ ] Séparation des responsabilités
+    - [ ] Respect de l'architecture (Switcher, Types)
+    - [ ] Responsive (Mobile-first)
+    - [ ] Modularité et réutilisabilité
+    - [ ] JSDoc (Documentation pro)
 
-- [ ] **Module CMS & Médias :**
-  - [ ] Créer la page Admin CMS : formulaires pour éditer les blocs de texte et changer les images.
-  - [ ] Créer la page Admin Médias : upload d'images, suppression, copie d'URL.
-- [ ] **Module Contacts & Newsletter :**
-  - [ ] Créer la page Admin Contacts : tableau des leads, marquer comme lu, ajouter des notes.
-  - [ ] Créer la page Admin Newsletter : liste des abonnés.
-- [ ] **Module Témoignages :**
-  - [ ] Créer la page Admin Témoignages : approuver/rejeter pour affichage public.
-- [ ] **Module KPI & Analytics :**
-  - [ ] Créer la page Admin KPI : graphiques de visites, taux de conversion, bourses les plus vues.
-- [ ] **Intégrations Externes (Backend) :**
-  - [ ] **Gemini API :** Brancher l'API Google Gemini sur l'endpoint Chatbot de Django (en utilisant les FAQ de la BD comme contexte).
-  - [ ] **Emails :** Configurer SMTP (SendGrid ou Mailjet) dans Django pour notifier l'agence lors d'une prise de RDV.
-- [ ] **Anti-Spam (Sécurité) :** Intégrer Cloudflare Turnstile ou Google reCAPTCHA v3 (invisible) sur les formulaires de Contact et Newsletter.
-  - [ ] **Rate Limiting :** Configurer un throttle sur Django (ex: max 5 requêtes/min sur `/api/contact`) pour éviter les attaques DDoS.
+- [ ] **1.3 Audit & Polish du Layout et des Widgets Globaux**
+  - [ ] **`Navbar.tsx` & `MobileMenu.tsx`**
+    - [ ] Design (UI/UX, animations, hover)
+    - [ ] Séparation des responsabilités
+    - [ ] Respect de l'architecture (Switcher, Types)
+    - [ ] Responsive (Mobile-first)
+    - [ ] Modularité et réutilisabilité
+    - [ ] JSDoc (Documentation pro)
+  - [ ] **`Footer.tsx`**
+    - [ ] Design (UI/UX, animations, hover)
+    - [ ] Séparation des responsabilités
+    - [ ] Respect de l'architecture (Switcher, Types)
+    - [ ] Responsive (Mobile-first)
+    - [ ] Modularité et réutilisabilité
+    - [ ] JSDoc (Documentation pro)
+  - [ ] **`WhatsAppButton.tsx`**
+    - [ ] Design (UI/UX, animations, hover)
+    - [ ] Séparation des responsabilités
+    - [ ] Respect de l'architecture (Switcher, Types)
+    - [ ] Responsive (Mobile-first)
+    - [ ] Modularité et réutilisabilité
+    - [ ] JSDoc (Documentation pro)
+  - [ ] **`ChatbotWidget.tsx`**
+    - [ ] Design (UI/UX, animations, hover)
+    - [ ] Séparation des responsabilités (Fallback statique complet)
+    - [ ] Respect de l'architecture (Switcher, Types)
+    - [ ] Responsive (Mobile-first)
+    - [ ] Modularité et réutilisabilité
+    - [ ] JSDoc (Documentation pro)
+  - [ ] **`CookieBanner.tsx`**
+    - [ ] Design (UI/UX, animations, hover)
+    - [ ] Séparation des responsabilités
+    - [ ] Respect de l'architecture (Switcher, Types)
+    - [ ] Responsive (Mobile-first)
+    - [ ] Modularité et réutilisabilité
+    - [ ] JSDoc (Documentation pro)
 
-## 🟢 SPRINT 4 : Tests End-to-End (Dynamisme & Temps Réel)
+- [ ] **1.4 Audit & Polish des Sections de la Page d'Accueil (`src/sections/visitor/`)**
+  - [ ] **`HeroCarousel.tsx`**
+    - [ ] Design (UI/UX, animations, hover)
+    - [ ] Séparation des responsabilités
+    - [ ] Respect de l'architecture (Switcher, Types)
+    - [ ] Responsive (Mobile-first)
+    - [ ] Modularité et réutilisabilité
+    - [ ] JSDoc (Documentation pro)
+  - [ ] **`TrustBar.tsx`**
+    - [ ] Design (UI/UX, animations, hover)
+    - [ ] Séparation des responsabilités
+    - [ ] Respect de l'architecture (Switcher, Types)
+    - [ ] Responsive (Mobile-first)
+    - [ ] Modularité et réutilisabilité
+    - [ ] JSDoc (Documentation pro)
+  - [ ] **`StatsCounter.tsx`**
+    - [ ] Design (UI/UX, animations, hover)
+    - [ ] Séparation des responsabilités
+    - [ ] Respect de l'architecture (Switcher, Types)
+    - [ ] Responsive (Mobile-first)
+    - [ ] Modularité et réutilisabilité
+    - [ ] JSDoc (Documentation pro)
+  - [ ] **`FeaturedScholarships.tsx`**
+    - [ ] Design (UI/UX, animations, hover)
+    - [ ] Séparation des responsabilités
+    - [ ] Respect de l'architecture (Switcher, Types)
+    - [ ] Responsive (Mobile-first)
+    - [ ] Modularité et réutilisabilité
+    - [ ] JSDoc (Documentation pro)
+  - [ ] **`SuccessStories.tsx`**
+    - [ ] Design (UI/UX, animations, hover)
+    - [ ] Séparation des responsabilités
+    - [ ] Respect de l'architecture (Switcher, Types)
+    - [ ] Responsive (Mobile-first)
+    - [ ] Modularité et réutilisabilité
+    - [ ] JSDoc (Documentation pro)
+  - [ ] **`VideoTestimonial.tsx`**
+    - [ ] Design (UI/UX, animations, hover)
+    - [ ] Séparation des responsabilités
+    - [ ] Respect de l'architecture (Switcher, Types)
+    - [ ] Responsive (Mobile-first)
+    - [ ] Modularité et réutilisabilité
+    - [ ] JSDoc (Documentation pro)
+  - [ ] **`LocationSection.tsx`**
+    - [ ] Design (UI/UX, animations, hover)
+    - [ ] Séparation des responsabilités
+    - [ ] Respect de l'architecture (Switcher, Types)
+    - [ ] Responsive (Mobile-first)
+    - [ ] Modularité et réutilisabilité
+    - [ ] JSDoc (Documentation pro)
+
+- [ ] **1.5 Audit & Polish des Pages de Navigation**
+  - [ ] **`Accueil (page.tsx)`**
+    - [ ] Design (UI/UX, animations, hover)
+    - [ ] Séparation des responsabilités
+    - [ ] Respect de l'architecture (Switcher, Types)
+    - [ ] Responsive (Mobile-first)
+    - [ ] Modularité et réutilisabilité
+    - [ ] JSDoc (Documentation pro)
+  - [ ] **`Catalogue (Bourses)`**
+    - [ ] Design (UI/UX, animations, hover)
+    - [ ] Séparation des responsabilités
+    - [ ] Respect de l'architecture (Switcher, Types)
+    - [ ] Responsive (Mobile-first)
+    - [ ] Modularité et réutilisabilité
+    - [ ] JSDoc (Documentation pro)
+  - [ ] **`Détail Bourse`**
+    - [ ] Design (UI/UX, animations, hover)
+    - [ ] Séparation des responsabilités (Respect strict `field_visibility`)
+    - [ ] Respect de l'architecture (Switcher, Types)
+    - [ ] Responsive (Mobile-first)
+    - [ ] Modularité et réutilisabilité
+    - [ ] JSDoc (Documentation pro)
+  - [ ] **`Services`**
+    - [ ] Design (UI/UX, animations, hover)
+    - [ ] Séparation des responsabilités
+    - [ ] Respect de l'architecture (Switcher, Types)
+    - [ ] Responsive (Mobile-first)
+    - [ ] Modularité et réutilisabilité
+    - [ ] JSDoc (Documentation pro)
+  - [ ] **`À Propos`**
+    - [ ] Design (UI/UX, animations, hover)
+    - [ ] Séparation des responsabilités
+    - [ ] Respect de l'architecture (Switcher, Types)
+    - [ ] Responsive (Mobile-first)
+    - [ ] Modularité et réutilisabilité
+    - [ ] JSDoc (Documentation pro)
+  - [ ] **`Contact`**
+    - [ ] Design (UI/UX, animations, hover)
+    - [ ] Séparation des responsabilités
+    - [ ] Respect de l'architecture (Switcher, Types)
+    - [ ] Responsive (Mobile-first)
+    - [ ] Modularité et réutilisabilité
+    - [ ] JSDoc (Documentation pro)
+  - [ ] **`Politique de Confidentialité`**
+    - [ ] Design (UI/UX, animations, hover)
+    - [ ] Séparation des responsabilités
+    - [ ] Respect de l'architecture (Switcher, Types)
+    - [ ] Responsive (Mobile-first)
+    - [ ] Modularité et réutilisabilité
+    - [ ] JSDoc (Documentation pro)
+
+- [ ] **1.6 Audit de la Logique et de l'Infrastructure (`src/` par répertoire)**
+  - [ ] **`hooks/`**
+    - [ ] Clarté du code
+    - [ ] Commentaires professionnels
+    - [ ] Modularité et réutilisabilité
+  - [ ] **`repositories/`**
+    - [ ] Clarté du code
+    - [ ] Commentaires professionnels
+    - [ ] Modularité et réutilisabilité
+  - [ ] **`lib/`**
+    - [ ] Clarté du code
+    - [ ] Commentaires professionnels
+    - [ ] Modularité et réutilisabilité
+  - [ ] **`contexts/`**
+    - [ ] Clarté du code
+    - [ ] Commentaires professionnels
+    - [ ] Modularité et réutilisabilité
+  - [ ] **`config/`**
+    - [ ] Clarté du code
+    - [ ] Commentaires professionnels
+    - [ ] Modularité et réutilisabilité
+  - [ ] **`dictionaries/`**
+    - [ ] Clarté du code
+    - [ ] Commentaires professionnels
+    - [ ] Modularité et réutilisabilité
+  - [ ] **`types/`**
+    - [ ] Clarté du code
+    - [ ] Commentaires professionnels
+    - [ ] Modularité et réutilisabilité
+
+---
+
+### 🔵 B : Dashboard Admin & Intégration API (Développeur Frontend 2)
+*Objectif : Rendre le dashboard 100% opérationnel (Liaison API) puis appliquer l'excellence UI/UX.*
+
+- [ ] **1.3 Intégration Backend & Liaison API (Fonctionnel First)**
+  - [ ] **Module Bourses** (Liaison CRUD & Duplication)
+  - [ ] **Module CMS** (Édition Pages, Blocs, Config, Vidéos)
+  - [ ] **Module Contacts & RDV** (Lecture, Marquage lu, Notes admin)
+  - [ ] **Module Newsletter** (Gestion abonnés & Envoi annonces)
+  - [ ] **Module Témoignages** (Approbation & Modération)
+  - [ ] **Module Chatbot / FAQ** (Gestion de la base de connaissances)
+  - [ ] **Module KPI & Analytics** (Récupération des snapshots & temps réel)
+  - [ ] **Module Médiathèque** (Upload, Suppression, Copie lien)
+  - [ ] **Tests fonctionnels & Débogage** (Validation des flux de données)
+
+- [ ] **1.4 Audit & Polish (Appliqué à chaque module ci-dessus)**
+  - [ ] Design (UI/UX, animations, hover cohérents avec la vitrine)
+  - [ ] Séparation des responsabilités
+  - [ ] Respect de l'architecture (Repositories, Types)
+  - [ ] Responsive (Tablette & Desktop)
+  - [ ] Modularité et réutilisabilité
+  - [ ] JSDoc (Documentation pro)
+
+---
+
+### 🟡 C : Ingénierie Backend & Services Externes (Développeur Backend)
+*Objectif : Automatiser les services tiers, valider la donnée et certifier la qualité du code.*
+
+- [ ] **1.5 Intégration des Services Externes (Priorité Matinale)**
+  - [ ] **Gemini API** (Logique de réponse contextuelle via FAQ)
+  - [ ] **SMTP / Emails** (Flux de notifications automatiques pour l'agence)
+  - [ ] **Anti-Spam** (Intégration Turnstile/reCAPTCHA v3 sur les endpoints)
+  - [ ] **Rate Limiting** (Sécurisation des quotas par IP)
+
+- [ ] **1.6 Tests Unitaires & Débogage Complet (App par App)**
+  - [ ] **App Authentication** (JWT, Permissions, Roles)
+  - [ ] **App Medias** (Stockage, Nettoyage fichiers orphelins)
+  - [ ] **App Scholarships** (Logique métier, Visibilité dynamique)
+  - [ ] **App CMS** (Intégrité des blocs et configurations)
+  - [ ] **App Services** (Gestion des prestations AGT)
+  - [ ] **App Contacts** (Validation des entrées, Liaison bourses)
+  - [ ] **App Newsletter** (Logique d'inscription et file d'attente d'envoi)
+  - [ ] **App Testimonials** (Workflow de modération)
+  - [ ] **App Chatbot** (Recherche vectorielle ou par mots-clés)
+  - [ ] **App KPI** (Agrégation des snapshots quotidiens)
+
+- [ ] **1.7 Audit Qualité & Alignement (Appliqué à chaque App ci-dessus)**
+  - [ ] Logique métier (Fat Models / Thin Views)
+  - [ ] Séparation des responsabilités
+  - [ ] Respect de l'architecture (Serializers, Viewsets)
+  - [ ] Modularité et propreté du code
+  - [ ] Python Docstrings (Documentation pro)
+  - [ ] Alignement des Seeders (Synchronisation finale des clés avec le Frontend)
+
+---
+
+
+## SPRINT 2 -Performance, Fiabilité & Validation Client
+## 🟢 A : Tests End-to-End (Dynamisme & Temps Réel)
 *Objectif : Se mettre dans la peau du client (Admin) et du prospect (Visiteur) pour traquer les bugs.*
 
 - [ ] **Test CMS :** Modifier un texte/image dans l'admin ➔ Vérifier la mise à jour sur la vitrine (tester la revalidation ISR).
@@ -14716,7 +15021,7 @@ export interface ServicesTexts {
   - [ ] Vérifier que le KPI a bien tracké la visite et la conversion.
   - [ ] Vérifier la réception de l'email côté agence et la notification dans l'admin.
 
-## 🟣 SPRINT 5 : Optimisation, SEO & Code Review (Production)
+## 🟣 B : Optimisation, SEO & Code Review (Production)
 *Objectif : Atteindre un score Lighthouse de 95+, un code propre et un référencement optimal.*
 
 - [ ] **Performance & Lighthouse :**
@@ -14738,7 +15043,9 @@ export interface ServicesTexts {
   - [ ] S'assurer que le tracking KPI respecte le choix de la bannière de cookies.
 
 ---
-## 🎓 SPRINT 6 : Capitalisation, Documentation & Standardisation
+
+## SPRINT 3-Livraison Stratégique & Capitalisation Technique
+## 🎓 A: Capitalisation, Documentation & Standardisation
 *Objectif : Livrer un produit documenté au client, extraire des bases réutilisables (boilerplates) et figer les standards techniques pour faire monter l'équipe en compétence sur les futurs projets.*
 
 - [ ] **Documentation Client (Livrables finaux) :**
