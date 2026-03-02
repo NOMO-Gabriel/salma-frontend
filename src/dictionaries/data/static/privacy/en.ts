@@ -33,13 +33,17 @@ export const enPrivacy = {
       {
         id: "rights",
         title: "6. Your Rights",
-        content: "In accordance with current regulations, you have the right to access, rectify, port, and delete your data. You can exercise these rights at any time by writing to: secretariatagtechnologies@gmail.com."
+        content: "In accordance with current regulations, you have the right to access, rectify, port, and delete your data. You can exercise these rights at any time by writing to the address below."
       },
       {
         id: "security",
         title: "7. Security",
         content: "We implement technical (SSL encryption) and organizational measures to protect your data against unauthorized access or accidental loss."
       }
-    ]
+    ],
+    footer: {
+      text: "For any questions regarding your data:",
+      email: "secretariatagtechnologies@gmail.com"
+    }
   }
 };

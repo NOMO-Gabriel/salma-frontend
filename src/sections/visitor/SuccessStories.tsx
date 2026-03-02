@@ -14,6 +14,7 @@ import SectionTitle from "@/components/ui/SectionTitle";
 import { cmsSwitcher } from "@/dictionaries/data/cms-switcher";
 import { getMediaUrl } from "@/lib/api-client";
 import type { TestimonialPublic } from "@/types/api/testimonial.types";
+import { HomeTexts } from "@/types";
 
 // --- Types ---
 interface SuccessStoriesTexts {
@@ -69,9 +70,10 @@ export default function SuccessStories({ testimonials }: Props) {
 
   // 1. Chargement sécurisé via cmsSwitcher
   useEffect(() => {
-    cmsSwitcher.getScopeContent("home", locale).then((data) => {
-      const s = data.successStories as SuccessStoriesTexts;
-      if (s) setTexts(s);
+    cmsSwitcher.getScopeContent<HomeTexts>("home", locale).then((data) => {
+      if (data.successStories) {
+        setTexts(data.successStories);
+      }
     });
   }, [locale]);
 

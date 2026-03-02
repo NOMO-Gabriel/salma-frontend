@@ -1,7 +1,6 @@
 // src/dictionaries/data/cms-switcher.ts
 // ==============================================================================
-//  Switcher intelligent de contenu avec Fallback de sécurité
-//  Gère le basculement entre Fichiers Statiques et API Django
+//  Switcher intelligent de contenu avec Généricité TypeScript
 // ==============================================================================
 
 import { cmsPublicRepository } from "@/repositories/cms.repository";
@@ -15,7 +14,7 @@ import { frServices } from "./static/services/fr";
 import { frAbout } from "./static/about/fr";
 import { frContact } from "./static/contact/fr";
 import { frPrivacy } from "./static/privacy/fr";
-
+import { frCommon } from "./static/common/fr"; // Ajouté
 
 // Imports des fichiers statiques (EN)
 import { enLayout } from "./static/layout/en";
@@ -25,16 +24,12 @@ import { enServices } from "./static/services/en";
 import { enAbout } from "./static/about/en";
 import { enContact } from "./static/contact/en";
 import { enPrivacy } from "./static/privacy/en";
+import { enCommon } from "./static/common/en"; // Ajouté
 
-// Types des scopes autorisés
-export type CmsScope = "layout" | "home" | "bourses" | "services" | "contact" | "about" | "privacy";
+// Ajout de "common" dans l'union CmsScope
+export type CmsScope = "layout" | "home" | "bourses" | "services" | "contact" | "about" | "privacy" | "common";
 
-// On définit un type générique pour le contenu pour éviter le "any"
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-type DictionaryContent = Record<string, any>;
-
-// Registre central des contenus statiques
-const staticRegistry: Record<Locale, Record<CmsScope, DictionaryContent>> = {
+const staticRegistry: Record<Locale, Record<CmsScope, unknown>> = {
   fr: {
     layout: frLayout,
     home: frHome,
@@ -43,6 +38,7 @@ const staticRegistry: Record<Locale, Record<CmsScope, DictionaryContent>> = {
     about: frAbout,
     contact: frContact,
     privacy: frPrivacy,
+    common: frCommon, // Enregistré
   },
   en: {
     layout: enLayout,
@@ -52,37 +48,28 @@ const staticRegistry: Record<Locale, Record<CmsScope, DictionaryContent>> = {
     about: enAbout,
     contact: enContact,
     privacy: enPrivacy,
+    common: enCommon, // Enregistré
   }
 };
 
 export const cmsSwitcher = {
-  /**
-   * Récupère le contenu d'un scope spécifique.
-   * RÈGLE : Si NEXT_PUBLIC_STATIC_CONTENT=true ou si l'API échoue -> Retourne le statique.
-   */
-  getScopeContent: async (scope: CmsScope, locale: Locale): Promise<DictionaryContent> => {
+  getScopeContent: async <T>(scope: CmsScope, locale: Locale): Promise<T> => {
     const isStaticMode = process.env.NEXT_PUBLIC_STATIC_CONTENT === 'true';
-    const fallbackData = staticRegistry[locale][scope];
+    const fallbackData = staticRegistry[locale][scope] as T;
 
-    // 1. Si on est en mode statique forcé
-    if (isStaticMode) {
-      return fallbackData;
-    }
+    if (isStaticMode) return fallbackData;
 
-    // 2. Tentative de récupération via l'API (Prod)
     try {
+      // Pour "common" et "layout", on utilise toujours le statique pour le moment
+      // car ce sont des structures complexes non gérées par le CMS par blocs.
+      if (scope === "common" || scope === "layout") return fallbackData;
+
       const pageData = await cmsPublicRepository.getPageBySlug(scope);
-      
-      if (!pageData || !pageData.blocs) {
+      if (!pageData || !pageData.blocs || pageData.blocs.length === 0) {
         return fallbackData;
       }
-
-      // TODO: Implémenter le mapping API -> Dictionnaire ici quand les clés seront synchronisées
       return fallbackData; 
-
     } catch {
-      // Suppression de (_error) car il n'est pas utilisé
-      console.warn(`[CMS Switcher] Serveur indisponible pour le scope "${scope}". Utilisation du fallback.`);
       return fallbackData;
     }
   }

@@ -33,13 +33,17 @@ export const frPrivacy = {
       {
         id: "rights",
         title: "6. Vos Droits",
-        content: "Conformément aux réglementations en vigueur, vous disposez d'un droit d'accès, de rectification, de portabilité et de suppression de vos données. Vous pouvez exercer ces droits à tout moment en nous écrivant à : secretariatagtechnologies@gmail.com."
+        content: "Conformément aux réglementations en vigueur, vous disposez d'un droit d'accès, de rectification, de portabilité et de suppression de vos données. Vous pouvez exercer ces droits à tout moment en nous écrivant à l'adresse ci-dessous."
       },
       {
         id: "security",
         title: "7. Sécurité",
         content: "Nous mettons en œuvre des mesures techniques (chiffrement SSL) et organisationnelles pour protéger vos données contre tout accès non autorisé ou perte accidentelle."
       }
-    ]
+    ],
+    footer: {
+      text: "Pour toute question relative à vos données :",
+      email: "secretariatagtechnologies@gmail.com"
+    }
   }
 };

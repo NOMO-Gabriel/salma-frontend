@@ -228,4 +228,8 @@ nav_home: {
       helpText: "Need help? Contact us on WhatsApp!",
     }
   },
+  common: {
+  loading: "Loading...",
+  error: "An error occurred",
+},
 };

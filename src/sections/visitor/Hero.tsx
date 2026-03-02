@@ -12,8 +12,8 @@ export default function Hero() {
   const [content, setContent] = useState<HomeTexts | null>(null);
 
   useEffect(() => {
-    cmsSwitcher.getScopeContent("home", locale).then((data) => {
-      setContent(data as HomeTexts);
+    cmsSwitcher.getScopeContent<HomeTexts>("home", locale).then((data) => {
+      setContent(data);
     });
   }, [locale]);
 

@@ -11,8 +11,8 @@ export default function ServicesPage() {
   const [content, setContent] = useState<ServicesTexts | null>(null);
 
   useEffect(() => {
-    cmsSwitcher.getScopeContent("services", locale).then(data => {
-      setContent(data as ServicesTexts);
+    cmsSwitcher.getScopeContent<ServicesTexts>("services", locale).then(data => {
+      setContent(data);
     });
   }, [locale]);
 

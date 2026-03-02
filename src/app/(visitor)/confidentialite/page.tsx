@@ -5,7 +5,6 @@ import { useLanguage } from "@/hooks/useLanguage";
 import { cmsSwitcher } from "@/dictionaries/data/cms-switcher";
 import SectionTitle from "@/components/ui/SectionTitle";
 
-// --- Définition des types pour TypeScript ---
 interface PrivacySection {
   id: string;
   title: string;
@@ -18,26 +17,33 @@ interface PrivacyContent {
   lastUpdated: string;
   intro: string;
   sections: PrivacySection[];
+  footer: {
+    text: string;
+    email: string;
+  };
+}
+
+interface PrivacyScope {
+  privacyPage: PrivacyContent;
 }
 
 export default function PrivacyPage() {
-  const { locale } = useLanguage();
-  // Utilisation du type PrivacyContent au lieu de any
+  const { locale, dictionary } = useLanguage();
   const [content, setContent] = useState<PrivacyContent | null>(null);
 
   useEffect(() => {
-    cmsSwitcher.getScopeContent("privacy", locale).then((data) => {
-      // On cast la réponse vers notre interface
+    cmsSwitcher.getScopeContent<PrivacyScope>("privacy", locale).then((data) => {
       if (data && data.privacyPage) {
-        setContent(data.privacyPage as PrivacyContent);
+        setContent(data.privacyPage);
       }
     });
   }, [locale]);
 
+  // Utilisation du texte i18n pour le chargement
   if (!content) {
     return (
       <div className="py-20 bg-salma-bg min-h-screen flex items-center justify-center">
-        <div className="animate-pulse text-salma-text-muted">Chargement...</div>
+        <div className="animate-pulse text-salma-text-muted">{dictionary.common.loading}</div>
       </div>
     );
   }
@@ -72,9 +78,12 @@ export default function PrivacyPage() {
 
           <footer className="mt-16 pt-8 border-t border-salma-border text-center">
             <p className="text-sm text-salma-text-muted">
-              Pour toute question relative à vos données : 
-              <a href="mailto:secretariatagtechnologies@gmail.com" className="text-salma-primary dark:text-salma-gold font-bold ml-1 hover:underline">
-                secretariatagtechnologies@gmail.com
+              {content.footer.text}
+              <a 
+                href={`mailto:${content.footer.email}`} 
+                className="text-salma-primary dark:text-salma-gold font-bold ml-1 hover:underline"
+              >
+                {content.footer.email}
               </a>
             </p>
           </footer>

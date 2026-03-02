@@ -8,16 +8,21 @@ import SectionTitle from "@/components/ui/SectionTitle";
 import type { ContactPageContent, FaqItem } from "@/types";
 
 export default function ContactPage() {
-  const { locale } = useLanguage();
+  const { locale, dictionary } = useLanguage();
   const [content, setContent] = useState<ContactPageContent | null>(null);
 
   useEffect(() => {
-    cmsSwitcher.getScopeContent("contact", locale).then(data => {
-      setContent(data as ContactPageContent);
+    // Correction : Ajout du type générique <ContactPageContent>
+    cmsSwitcher.getScopeContent<ContactPageContent>("contact", locale).then(data => {
+      setContent(data);
     });
   }, [locale]);
 
-  if (!content) return <div className="min-h-screen bg-salma-bg animate-pulse" />;
+  if (!content) return (
+    <div className="min-h-screen bg-salma-bg flex items-center justify-center animate-pulse text-salma-text-muted">
+      {dictionary.common.loading}
+    </div>
+  );
 
   return (
     <div className="bg-salma-bg min-h-screen">

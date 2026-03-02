@@ -6,8 +6,9 @@ import { cmsSwitcher } from "@/dictionaries/data/cms-switcher";
 import SectionTitle from "@/components/ui/SectionTitle";
 import MapPreview from "@/components/ui/MapPreview";
 import SalmaButton from "@/components/ui/SalmaButton";
+import type { NavContent } from "@/types";
 
-// --- Interfaces pour le Build ---
+// --- Interfaces locales ---
 interface LocationContent {
   title: string;
   subtitle: string;
@@ -20,32 +21,33 @@ interface LocationContent {
   cta_whatsapp: string;
 }
 
-interface ContactLayout {
-  address: string;
-  phones: string;
-  email: string;
+interface AboutScope {
+  aboutPage: {
+    location: LocationContent;
+  };
 }
 
 export default function LocationSection() {
   const { locale } = useLanguage();
   const [content, setContent] = useState<LocationContent | null>(null);
-  const [layout, setLayout] = useState<ContactLayout | null>(null);
+  const [layout, setLayout] = useState<NavContent | null>(null);
 
   useEffect(() => {
     Promise.all([
-      cmsSwitcher.getScopeContent("about", locale),
-      cmsSwitcher.getScopeContent("layout", locale)
+      cmsSwitcher.getScopeContent<AboutScope>("about", locale),
+      cmsSwitcher.getScopeContent<NavContent>("layout", locale)
     ]).then(([aboutData, layoutData]) => {
       if (aboutData?.aboutPage?.location && layoutData?.footer?.contact) {
-        setContent(aboutData.aboutPage.location as LocationContent);
-        setLayout(layoutData.footer.contact as ContactLayout);
+        setContent(aboutData.aboutPage.location);
+        setLayout(layoutData);
       }
     });
   }, [locale]);
 
   if (!content || !layout) return null;
 
-  const firstPhone = layout.phones.split('/')[0].trim();
+  const contact = layout.footer.contact;
+  const firstPhone = contact.phones.split('/')[0].trim();
 
   return (
     <section className="py-24 bg-salma-surface/30 dark:bg-salma-surface/5">
@@ -64,7 +66,7 @@ export default function LocationSection() {
                   {content.address_label}
                 </span>
                 <p className="text-salma-primary dark:text-white font-serif font-bold text-lg">
-                  {layout.address}
+                  {contact.address}
                 </p>
               </div>
               <div className="space-y-2">
@@ -91,7 +93,8 @@ export default function LocationSection() {
             </div>
           </div>
 
-          <MapPreview address={layout.address} label={content.cta_maps} />
+          {/* Utilisation des labels typés depuis le layout */}
+          <MapPreview address={contact.address} labels={layout.widgets.mapPreview} />
         </div>
       </div>
     </section>

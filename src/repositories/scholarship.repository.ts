@@ -164,16 +164,19 @@ export const scholarshipAdminRepository = {
     return api.patch(`${ADMIN}/${bourseId}/visibilites/${champId}`, payload);
   },
 
-  /**
+/**
    * POST /api/admin/bourses/{id}/visibilites/bulk
    * Mettre à jour plusieurs visibilités d'un coup
    */
- bulkUpdateVisibility: (
-  bourseId: string,
-  visibilities: UpdateFieldVisibilityPayload[]
-): Promise<void> => { // Ajoute le type de retour ici
-  return api.post<void>(`${ADMIN}/${bourseId}/visibilites/bulk`, { visibilities: visibilities });
-},
+  bulkUpdateVisibility: (
+    bourseId: string,
+    visibilities: UpdateFieldVisibilityPayload[]
+  ): Promise<void> => {
+    // Ajout de <void> pour indiquer que l'API ne retourne pas de corps de réponse
+    return api.post<void>(`${ADMIN}/${bourseId}/visibilites/bulk`, { 
+      visibilities: visibilities 
+    });
+  },
 
   // --- Images ---------------------------------------------------------------
 

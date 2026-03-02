@@ -13,63 +13,63 @@ C'est une erreur de ma part, je rectifie immédiatement. Voici la version intég
   - [x] Nettoyage des métadonnées et correction des erreurs de build/ESLint.
   - [x] Mise en place des Error Boundaries (`not-found`, `error`) typées.
 
-- [ ] **1.2 Audit & Polish des Composants Atomiques (`src/components/ui/`)**
-  - [ ] **`SalmaButton.tsx`**
-    - [ ] Design (UI/UX, animations, hover)
-    - [ ] Séparation des responsabilités
-    - [ ] Respect de l'architecture (Switcher, Types)
-    - [ ] Responsive (Mobile-first)
-    - [ ] Modularité et réutilisabilité
-    - [ ] JSDoc (Documentation pro)
-  - [ ] **`SalmaBadge.tsx`**
-    - [ ] Design (UI/UX, animations, hover)
-    - [ ] Séparation des responsabilités
-    - [ ] Respect de l'architecture (Switcher, Types)
-    - [ ] Responsive (Mobile-first)
-    - [ ] Modularité et réutilisabilité
-    - [ ] JSDoc (Documentation pro)
-  - [ ] **`SectionTitle.tsx`**
-    - [ ] Design (UI/UX, animations, hover)
-    - [ ] Séparation des responsabilités
-    - [ ] Respect de l'architecture (Switcher, Types)
-    - [ ] Responsive (Mobile-first)
-    - [ ] Modularité et réutilisabilité
-    - [ ] JSDoc (Documentation pro)
-  - [ ] **`ScholarshipCard.tsx`**
-    - [ ] Design (UI/UX, animations, hover)
-    - [ ] Séparation des responsabilités
-    - [ ] Respect de l'architecture (Switcher, Types)
-    - [ ] Responsive (Mobile-first)
-    - [ ] Modularité et réutilisabilité
-    - [ ] JSDoc (Documentation pro)
-  - [ ] **`NewsletterForm.tsx`**
-    - [ ] Design (UI/UX, animations, hover)
-    - [ ] Séparation des responsabilités
-    - [ ] Respect de l'architecture (Switcher, Types)
-    - [ ] Responsive (Mobile-first)
-    - [ ] Modularité et réutilisabilité
-    - [ ] JSDoc (Documentation pro)
-  - [ ] **`ThemeSwitcher.tsx`**
-    - [ ] Design (UI/UX, animations, hover)
-    - [ ] Séparation des responsabilités
-    - [ ] Respect de l'architecture (Switcher, Types)
-    - [ ] Responsive (Mobile-first)
-    - [ ] Modularité et réutilisabilité
-    - [ ] JSDoc (Documentation pro)
-  - [ ] **`LanguageSwitcher.tsx`**
-    - [ ] Design (UI/UX, animations, hover)
-    - [ ] Séparation des responsabilités
-    - [ ] Respect de l'architecture (Switcher, Types)
-    - [ ] Responsive (Mobile-first)
-    - [ ] Modularité et réutilisabilité
-    - [ ] JSDoc (Documentation pro)
-  - [ ] **`MapPreview.tsx`**
-    - [ ] Design (UI/UX, animations, hover)
-    - [ ] Séparation des responsabilités
-    - [ ] Respect de l'architecture (Switcher, Types)
-    - [ ] Responsive (Mobile-first)
-    - [ ] Modularité et réutilisabilité
-    - [ ] JSDoc (Documentation pro)
+- [-] **1.2 Audit & Polish des Composants Atomiques (`src/components/ui/`)**
+  - [x] **`SalmaButton.tsx`**
+    - [x] Design (UI/UX, animations, hover)
+    - [x] Séparation des responsabilités
+    - [x] Respect de l'architecture (Switcher, Types)
+    - [x] Responsive (Mobile-first)
+    - [x] Modularité et réutilisabilité
+    - [x] JSDoc (Documentation pro)
+  - [x] **`SalmaBadge.tsx`**
+    - [x] Design (UI/UX, animations, hover)
+    - [x] Séparation des responsabilités
+    - [x] Respect de l'architecture (Switcher, Types)
+    - [x] Responsive (Mobile-first)
+    - [x] Modularité et réutilisabilité
+    - [x] JSDoc (Documentation pro)
+  - [x] **`SectionTitle.tsx`**
+    - [x] Design (UI/UX, animations, hover)
+    - [x] Séparation des responsabilités
+    - [x] Respect de l'architecture (Switcher, Types)
+    - [x] Responsive (Mobile-first)
+    - [x] Modularité et réutilisabilité
+    - [x] JSDoc (Documentation pro)
+  - [x] **`ScholarshipCard.tsx`**
+    - [x] Design (UI/UX, animations, hover)
+    - [x] Séparation des responsabilités
+    - [x] Respect de l'architecture (Switcher, Types)
+    - [x] Responsive (Mobile-first)
+    - [x] Modularité et réutilisabilité
+    - [x] JSDoc (Documentation pro)
+  - [x] **`NewsletterForm.tsx`**
+    - [x] Design (UI/UX, animations, hover)
+    - [x] Séparation des responsabilités
+    - [x] Respect de l'architecture (Switcher, Types)
+    - [x] Responsive (Mobile-first)
+    - [x] Modularité et réutilisabilité
+    - [x] JSDoc (Documentation pro)
+  - [x] **`ThemeSwitcher.tsx`**
+    - [x] Design (UI/UX, animations, hover)
+    - [x] Séparation des responsabilités
+    - [x] Respect de l'architecture (Switcher, Types)
+    - [x] Responsive (Mobile-first)
+    - [x] Modularité et réutilisabilité
+    - [x] JSDoc (Documentation pro)
+  - [x] **`LanguageSwitcher.tsx`**
+    - [x] Design (UI/UX, animations, hover)
+    - [x] Séparation des responsabilités
+    - [x] Respect de l'architecture (Switcher, Types)
+    - [x] Responsive (Mobile-first)
+    - [x] Modularité et réutilisabilité
+    - [x] JSDoc (Documentation pro)
+  - [x] **`MapPreview.tsx`**
+    - [x] Design (UI/UX, animations, hover)
+    - [x] Séparation des responsabilités
+    - [x] Respect de l'architecture (Switcher, Types)
+    - [x] Responsive (Mobile-first)
+    - [x] Modularité et réutilisabilité
+    - [x] JSDoc (Documentation pro)
 
 - [ ] **1.3 Audit & Polish du Layout et des Widgets Globaux**
   - [ ] **`Navbar.tsx` & `MobileMenu.tsx`**
@@ -79,34 +79,34 @@ C'est une erreur de ma part, je rectifie immédiatement. Voici la version intég
     - [ ] Responsive (Mobile-first)
     - [ ] Modularité et réutilisabilité
     - [ ] JSDoc (Documentation pro)
-  - [ ] **`Footer.tsx`**
-    - [ ] Design (UI/UX, animations, hover)
-    - [ ] Séparation des responsabilités
-    - [ ] Respect de l'architecture (Switcher, Types)
-    - [ ] Responsive (Mobile-first)
-    - [ ] Modularité et réutilisabilité
-    - [ ] JSDoc (Documentation pro)
-  - [ ] **`WhatsAppButton.tsx`**
-    - [ ] Design (UI/UX, animations, hover)
-    - [ ] Séparation des responsabilités
-    - [ ] Respect de l'architecture (Switcher, Types)
-    - [ ] Responsive (Mobile-first)
-    - [ ] Modularité et réutilisabilité
-    - [ ] JSDoc (Documentation pro)
-  - [ ] **`ChatbotWidget.tsx`**
-    - [ ] Design (UI/UX, animations, hover)
-    - [ ] Séparation des responsabilités (Fallback statique complet)
-    - [ ] Respect de l'architecture (Switcher, Types)
-    - [ ] Responsive (Mobile-first)
-    - [ ] Modularité et réutilisabilité
-    - [ ] JSDoc (Documentation pro)
-  - [ ] **`CookieBanner.tsx`**
-    - [ ] Design (UI/UX, animations, hover)
-    - [ ] Séparation des responsabilités
-    - [ ] Respect de l'architecture (Switcher, Types)
-    - [ ] Responsive (Mobile-first)
-    - [ ] Modularité et réutilisabilité
-    - [ ] JSDoc (Documentation pro)
+  - [x] **`Footer.tsx`**
+    - [x] Design (UI/UX, animations, hover)
+    - [x] Séparation des responsabilités
+    - [x] Respect de l'architecture (Switcher, Types)
+    - [x] Responsive (Mobile-first)
+    - [x] Modularité et réutilisabilité
+    - [x] JSDoc (Documentation pro)
+  - [x] **`WhatsAppButton.tsx`**
+    - [x] Design (UI/UX, animations, hover)
+    - [x] Séparation des responsabilités
+    - [x] Respect de l'architecture (Switcher, Types)
+    - [x] Responsive (Mobile-first)
+    - [x] Modularité et réutilisabilité
+    - [x] JSDoc (Documentation pro)
+  - [x] **`ChatbotWidget.tsx`**
+    - [x] Design (UI/UX, animations, hover)
+    - [x] Séparation des responsabilités (Fallback statique complet)
+    - [x] Respect de l'architecture (Switcher, Types)
+    - [x] Responsive (Mobile-first)
+    - [x] Modularité et réutilisabilité
+    - [x] JSDoc (Documentation pro)
+  - [x] **`CookieBanner.tsx`**
+    - [x] Design (UI/UX, animations, hover)
+    - [x] Séparation des responsabilités
+    - [x] Respect de l'architecture (Switcher, Types)
+    - [x] Responsive (Mobile-first)
+    - [x] Modularité et réutilisabilité
+    - [x] JSDoc (Documentation pro)
 
 - [ ] **1.4 Audit & Polish des Sections de la Page d'Accueil (`src/sections/visitor/`)**
   - [ ] **`HeroCarousel.tsx`**

@@ -153,3 +153,30 @@ h1, h2, h3, h4, h5, h6 {
   from { width: 0%;   }
   to   { width: 100%; }
 }
+
+/* 
+ * CHATBOT ANIMATIONS — À ajouter dans src/app/globals.css
+ * (avant la dernière ligne du fichier)
+ */
+
+@keyframes chatOpen {
+  from {
+    opacity: 0;
+    transform: scale(0.85) translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

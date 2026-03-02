@@ -50,3 +50,18 @@ export * from "@/types/pages/services.types"
 
 // Bourses
 export * from "@/types/pages/bourses.types"
+
+//Footer
+export * from "@/types/pages/footer.types";
+
+// UI Components
+export * from "@/types/ui/button.types";
+export * from  "@/types/ui/badge.types";
+export * from "@/types/ui/section-title.types";
+export * from "@/types/ui/scholarship-card.types"
+export * from "@/types/ui/newsletter-form.types";
+export * from "@/types/ui/theme-switcher.types";
+export * from "@/types/ui/language-switcher.types";
+export * from "@/types/ui/cookie-banner.types";
+export * from "@/types/ui/whatsapp-button.types";
+export * from "@/types/ui/chatbot-widget.types";

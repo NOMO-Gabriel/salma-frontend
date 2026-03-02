@@ -228,5 +228,9 @@ nav_home: {
       helpText: "Besoin d'aide ?"
     }
   },
+  common: {
+  loading: "Chargement en cours...",
+  error: "Une erreur est survenue",
+},
 };
 

@@ -18,7 +18,7 @@ import SectionTitle from "@/components/ui/SectionTitle";
 import SalmaButton from "@/components/ui/SalmaButton";
 import { STATIC_FEATURED_SCHOLARSHIPS } from "@/dictionaries/data/static/bourses/all-scholarships";
 import type { ScholarshipPublicListItem } from "@/types/api/scholarship.types";
-
+import {HomeTexts} from '@/types'
 const IS_STATIC = process.env.NEXT_PUBLIC_STATIC_CONTENT === "true";
 
 // ── Helpers visuels ───────────────────────────────────────────────────────────
@@ -182,9 +182,8 @@ export default function FeaturedScholarships({ scholarships }: Props) {
 
   // Textes dynamiques via cmsSwitcher
   useEffect(() => {
-    cmsSwitcher.getScopeContent("home", locale).then((data) => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const f = (data as any).featuredScholarships;
+    cmsSwitcher.getScopeContent<HomeTexts>("home", locale).then((data) => {
+      const f = data.featuredScholarships;
       if (f) setTexts({ title: f.title, subtitle: f.subtitle, viewAll: f.viewAll });
     });
   }, [locale]);

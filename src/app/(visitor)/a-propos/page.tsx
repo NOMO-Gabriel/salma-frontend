@@ -7,7 +7,6 @@ import SectionTitle from "@/components/ui/SectionTitle";
 import LocationSection from "@/components/sections/LocationSection";
 import Image from "next/image";
 
-// --- Interfaces ---
 interface ValueItem {
   title: string;
   desc: string;
@@ -19,27 +18,31 @@ interface AboutContent {
   values: { title: string; items: ValueItem[] };
 }
 
+interface AboutScope {
+  aboutPage: AboutContent;
+}
+
 export default function AboutPage() {
-  const { locale } = useLanguage();
+  const { locale, dictionary } = useLanguage(); // On récupère dictionary pour le loading
   const [content, setContent] = useState<AboutContent | null>(null);
 
   useEffect(() => {
-    cmsSwitcher.getScopeContent("about", locale).then((data) => {
+    cmsSwitcher.getScopeContent<AboutScope>("about", locale).then((data) => {
       if (data?.aboutPage) {
-        setContent(data.aboutPage as AboutContent);
+        setContent(data.aboutPage);
       }
     });
   }, [locale]);
 
+  // Utilisation du texte i18n pour le chargement
   if (!content) return (
     <div className="py-20 bg-salma-bg min-h-screen flex items-center justify-center animate-pulse text-salma-text-muted">
-      Chargement...
+      {dictionary.common.loading}
     </div>
   );
 
   return (
     <main className="bg-white dark:bg-salma-bg">
-      {/* --- HERO SECTION --- */}
       <section className="py-24 border-b border-salma-border/50">
         <div className="container mx-auto px-6">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
@@ -56,7 +59,6 @@ export default function AboutPage() {
         </div>
       </section>
 
-      {/* --- VALUES SECTION --- */}
       <section className="py-24 bg-salma-primary text-white">
         <div className="container mx-auto px-6">
           <div className="text-center mb-16">
