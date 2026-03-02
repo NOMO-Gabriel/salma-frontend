@@ -1,10 +1,4 @@
 // src/app/(visitor)/bourses/page.tsx
-// ==============================================================================
-//  Catalogue Bourses — SERVER COMPONENT
-//  Les filtres vivent dans l'URL (?pays=chine&niveau=master&page=2)
-//  → SEO parfait, partage d'URL, navigation navigateur fonctionnelle
-//  → fetch côté serveur avec ISR 60s
-// ==============================================================================
 
 import { Suspense } from "react";
 import type { Metadata } from "next";
@@ -12,11 +6,9 @@ import { scholarshipDictionary } from "@/dictionaries/data/scholarship.data-dict
 import type { ScholarshipFilters } from "@/types/api/scholarship.types";
 import CatalogClient from "./CatalogClient";
 
-// Métadonnées SEO dynamiques
 export const metadata: Metadata = {
   title: "Bourses d'études — Chine & Allemagne | SALMA",
-  description:
-    "Trouvez votre bourse d'études idéale en Chine ou en Allemagne. Filtrez par pays, niveau et type de couverture. Accompagnement complet par SALMA.",
+  description: "Trouvez votre bourse d'études idéale en Chine ou en Allemagne.",
   keywords: "bourses études Chine Cameroun, bourses Allemagne, CSC scholarship, DAAD bourse",
 };
 
@@ -37,7 +29,6 @@ function getPage(val: string | string[] | undefined): number {
 export default async function BoursesPage({ searchParams }: PageProps) {
   const params = await searchParams;
 
-  // Lecture des filtres depuis l'URL
   const filters: ScholarshipFilters = {
     pays_destination: getString(params.pays) as ScholarshipFilters["pays_destination"],
     niveau: getString(params.niveau) as ScholarshipFilters["niveau"],
@@ -48,7 +39,6 @@ export default async function BoursesPage({ searchParams }: PageProps) {
     ordering: getString(params.tri) ?? "-est_mise_en_avant,-date_creation",
   };
 
-  // Fetch côté serveur — Django filtre, pagine et trie
   let data;
   try {
     data = await scholarshipDictionary.getCatalog(filters);
@@ -58,6 +48,7 @@ export default async function BoursesPage({ searchParams }: PageProps) {
 
   return (
     <Suspense fallback={null}>
+      {/* On ne met que le client ici, il gérera le CTA en interne */}
       <CatalogClient
         initialData={data}
         initialFilters={filters}

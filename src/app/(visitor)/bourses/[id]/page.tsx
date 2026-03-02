@@ -3,6 +3,8 @@ import { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { scholarshipDictionary } from "@/dictionaries/data";
 import ScholarshipDetailClient from "./ScholarshipDetailClient";
+import { getMarketingTitle } from "@/lib/scholarship-utils";
+
 
 interface Props {
   params: Promise<{ id: string }>;
@@ -13,15 +15,16 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { id } = await params;
   try {
     const { scholarship } = await scholarshipDictionary.getDetail(id);
+    // STRATÉGIE : Titre marketing dans l'onglet
+    const title = getMarketingTitle(scholarship, "fr"); 
     return {
-      title: `${scholarship.titre_fr} | SALMA`,
+      title: `${title} | SALMA`,
       description: scholarship.description_fr.substring(0, 160),
     };
   } catch {
-    return { title: "Bourse introuvable | SALMA" };
+    return { title: "Bourse d'études | SALMA" };
   }
 }
-
 export default async function ScholarshipDetailPage({ params }: Props) {
   const { id } = await params;
 

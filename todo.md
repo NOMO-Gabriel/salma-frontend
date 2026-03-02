@@ -167,20 +167,20 @@ C'est une erreur de ma part, je rectifie immédiatement. Voici la version intég
     - [ ] Responsive (Mobile-first)
     - [ ] Modularité et réutilisabilité
     - [ ] JSDoc (Documentation pro)
-  - [ ] **`Catalogue (Bourses)`**
+  - [-] **`Catalogue (Bourses)`**
     - [ ] Design (UI/UX, animations, hover)
     - [ ] Séparation des responsabilités
     - [ ] Respect de l'architecture (Switcher, Types)
     - [ ] Responsive (Mobile-first)
     - [ ] Modularité et réutilisabilité
     - [ ] JSDoc (Documentation pro)
-  - [ ] **`Détail Bourse`**
-    - [ ] Design (UI/UX, animations, hover)
-    - [ ] Séparation des responsabilités (Respect strict `field_visibility`)
-    - [ ] Respect de l'architecture (Switcher, Types)
-    - [ ] Responsive (Mobile-first)
-    - [ ] Modularité et réutilisabilité
-    - [ ] JSDoc (Documentation pro)
+  - [x] **`Détail Bourse`**
+    - [x] Design (UI/UX, animations, hover)
+    - [x] Séparation des responsabilités (Respect strict `field_visibility`)
+    - [x] Respect de l'architecture (Switcher, Types)
+    - [x] Responsive (Mobile-first)
+    - [x] Modularité et réutilisabilité
+    - [x] JSDoc (Documentation pro)
   - [x] **`Services`**
     - [x] Design (UI/UX, animations, hover)
     - [x] Séparation des responsabilités

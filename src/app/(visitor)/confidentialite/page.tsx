@@ -4,28 +4,10 @@ import { useEffect, useState } from "react";
 import { useLanguage } from "@/hooks/useLanguage";
 import { cmsSwitcher } from "@/dictionaries/data/cms-switcher";
 import SectionTitle from "@/components/ui/SectionTitle";
-
-interface PrivacySection {
-  id: string;
-  title: string;
-  content: string;
-}
-
-interface PrivacyContent {
-  title: string;
-  subtitle: string;
-  lastUpdated: string;
-  intro: string;
-  sections: PrivacySection[];
-  footer: {
-    text: string;
-    email: string;
-  };
-}
-
-interface PrivacyScope {
-  privacyPage: PrivacyContent;
-}
+import PrivacySidebar from "@/components/sections/privacy/PrivacySidebar";
+import PrivacyBody from "@/components/sections/privacy/PrivacyBody";
+import ConversionCTA from "@/components/ui/ConversionCTA";
+import type { PrivacyContent, PrivacyScope } from "@/types";
 
 export default function PrivacyPage() {
   const { locale, dictionary } = useLanguage();
@@ -33,13 +15,12 @@ export default function PrivacyPage() {
 
   useEffect(() => {
     cmsSwitcher.getScopeContent<PrivacyScope>("privacy", locale).then((data) => {
-      if (data && data.privacyPage) {
+      if (data?.privacyPage) {
         setContent(data.privacyPage);
       }
     });
   }, [locale]);
 
-  // Utilisation du texte i18n pour le chargement
   if (!content) {
     return (
       <div className="py-20 bg-salma-bg min-h-screen flex items-center justify-center">
@@ -49,46 +30,51 @@ export default function PrivacyPage() {
   }
 
   return (
-    <div className="py-20 bg-salma-bg min-h-screen">
-      <div className="container mx-auto px-6 max-w-4xl">
-        <div className="bg-white dark:bg-salma-surface p-8 md:p-16 rounded-[2.5rem] border border-salma-border shadow-salma-sm">
-          
-          <header className="mb-12">
-            <SectionTitle title={content.title} subtitle={content.subtitle} />
-            <p className="text-xs font-bold text-salma-gold uppercase tracking-widest mb-6">
-              {content.lastUpdated}
-            </p>
-            <p className="text-lg text-salma-primary dark:text-white font-medium leading-relaxed italic border-l-4 border-salma-gold pl-6">
-              {content.intro}
-            </p>
-          </header>
-
-          <div className="space-y-12">
-            {content.sections.map((section: PrivacySection) => (
-              <section key={section.id} id={section.id} className="scroll-mt-24">
-                <h3 className="text-xl font-serif font-bold text-salma-primary dark:text-salma-gold mb-4 flex items-center gap-3">
-                  {section.title}
-                </h3>
-                <div className="text-salma-text-muted leading-relaxed whitespace-pre-line pl-0 md:pl-7">
-                  {section.content}
-                </div>
-              </section>
-            ))}
-          </div>
-
-          <footer className="mt-16 pt-8 border-t border-salma-border text-center">
-            <p className="text-sm text-salma-text-muted">
-              {content.footer.text}
-              <a 
-                href={`mailto:${content.footer.email}`} 
-                className="text-salma-primary dark:text-salma-gold font-bold ml-1 hover:underline"
-              >
-                {content.footer.email}
-              </a>
-            </p>
-          </footer>
+    <main className="bg-salma-bg min-h-screen">
+      {/* Header de la page */}
+      <section className="pt-24 pb-12 bg-white dark:bg-salma-bg border-b border-salma-border/30">
+        <div className="container mx-auto px-6">
+          <SectionTitle 
+            title={content.title} 
+            subtitle={content.subtitle} 
+            align="center"
+            size="lg"
+          />
         </div>
-      </div>
-    </div>
+      </section>
+
+      {/* Contenu avec Sidebar */}
+      <section className="py-20">
+        <div className="container mx-auto px-6">
+          <div className="max-w-7xl mx-auto flex flex-col lg:flex-row gap-16">
+            
+            {/* Sommaire à gauche */}
+            <PrivacySidebar sections={content.sections} />
+
+            {/* Corps du texte à droite */}
+            <div className="flex-1 bg-white dark:bg-salma-surface p-8 md:p-16 rounded-[3rem] border border-salma-border shadow-salma-sm">
+              <PrivacyBody content={content} />
+              
+              {/* Footer spécifique à la page */}
+              <footer className="mt-16 pt-8 border-t border-salma-border text-center">
+                <p className="text-sm text-salma-text-muted">
+                  {content.footer.text}
+                  <a 
+                    href={`mailto:${content.footer.email}`} 
+                    className="text-salma-primary dark:text-salma-gold font-bold ml-1 hover:underline"
+                  >
+                    {content.footer.email}
+                  </a>
+                </p>
+              </footer>
+            </div>
+
+          </div>
+        </div>
+      </section>
+
+      {/* CTA de conversion final */}
+      <ConversionCTA labels={dictionary.nav_contact} />
+    </main>
   );
 }

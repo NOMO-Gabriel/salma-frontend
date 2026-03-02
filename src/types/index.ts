@@ -72,3 +72,5 @@ export * from "@/types/ui/conversion-cta.types";
 
 export * from "./pages/services.types";
 export * from "./ui/conversion-cta.types";
+export * from "./pages/privacy.types";
+export * from "./pages/bourses.types"

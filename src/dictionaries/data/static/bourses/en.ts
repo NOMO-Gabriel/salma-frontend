@@ -3,9 +3,13 @@ export const enBourses = {
     title: "All Scholarships",
     subtitle: "China & Germany",
     description: "Find the scholarship that matches your study project.",
-    searchPlaceholder: "Search for a scholarship...",
+    searchPlaceholder: "Search for a scholarship or field...",
     noResults: "No scholarships match your search.",
-    found: "scholarships found"
+    found: "scholarships found",
+    // Filters and Marketing
+    filterDomain: "Study Field",
+    allDomains: "📚 All fields",
+    reservedInfo: "Information reserved for AGT candidates"
   },
   scholarships: {
     deadline: "Deadline",
@@ -18,7 +22,7 @@ export const enBourses = {
     eligibility: "Eligibility Criteria",
     benefits: "What the scholarship covers",
     studyFields: "Study Fields",
-    applyTitle: "This scholarship interests you?",
+    applyTitle: "Interested in this scholarship?",
     applyDesc: "Contact our advisors to prepare your application dossier.",
     btnApply: "Apply via WhatsApp",
     btnForm: "Fill in the form"

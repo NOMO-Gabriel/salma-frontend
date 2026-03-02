@@ -69,6 +69,7 @@ export const ALL_STATIC_SCHOLARSHIPS: ScholarshipPublicListItem[] = [
       d("csc-5", "Santé Publique",            "Public Health",                "🌍"),
     ],
     image_principale: img("img-csc", "bourse-csc.jpg"),
+     ordre_affichage: 9,
   },
 
   // ── 2. Bourse du Maire de Shanghai ────────────────────────────────────────
@@ -96,6 +97,7 @@ export const ALL_STATIC_SCHOLARSHIPS: ScholarshipPublicListItem[] = [
       d("sha-4", "MBA",                      "MBA",                    "🎓"),
     ],
     image_principale: img("img-shanghai", "bourse-shanghai.jpg"),
+     ordre_affichage: 8,
   },
 
   // ── 3. DAAD — Service Allemand d'Échanges ─────────────────────────────────
@@ -124,6 +126,7 @@ export const ALL_STATIC_SCHOLARSHIPS: ScholarshipPublicListItem[] = [
       d("daad-5", "Journalisme & Communication",     "Journalism & Communication",          "📰"),
     ],
     image_principale: img("img-daad", "bourse-daad.jpg"),
+     ordre_affichage: 7,
   },
 
   // ── 4. TU Munich ──────────────────────────────────────────────────────────
@@ -150,6 +153,7 @@ export const ALL_STATIC_SCHOLARSHIPS: ScholarshipPublicListItem[] = [
       d("tum-3", "Ingénierie Chimique",        "Chemical Engineering",      "🧪"),
     ],
     image_principale: img("img-tum", "bourse-tum.jpg"),
+     ordre_affichage: 6,
   },
 
   // ── 5. Bourse Route de la Soie — Anhui ────────────────────────────────────
@@ -176,6 +180,7 @@ export const ALL_STATIC_SCHOLARSHIPS: ScholarshipPublicListItem[] = [
       d("sr-3", "Génie Civil",             "Civil Engineering",           "🏗️"),
     ],
     image_principale: img("img-silk", "bourse-silk-road.jpg"),
+     ordre_affichage: 5,
   },
 
   // ── 6. Fondation Heinrich Böll ────────────────────────────────────────────
@@ -202,6 +207,7 @@ export const ALL_STATIC_SCHOLARSHIPS: ScholarshipPublicListItem[] = [
       d("boll-3", "Sociologie",             "Sociology",                  "👥"),
     ],
     image_principale: img("img-boll", "bourse-boll.jpg"),
+     ordre_affichage: 4,
   },
 
   // ── 7. HUST Wuhan ─────────────────────────────────────────────────────────
@@ -227,6 +233,7 @@ export const ALL_STATIC_SCHOLARSHIPS: ScholarshipPublicListItem[] = [
       d("hust-2", "Technologies IT",        "Information Technology",     "🖥️"),
       d("hust-3", "Génie Biomédical",       "Biomedical Engineering",     "🏥"),
     ],
+     ordre_affichage: 3,
     image_principale: img("img-hust", "bourse-hust.jpg"),
   },
 
@@ -253,6 +260,7 @@ export const ALL_STATIC_SCHOLARSHIPS: ScholarshipPublicListItem[] = [
       d("kas-2", "Relations Intern.",     "International Relations",    "🌐"),
       d("kas-3", "Gestion d'Entreprise", "Business Administration",    "📊"),
     ],
+     ordre_affichage: 2,
     image_principale: img("img-kas", "bourse-kas.jpg"),
   },
 
@@ -279,6 +287,7 @@ export const ALL_STATIC_SCHOLARSHIPS: ScholarshipPublicListItem[] = [
       d("conf-2", "Éducation",                 "Education",                  "📚"),
       d("conf-3", "Tourisme & Hôtellerie",     "Tourism & Hospitality",      "🏨"),
     ],
+     ordre_affichage: 1,
     image_principale: img("img-confucius", "bourse-confucius.jpg"),
   },
 ];

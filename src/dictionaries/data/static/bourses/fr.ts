@@ -3,9 +3,13 @@ export const frBourses = {
     title: "Toutes nos bourses",
     subtitle: "Chine & Allemagne",
     description: "Trouvez la bourse qui correspond à votre projet d'études.",
-    searchPlaceholder: "Rechercher une bourse...",
+    searchPlaceholder: "Rechercher une bourse ou un métier...",
     noResults: "Aucune bourse ne correspond à votre recherche.",
-    found: "bourses trouvées"
+    found: "bourses trouvées",
+    // Filtres et Marketing
+    filterDomain: "Domaine d'études",
+    allDomains: "📚 Tous les domaines",
+    reservedInfo: "Information réservée aux candidats AGT"
   },
   scholarships: {
     deadline: "Date limite",

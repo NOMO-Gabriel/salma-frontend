@@ -79,6 +79,7 @@ export interface ScholarshipPublicListItem {
   est_mise_en_avant: boolean;
   domaines: ScholarshipField[];
   image_principale: MediaAssetMinimal | null;
+  ordre_affichage: number; 
 }
 
 // --- Modèle principal — Détail public (avec visibilité appliquée) -----------
