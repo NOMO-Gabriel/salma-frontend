@@ -86,3 +86,36 @@ export interface NavAbout {
   cta: string;
 }
 // ...
+
+// Ajouter à src/types/pages/nav.types.ts
+
+export interface ErrorTexts {
+  notFound: {
+    title: string;
+    desc: string;
+    btn: string;
+  };
+  global: {
+    title: string;
+    desc: string;
+    btnReset: string;
+    btnHome: string;
+  };
+}
+
+export interface WidgetTexts {
+  whatsapp: {
+    helpText: string;
+  };
+}
+
+// Mettre à jour l'interface NavContent (qui sert de base à DictionaryType)
+export interface NavContent {
+  nav_home: NavHome;
+  nav_bourses: NavBourses;
+  nav_services: NavServices;
+  nav_contact: NavContact;
+  nav_about: NavAbout;
+  errors: ErrorTexts;   // Ajouté
+  widgets: WidgetTexts; // Ajouté
+}

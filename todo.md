@@ -1,5 +1,6 @@
 # 🚀 ROADMAP DE STABILISATION — PROJET SALMA
 
+A-
 ## 🟠 SPRINT 1 : Polish Frontend & Mécanisme CMS (Vitrine)
 *Objectif : Figer l'UI, assurer la cohérence de chaque page et préparer la transition vers le contenu dynamique.*
 
@@ -19,8 +20,8 @@
   - [ ] Créer la page `/bourses/[id]/page.tsx` (Détail de la bourse).
   - [ ] Appliquer le respect strict du `field_visibility`.
   - [ ] Lier le bouton WhatsApp avec message pré-rempli dynamique.
-- [ ] **Fiabilisation :**
-  - [ ] Créer `not-found.tsx` et `error.tsx` (Error Boundaries).
+- [-] **Fiabilisation :**
+  - [x] Créer `not-found.tsx` et `error.tsx` (Error Boundaries).
   - [ ] Audit Responsive complet (iPhone SE ➔ Desktop).
 
 ## 🔵 SPRINT 2 : Alignement Backend & Seeders
@@ -53,6 +54,8 @@
 - [ ] **Anti-Spam (Sécurité) :** Intégrer Cloudflare Turnstile ou Google reCAPTCHA v3 (invisible) sur les formulaires de Contact et Newsletter.
   - [ ] **Rate Limiting :** Configurer un throttle sur Django (ex: max 5 requêtes/min sur `/api/contact`) pour éviter les attaques DDoS.
 
+
+B-
 ## 🟢 SPRINT 4 : Tests End-to-End (Dynamisme & Temps Réel)
 *Objectif : Se mettre dans la peau du client (Admin) et du prospect (Visiteur) pour traquer les bugs.*
 
@@ -87,6 +90,8 @@
   - [ ] S'assurer que le tracking KPI respecte le choix de la bannière de cookies.
 
 ---
+
+C-
 ## 🎓 SPRINT 6 : Capitalisation, Documentation & Standardisation
 *Objectif : Livrer un produit documenté au client, extraire des bases réutilisables (boilerplates) et figer les standards techniques pour faire monter l'équipe en compétence sur les futurs projets.*
 

@@ -33,9 +33,20 @@ export * from "@/types/api/kpi.types";
 
 
 // pages
+// --- Home ---
+export * from "@/types/pages/home.types";
 
 // navbar
 export * from "@/types/pages/nav.types"
 
 // HeroCaroussel
 export * from "@/types/pages/hero.types"
+
+// Contact
+export * from "@/types/pages/contact.types"
+
+// Services
+export * from "@/types/pages/services.types"
+
+// Bourses
+export * from "@/types/pages/bourses.types"

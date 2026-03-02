@@ -209,4 +209,23 @@ nav_home: {
       },
     ],
   },
+  errors: {
+    notFound: {
+      title: "Page not found",
+      desc: "The page you're looking for doesn't exist or has been moved.",
+      btn: "Back to Home",
+    },
+    global: {
+    title: "Oops! Something went wrong",
+    desc: "An unexpected error occurred. Our engineers have been notified.",
+    btnReset: "Try again",
+    btnHome: "Back to Home",
+  },
+  },
+  
+  widgets: {
+    whatsapp: {
+      helpText: "Need help? Contact us on WhatsApp!",
+    }
+  },
 };

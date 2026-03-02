@@ -1,11 +1,27 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import Image from "next/image";
 import { useLanguage } from "@/hooks/useLanguage";
+import { cmsSwitcher } from "@/dictionaries/data/cms-switcher";
 import SalmaButton from "@/components/ui/SalmaButton";
+import type { HomeTexts } from "@/types";
 
 export default function Hero() {
-  const { dictionary } = useLanguage();
+  const { locale } = useLanguage();
+  const [content, setContent] = useState<HomeTexts | null>(null);
+
+  useEffect(() => {
+    cmsSwitcher.getScopeContent("home", locale).then((data) => {
+      setContent(data as HomeTexts);
+    });
+  }, [locale]);
+
+  if (!content) {
+    return <div className="min-h-[85vh] bg-white animate-pulse" />;
+  }
+
+  const { hero: t } = content;
 
   return (
     <section className="relative min-h-[85vh] flex items-center overflow-hidden bg-white dark:bg-salma-bg">
@@ -15,37 +31,36 @@ export default function Hero() {
         
         <div className="flex flex-col items-start space-y-6 animate-fade-in">
           <span className="px-4 py-1.5 rounded-full bg-salma-accent/10 text-salma-accent text-xs font-black uppercase tracking-widest border border-salma-accent/20">
-            {dictionary.hero.badge}
+            {t.badge}
           </span>
           
           <h1 className="text-4xl md:text-6xl font-serif font-bold leading-tight text-salma-primary dark:text-white">
-            {dictionary.hero.title}
+            {t.title}
           </h1>
           
           <p className="text-lg md:text-xl text-salma-text-muted max-w-lg leading-relaxed">
-            {dictionary.hero.description}
+            {t.description}
           </p>
 
           <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto pt-4">
             <SalmaButton variant="primary" size="lg">
-              {dictionary.hero.ctaPrimary}
+              {t.ctaPrimary}
             </SalmaButton>
             <SalmaButton variant="outline" size="lg">
-              {dictionary.hero.ctaSecondary}
+              {t.ctaSecondary}
             </SalmaButton>
           </div>
 
-          {/* Indicateur de confiance corrigé */}
           <div className="pt-8 flex items-center gap-4 border-t border-salma-border w-full">
             <div className="flex -space-x-3">
               {[1, 2, 3].map((i) => (
-                <div key={i} className="w-10 h-10 rounded-full border-2 border-white bg-gray-200 overflow-hidden">
-                   <Image src={`https://i.pravatar.cc/100?img=${i+10}`} width={40} height={40} alt="User" />
+                <div key={i} className="w-10 h-10 rounded-full border-2 border-white bg-gray-200 overflow-hidden relative">
+                   <Image src={`https://i.pravatar.cc/100?img=${i+10}`} fill alt="User" className="object-cover" />
                 </div>
               ))}
             </div>
             <p className="text-xs text-salma-text-muted font-medium">
-              <span className="text-salma-gold font-bold">{dictionary.hero.trustIndicator.count}</span> {dictionary.hero.trustIndicator.text}
+              <span className="text-salma-gold font-bold">{t.trustIndicator.count}</span> {t.trustIndicator.text}
             </p>
           </div>
         </div>
@@ -54,19 +69,18 @@ export default function Hero() {
           <div className="absolute inset-0 rounded-3xl overflow-hidden shadow-salma-lg border-8 border-white dark:border-salma-surface transform rotate-2">
             <Image 
               src="/agt_home.jpg" 
-              alt={dictionary.hero.imageAlt} 
+              alt={t.imageAlt} 
               fill 
               className="object-cover"
               priority
-               sizes="(max-width: 768px) 100vw, 50vw" 
+              sizes="(max-width: 768px) 100vw, 50vw" 
             />
           </div>
           
-          {/* Badge délai corrigé */}
           <div className="absolute -bottom-6 -left-6 bg-salma-gold p-6 rounded-2xl shadow-xl text-salma-primary max-w-[180px] -rotate-3">
-            <span className="block text-4xl font-bold">{dictionary.hero.visaBadge.number}</span>
+            <span className="block text-4xl font-bold">{t.visaBadge.number}</span>
             <span className="text-xs font-black uppercase tracking-tight leading-none">
-              {dictionary.hero.visaBadge.label}
+              {t.visaBadge.label}
             </span>
           </div>
         </div>

@@ -11,5 +11,16 @@ export const enBourses = {
     deadline: "Deadline",
     language: "Language required",
     viewDetails: "View Details",
+  },
+  scholarshipDetail: {
+    backToList: "Back to list",
+    organization: "Financial Organization",
+    eligibility: "Eligibility Criteria",
+    benefits: "What the scholarship covers",
+    studyFields: "Study Fields",
+    applyTitle: "This scholarship interests you?",
+    applyDesc: "Contact our advisors to prepare your application dossier.",
+    btnApply: "Apply via WhatsApp",
+    btnForm: "Fill in the form"
   }
 };

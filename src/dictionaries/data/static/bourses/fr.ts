@@ -11,5 +11,16 @@ export const frBourses = {
     deadline: "Date limite",
     language: "Langue requise",
     viewDetails: "Consulter l'offre",
+  },
+  scholarshipDetail: {
+    backToList: "Retour à la liste",
+    organization: "Organisme financier",
+    eligibility: "Critères d'éligibilité",
+    benefits: "Ce que couvre la bourse",
+    studyFields: "Domaines d'études",
+    applyTitle: "Cette bourse vous intéresse ?",
+    applyDesc: "Contactez nos conseillers pour monter votre dossier de candidature.",
+    btnApply: "Postuler via WhatsApp",
+    btnForm: "Remplir le formulaire"
   }
 };

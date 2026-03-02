@@ -1,11 +1,24 @@
 "use client";
+
+import { useEffect, useState } from "react";
 import { useLanguage } from "@/hooks/useLanguage";
+import { cmsSwitcher } from "@/dictionaries/data/cms-switcher";
 import SectionTitle from "@/components/ui/SectionTitle";
+import type { ServicesTexts } from "@/types";
 
 export default function ServicesPage() {
-  const { dictionary } = useLanguage();
-  const s = dictionary.servicesPage;
+  const { locale } = useLanguage();
+  const [content, setContent] = useState<ServicesTexts | null>(null);
 
+  useEffect(() => {
+    cmsSwitcher.getScopeContent("services", locale).then(data => {
+      setContent(data as ServicesTexts);
+    });
+  }, [locale]);
+
+  if (!content) return <div className="py-20 bg-salma-bg min-h-screen animate-pulse" />;
+
+  const s = content.servicesPage;
   const cards = [
     { title: s.items.study.title, desc: s.items.study.desc, icon: "🎓" },
     { title: s.items.tourist.title, desc: s.items.tourist.desc, icon: "✈️" },

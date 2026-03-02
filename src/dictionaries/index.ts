@@ -1,23 +1,30 @@
-import { fr } from "./fr";
-import { en } from "./en";
+// src/dictionaries/index.ts
+// ============================================================
+//  COEUR DE L'INTERNATIONALISATION (V2 - CMS Switcher Ready)
+//  Désormais basé sur les fichiers de layout statiques.
+// ============================================================
+
+import { frLayout } from "./data/static/layout/fr";
+import { enLayout } from "./data/static/layout/en";
 import type { Locale } from "@/config/i18n";
 
-// Utilitaire pour transformer les types "littéraux" (as const) en type "string"
-// Cela permet d'avoir des textes différents entre FR et EN tout en gardant la même structure
+// Utilitaire pour transformer les types "littéraux" en type "string"
 type DeepString<T> = {
   [K in keyof T]: T[K] extends object ? DeepString<T[K]> : string;
 };
 
-// On définit le type global basé sur la structure de FR
-export type DictionaryType = DeepString<typeof fr>;
+// Le type global est désormais restreint au Layout (Navbar, Footer, etc.)
+// Les contenus de pages spécifiques doivent passer par cmsSwitcher.getScopeContent()
+export type DictionaryType = DeepString<typeof frLayout>;
 
-// Registre des dictionnaires
-// On utilise "as DictionaryType" pour assouplir la vérification des valeurs textuelles
 const dictionaries: Record<Locale, DictionaryType> = {
-  fr: fr as DictionaryType,
-  en: en as DictionaryType,
+  fr: frLayout as DictionaryType,
+  en: enLayout as DictionaryType,
 };
 
+/**
+ * Retourne le dictionnaire de base (Layout/Global) pour une langue donnée.
+ */
 export function getDictionary(locale: Locale): DictionaryType {
-  return dictionaries[locale];
+  return dictionaries[locale] ?? dictionaries.fr;
 }

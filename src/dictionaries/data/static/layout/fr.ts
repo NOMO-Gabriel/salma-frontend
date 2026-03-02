@@ -209,5 +209,24 @@ nav_home: {
       },
     ],
   },
+ // Dans src/dictionaries/data/static/layout/fr.ts
+  errors: {
+    notFound: {
+      title: "Page introuvable",
+      desc: "Désolé, la page que vous recherchez n'existe pas ou a été déplacée.",
+      btn: "Retour à l'accueil"
+    },
+    global: {
+      title: "Oups ! Quelque chose s'est mal passé",
+      desc: "Une erreur inattendue est survenue. Notre équipe technique a été alertée.",
+      btnReset: "Réessayer",
+      btnHome: "Retour à l'accueil"
+    }
+  },
+  widgets: {
+    whatsapp: {
+      helpText: "Besoin d'aide ?"
+    }
+  },
 };
 

@@ -1,23 +1,38 @@
 "use client";
+
+import { useEffect, useState } from "react";
+import { useLanguage } from "@/hooks/useLanguage";
+import { cmsSwitcher } from "@/dictionaries/data/cms-switcher";
 import ContactForm from "@/sections/visitor/ContactForm";
 import SectionTitle from "@/components/ui/SectionTitle";
-import { useLanguage } from "@/hooks/useLanguage";
+import type { ContactPageContent, FaqItem } from "@/types";
 
 export default function ContactPage() {
-  const { dictionary } = useLanguage();
+  const { locale } = useLanguage();
+  const [content, setContent] = useState<ContactPageContent | null>(null);
+
+  useEffect(() => {
+    cmsSwitcher.getScopeContent("contact", locale).then(data => {
+      setContent(data as ContactPageContent);
+    });
+  }, [locale]);
+
+  if (!content) return <div className="min-h-screen bg-salma-bg animate-pulse" />;
 
   return (
     <div className="bg-salma-bg min-h-screen">
-      {/* On peut ajouter une bannière ou une carte Google Maps ici plus tard */}
       <div className="pt-20">
         <ContactForm />
       </div>
       
-      {/* Section FAQ intégrée pour réduire le nombre de pages */}
       <div className="container mx-auto px-6 pb-20">
-        <SectionTitle title={dictionary.faq.title} subtitle={dictionary.faq.subtitle} align="center" />
+        <SectionTitle 
+          title={content.faq.title} 
+          subtitle={content.faq.subtitle} 
+          align="center" 
+        />
         <div className="max-w-3xl mx-auto space-y-4">
-          {dictionary.faq.items.map((item, i) => (
+          {content.faq.items.map((item: FaqItem, i: number) => (
             <details key={i} className="group bg-white dark:bg-salma-surface border border-salma-border rounded-2xl p-6 cursor-pointer">
               <summary className="font-bold text-salma-primary dark:text-white flex justify-between items-center list-none">
                 {item.q}

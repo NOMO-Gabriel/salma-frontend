@@ -20,8 +20,8 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "SALMA — Agence de Voyage & Bourses d'études",
-  description: "Spécialiste des bourses d'études en Chine et en Allemagne.",
+  title: "SALMA — Bourses d'études & Mobilité Internationale",
+  description: "Spécialiste de l'accompagnement pour les bourses d'études en Chine et en Allemagne. Votre réussite est notre priorité.",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
