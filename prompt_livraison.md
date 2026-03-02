@@ -46,43 +46,7 @@ api-client.ts (gère le JWT et les erreurs)
 ---
 
 ## 📌 3. ROADMAP DE LIVRAISON (À AUDITER À CHAQUE SESSION)
-
-> **INSTRUCTION AUDIT** : Indique le statut de chaque item : ✅ (fait), 🔧 (en cours), ❌ (à faire).
-
-### 🟠 SPRINT 1 : Polish Frontend & Mécanisme CMS (Vitrine)
-- [ ] **Généralisation `cmsSwitcher` :** Créer les fichiers statiques finaux (`home`, `about`, `services`, `contact`, `footer`) et remplacer les appels directs.
-- [ ] **UI/UX Client :** Changer photo Hero, retirer "Travel Agency", activer Mode Sombre, ajouter micro-animations (hover, scroll).
-- [ ] **Détail Bourse (`/bourses/[id]`) :** Appliquer le respect strict du `field_visibility` et lier le bouton WhatsApp (message pré-rempli).
-- [ ] **Error Boundaries :** Créer `not-found.tsx` et `global-error.tsx` aux couleurs de SALMA.
-- [ ] **Audit Responsive :** Mobile-first (iPhone SE) et tablettes.
-
-### 🔵 SPRINT 2 : Alignement Backend & Seeders
-- [ ] **Seeders Django (`seed.py`) :** Mettre à jour `SitePage`, `ContentBlock`, `SiteConfig` avec les clés exactes du frontend et les textes finaux validés.
-- [ ] **Test Switcher :** Passer `NEXT_PUBLIC_STATIC_CONTENT=false` et vérifier que la vitrine affiche les données de l'API sans casser.
-
-### 🟡 SPRINT 3 : Dashboard Admin & Intégrations
-- [ ] **CMS & Médias :** Pages admin pour éditer les blocs de texte et uploader des images.
-- [ ] **Contacts & Newsletter :** Tableau des leads (marquer lu, notes) et liste des abonnés.
-- [ ] **Témoignages & KPI :** Modération des avis et graphiques de conversion.
-- [ ] **Intégrations :** Brancher Gemini API sur le Chatbot, configurer SMTP pour les alertes RDV.
-- [ ] **Sécurité :** Ajouter un Anti-Spam (Turnstile/reCAPTCHA) sur les formulaires publics.
-
-### 🟢 SPRINT 4 : Tests End-to-End
-- [ ] **Test CMS :** Modif admin ➔ Vérifier mise à jour vitrine (ISR).
-- [ ] **Test Bourses :** Création ➔ Catalogue. Masquer un champ ➔ Disparition sur la page détail.
-- [ ] **Test Conversion :** Visite ➔ Chatbot ➔ Formulaire ➔ Vérifier KPI et réception email agence.
-
-### 🟣 SPRINT 5 : Optimisation & SEO (Production)
-- [ ] **Lighthouse 95+ :** Optimisation images (WebP, next/image), Lazy Loading.
-- [ ] **SEO :** Metadata dynamiques, `sitemap.xml`, `robots.txt`, balises `hreflang` pour le bilinguisme.
-- [ ] **Code Review :** Supprimer console.log, code mort, ajouter JSDoc, 0 erreur TypeScript.
-
-### 🎓 SPRINT 6 : Capitalisation & Documentation
-- [ ] **Livrables Client :** Cahier des charges final, Rapport de projet, Guide d'utilisation Admin.
-- [ ] **DevOps :** Guide de déploiement, CI/CD (GitHub Actions), Cron Job de backup BDD.
-- [ ] **Boilerplates AGT :** Extraire les templates Frontend et Backend pour les futurs projets.
-- [ ] **Livre Blanc :** Documenter les Design Patterns utilisés pour l'équipe technique.
-
+consulte la todo.md
 ---
 
 ## 📌 4. PROCÉDURE À SUIVRE À CHAQUE SESSION
