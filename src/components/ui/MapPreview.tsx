@@ -45,6 +45,9 @@ export default function MapPreview({
   desktopHeight = "md:h-[450px]",
   className = "",
 }: MapPreviewProps) {
+   // Sécurité : si labels n'est pas chargé, on ne rend rien ou un skeleton
+  if (!labels) return <div className="w-full h-[450px] bg-slate-100 animate-pulse rounded-[2.5rem]" />;
+
   /** Lien Google Maps basé sur l'adresse */
   const googleMapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(address)}`;
 

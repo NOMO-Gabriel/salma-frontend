@@ -108,6 +108,7 @@ export const enLayout = {
   /** Contact dropdown */
   nav_contact: {
     title: "Contact",
+     subtitle: "Our advisors are here to guide you.",
     rdv_label: "Book an appointment",
     rdv_desc: "Free 30-minute consultation with an advisor.",
     whatsapp_label: "WhatsApp",
@@ -226,6 +227,12 @@ nav_home: {
   widgets: {
     whatsapp: {
       helpText: "Need help? Contact us on WhatsApp!",
+    },
+     mapPreview: {
+      ctaLabel: "Open in Google Maps",
+      badgeTitle: "Our Headquarters",
+      badgeSubtitle: "Yaoundé, Kadji Building",
+      imageAlt: "AG Technologies Headquarters — Yaoundé",
     }
   },
   common: {

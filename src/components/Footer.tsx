@@ -131,7 +131,7 @@ export default function Footer({
           </div>
 
           {/* ── Colonne 2 : Navigation ───────────────────────────────── */}
-          <nav aria-label="Footer navigation">
+          <nav aria-label="Footer navigation" >
             <SectionHeading text={content.links.title} />
             <ul className="space-y-4">
               <FooterLink href="/" label={content.links.home} />

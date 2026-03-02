@@ -3,7 +3,10 @@ export const enAbout = {
     hero: {
       title: "Expertise at the service of your mobility",
       subtitle: "Your bridge to academic excellence",
-      description: "Since 2019, AG Technologies has been supporting African talents in achieving their study projects in China and Germany. More than an agency, we are your strategic partner."
+      description: "Since 2019, AG Technologies has been supporting African talents in achieving their study projects in China and Germany. More than an agency, we are your strategic partner.",
+      badge_label: "Expertise",
+      badge_value: "Depuis 2019",
+      trust_label: "Confiance renouvelée"
     },
     values: {
       title: "Our Core Values",

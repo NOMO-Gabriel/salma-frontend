@@ -3,7 +3,10 @@ export const frAbout = {
     hero: {
       title: "L'Expertise au service de votre mobilité",
       subtitle: "Votre pont vers l'excellence académique",
-      description: "Depuis 2019, AG Technologies accompagne les talents africains dans la réalisation de leurs projets d'études en Chine et en Allemagne. Plus qu'une agence, nous sommes votre partenaire stratégique."
+      description: "Depuis 2019, AG Technologies accompagne les talents africains dans la réalisation de leurs projets d'études en Chine et en Allemagne. Plus qu'une agence, nous sommes votre partenaire stratégique.",
+      badge_label: "Expertise",
+      badge_value: "Depuis 2019",
+      trust_label: "Confiance renouvelée"
     },
     values: {
       title: "Nos Valeurs Fondamentales",

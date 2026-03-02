@@ -54,6 +54,9 @@ export * from "@/types/pages/bourses.types"
 //Footer
 export * from "@/types/pages/footer.types";
 
+//About
+export * from "./pages/about.types";
+
 // UI Components
 export * from "@/types/ui/button.types";
 export * from  "@/types/ui/badge.types";
@@ -65,3 +68,7 @@ export * from "@/types/ui/language-switcher.types";
 export * from "@/types/ui/cookie-banner.types";
 export * from "@/types/ui/whatsapp-button.types";
 export * from "@/types/ui/chatbot-widget.types";
+export * from "@/types/ui/conversion-cta.types";
+
+export * from "./pages/services.types";
+export * from "./ui/conversion-cta.types";

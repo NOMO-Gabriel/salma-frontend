@@ -107,6 +107,7 @@ export const frLayout = {
   /** Dropdown Contact */
   nav_contact: {
     title: "Contact",
+    subtitle: "Nos conseillers sont à votre écoute pour vous guider.",
     rdv_label: "Prendre un rendez-vous",
     rdv_desc: "Consultation gratuite de 30 minutes avec un conseiller.",
     whatsapp_label: "WhatsApp",
@@ -226,11 +227,18 @@ nav_home: {
   widgets: {
     whatsapp: {
       helpText: "Besoin d'aide ?"
+    },
+     mapPreview: {
+      ctaLabel: "Ouvrir dans Google Maps",
+      badgeTitle: "Notre Siège",
+      badgeSubtitle: "Yaoundé, Immeuble Kadji",
+      imageAlt: "Siège AG Technologies — Yaoundé",
     }
   },
   common: {
   loading: "Chargement en cours...",
   error: "Une erreur est survenue",
 },
+
 };
 

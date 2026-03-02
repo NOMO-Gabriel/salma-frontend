@@ -89,7 +89,14 @@ export const enCommon = {
       { id: "rdv",          label: "📅 Book appointment",       query: "How to book an appointment?" },
     ],
   },
-
+  conversionCTA: {
+    title: "Ready to start your project?",
+    subtitle: "Our advisors are here to guide you.",
+    whatsapp_label: "Chat on WhatsApp",
+    whatsapp_desc: "Instant response for your urgent questions.",
+    appointment_label: "Book an appointment",
+    appointment_desc: "A 30-min session to analyze your file.",
+  },
   /** Footer labels (formerly hardcoded) */
   footer: {
     brandSubtitle: "Scholarships & Mobility",

@@ -1,18 +1,22 @@
-// src/types/pages/contact.types.ts
+export interface ContactHeroTexts {
+  title: string;
+  subtitle: string;
+  description: string;
+}
 
-export interface ContactFormTexts {
+export interface ContactFormLabels {
+  title: string;
+  subtitle: string;
   name: string;
   email: string;
   phone: string;
+  whatsapp: string;
   message: string;
-  send: string;
-  success: string;
-}
-
-export interface ContactTexts {
-  title: string;
-  subtitle: string;
-  form: ContactFormTexts;
+  submit: string;
+  success_title: string;
+  success_msg: string;
+  send_another: string; 
+  error_msg: string;
 }
 
 export interface FaqItem {
@@ -20,14 +24,16 @@ export interface FaqItem {
   a: string;
 }
 
-export interface FaqTexts {
-  title: string;
-  subtitle: string;
-  items: FaqItem[];
+export interface ContactPageContent {
+  hero: ContactHeroTexts;
+  form_section: ContactFormLabels;
+  faq: {
+    title: string;
+    subtitle: string;
+    items: FaqItem[];
+  };
 }
 
-/** Structure complète du scope "contact" dans cmsSwitcher */
-export interface ContactPageContent {
-  contact: ContactTexts;
-  faq: FaqTexts;
+export interface ContactScope {
+  contactPage: ContactPageContent;
 }

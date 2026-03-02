@@ -1,19 +1,24 @@
-// src/types/pages/services.types.ts
-export interface ServiceItemTexts {
+export interface ServiceItem {
   title: string;
   desc: string;
+  icon: string;
+  delay: string; // ex: "3 semaines"
 }
 
-export interface ServicesTexts {
-  servicesPage: {
+export interface ServicesPageContent {
+  hero: {
     title: string;
     subtitle: string;
     description: string;
-    items: {
-      study: ServiceItemTexts;
-      tourist: ServiceItemTexts;
-      work: ServiceItemTexts;
-      insurance: ServiceItemTexts;
-    };
   };
+  items: {
+    study: ServiceItem;
+    tourist: ServiceItem;
+    work: ServiceItem;
+    insurance: ServiceItem;
+  };
+}
+
+export interface ServicesScope {
+  servicesPage: ServicesPageContent;
 }

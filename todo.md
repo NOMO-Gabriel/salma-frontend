@@ -71,8 +71,8 @@ C'est une erreur de ma part, je rectifie immédiatement. Voici la version intég
     - [x] Modularité et réutilisabilité
     - [x] JSDoc (Documentation pro)
 
-- [ ] **1.3 Audit & Polish du Layout et des Widgets Globaux**
-  - [ ] **`Navbar.tsx` & `MobileMenu.tsx`**
+- [-] **1.3 Audit & Polish du Layout et des Widgets Globaux**
+  - [-] **`Navbar.tsx` & `MobileMenu.tsx`**
     - [ ] Design (UI/UX, animations, hover)
     - [ ] Séparation des responsabilités
     - [ ] Respect de l'architecture (Switcher, Types)
@@ -108,8 +108,8 @@ C'est une erreur de ma part, je rectifie immédiatement. Voici la version intég
     - [x] Modularité et réutilisabilité
     - [x] JSDoc (Documentation pro)
 
-- [ ] **1.4 Audit & Polish des Sections de la Page d'Accueil (`src/sections/visitor/`)**
-  - [ ] **`HeroCarousel.tsx`**
+- [-] **1.4 Audit & Polish des Sections de la Page d'Accueil (`src/sections/visitor/`)**
+  - [-] **`HeroCarousel.tsx`**
     - [ ] Design (UI/UX, animations, hover)
     - [ ] Séparation des responsabilités
     - [ ] Respect de l'architecture (Switcher, Types)
@@ -181,34 +181,34 @@ C'est une erreur de ma part, je rectifie immédiatement. Voici la version intég
     - [ ] Responsive (Mobile-first)
     - [ ] Modularité et réutilisabilité
     - [ ] JSDoc (Documentation pro)
-  - [ ] **`Services`**
-    - [ ] Design (UI/UX, animations, hover)
-    - [ ] Séparation des responsabilités
-    - [ ] Respect de l'architecture (Switcher, Types)
-    - [ ] Responsive (Mobile-first)
-    - [ ] Modularité et réutilisabilité
-    - [ ] JSDoc (Documentation pro)
-  - [ ] **`À Propos`**
-    - [ ] Design (UI/UX, animations, hover)
-    - [ ] Séparation des responsabilités
-    - [ ] Respect de l'architecture (Switcher, Types)
-    - [ ] Responsive (Mobile-first)
-    - [ ] Modularité et réutilisabilité
-    - [ ] JSDoc (Documentation pro)
-  - [ ] **`Contact`**
-    - [ ] Design (UI/UX, animations, hover)
-    - [ ] Séparation des responsabilités
-    - [ ] Respect de l'architecture (Switcher, Types)
-    - [ ] Responsive (Mobile-first)
-    - [ ] Modularité et réutilisabilité
-    - [ ] JSDoc (Documentation pro)
-  - [ ] **`Politique de Confidentialité`**
-    - [ ] Design (UI/UX, animations, hover)
-    - [ ] Séparation des responsabilités
-    - [ ] Respect de l'architecture (Switcher, Types)
-    - [ ] Responsive (Mobile-first)
-    - [ ] Modularité et réutilisabilité
-    - [ ] JSDoc (Documentation pro)
+  - [x] **`Services`**
+    - [x] Design (UI/UX, animations, hover)
+    - [x] Séparation des responsabilités
+    - [x] Respect de l'architecture (Switcher, Types)
+    - [x] Responsive (Mobile-first)
+    - [x] Modularité et réutilisabilité
+    - [x] JSDoc (Documentation pro)
+  - [x] **`À Propos`**
+    - [x] Design (UI/UX, animations, hover)
+    - [x] Séparation des responsabilités
+    - [x] Respect de l'architecture (Switcher, Types)
+    - [x] Responsive (Mobile-first)
+    - [x] Modularité et réutilisabilité
+    - [x] JSDoc (Documentation pro)
+  - [x] **`Contact`**
+    - [x] Design (UI/UX, animations, hover)
+    - [x] Séparation des responsabilités
+    - [x] Respect de l'architecture (Switcher, Types)
+    - [x] Responsive (Mobile-first)
+    - [x] Modularité et réutilisabilité
+    - [x] JSDoc (Documentation pro)
+  - [x] **`Politique de Confidentialité`**
+    - [x] Design (UI/UX, animations, hover)
+    - [x] Séparation des responsabilités
+    - [x] Respect de l'architecture (Switcher, Types)
+    - [x] Responsive (Mobile-first)
+    - [x] Modularité et réutilisabilité
+    - [x] JSDoc (Documentation pro)
 
 - [ ] **1.6 Audit de la Logique et de l'Infrastructure (`src/` par répertoire)**
   - [ ] **`hooks/`**

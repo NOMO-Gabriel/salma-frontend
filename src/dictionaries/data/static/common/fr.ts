@@ -89,6 +89,14 @@ export const frCommon = {
       { id: "rdv",          label: "📅 Prendre RDV",          query: "Comment prendre rendez-vous ?" },
     ],
   },
+  conversionCTA: {
+    title: "Prêt à lancer votre projet ?",
+    subtitle: "Nos conseillers sont à votre écoute pour vous guider.",
+    whatsapp_label: "Discuter sur WhatsApp",
+    whatsapp_desc: "Réponse instantanée pour vos questions urgentes.",
+    appointment_label: "Prendre un rendez-vous",
+    appointment_desc: "Une session de 30 min pour analyser votre dossier.",
+  },
 
   /** Labels Footer (textes qui étaient en dur) */
   footer: {
