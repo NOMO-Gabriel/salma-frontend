@@ -13,7 +13,7 @@ import type {
   MediaFilters,
 } from "@/types/api/media.types";
 
-const ADMIN = "/admin/medias";
+const ADMIN = "/admin/medias/";
 
 export const mediaRepository = {
   /**
@@ -45,8 +45,11 @@ export const mediaRepository = {
    */
   upload: (payload: UploadMediaPayload): Promise<MediaAsset> => {
     const formData = new FormData();
+    // On envoie le fichier
     formData.append("fichier", payload.fichier);
-    if (payload.nom_fichier) formData.append("nom_fichier", payload.nom_fichier);
+    // On envoie TOUJOURS le nom du fichier (obligatoire pour le Serializer backend)
+    formData.append("nom_fichier", payload.nom_fichier || payload.fichier.name);
+    
     if (payload.texte_alt_fr) formData.append("texte_alt_fr", payload.texte_alt_fr);
     if (payload.texte_alt_en) formData.append("texte_alt_en", payload.texte_alt_en);
 

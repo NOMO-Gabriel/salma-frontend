@@ -169,11 +169,12 @@ export const scholarshipAdminRepository = {
    * Mettre à jour plusieurs visibilités d'un coup
    */
  bulkUpdateVisibility: (
-  bourseId: string,
-  visibilities: UpdateFieldVisibilityPayload[]
-): Promise<void> => { // Ajoute le type de retour ici
-  return api.post<void>(`${ADMIN}/${bourseId}/visibilites/bulk`, { visibilities: visibilities });
-},
+    bourseId: string,
+    visibilities: UpdateFieldVisibilityPayload[]
+  ): Promise<void> => {
+    // On envoie le tableau 'visibilities' directement comme corps de la requête
+    return api.put<void>(`${ADMIN}/${bourseId}/visibilite/`, visibilities);
+  },
 
   // --- Images ---------------------------------------------------------------
 

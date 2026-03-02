@@ -30,8 +30,9 @@ export const cmsPublicRepository = {
    * GET /api/pages
    * Liste des pages publiées
    */
-  getPages: (): Promise<SitePagePublic[]> => {
-    return api.get<SitePagePublic[]>("/pages", { revalidate: 120 });
+  // On change le type de retour : ce n'est plus SitePageAdmin[] mais un objet avec results
+  getPages: (): Promise<{ results: SitePageAdmin[] }> => {
+    return api.get<{ results: SitePageAdmin[] }>("/admin/pages/");
   },
 
   /**
@@ -72,7 +73,7 @@ export const cmsAdminRepository = {
    * Liste de toutes les pages (publiées ou non)
    */
   getPages: (): Promise<SitePageAdmin[]> => {
-    return api.get<SitePageAdmin[]>("/admin/pages");
+    return api.get<SitePageAdmin[]>("/admin/pages/");
   },
 
   /**
@@ -88,7 +89,7 @@ export const cmsAdminRepository = {
    * Créer une page
    */
   createPage: (payload: CreateSitePagePayload): Promise<SitePageAdmin> => {
-    return api.post<SitePageAdmin>("/admin/pages", payload);
+    return api.post<SitePageAdmin>("/admin/pages/", payload);
   },
 
   /**

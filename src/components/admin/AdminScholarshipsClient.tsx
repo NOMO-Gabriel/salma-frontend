@@ -84,7 +84,7 @@ function ScholarshipModal({
 }: {
   scholarship: ScholarshipAdmin | null;
   onClose: () => void;
-  onSave: (data: CreateScholarshipPayload) => Promise<void>;
+  onSave: (data: CreateScholarshipPayload, visibility: Record<string, boolean>) => Promise<void>;
 }) {
   const [form, setForm] = useState<Partial<CreateScholarshipPayload>>(
     scholarship
@@ -126,7 +126,8 @@ function ScholarshipModal({
     setError("");
     try {
       // FIX : field_visibility n'existe pas dans CreateScholarshipPayload
-      await onSave(form as CreateScholarshipPayload);
+      // On envoie le formulaire ET la map de visibilité
+      await onSave(form as CreateScholarshipPayload, visibility);
       onClose();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Une erreur est survenue.");
@@ -456,44 +457,69 @@ export default function AdminScholarshipsClient({ initialData }: Props) {
     });
   }, [search, filterCountry, filterStatus]);
 
-  const handleSave = async (payload: CreateScholarshipPayload) => {
-    if (editingScholarship) {
-      await scholarshipAdminRepository.update(editingScholarship.id, payload);
-    } else {
-      await scholarshipAdminRepository.create(payload);
+  const handleSave = async (payload: CreateScholarshipPayload, visibility: Record<string, boolean>) => {
+    try {
+      let bourseId = editingScholarship?.id;
+
+      if (editingScholarship) {
+        await scholarshipAdminRepository.update(editingScholarship.id, payload);
+      } else {
+        const newBourse = await scholarshipAdminRepository.create(payload);
+        bourseId = newBourse.id;
+      }
+
+      if (bourseId && bourseId !== "undefined") {
+        // On prépare le tableau d'objets attendu par le backend
+        const visibilityPayload = Object.entries(visibility).map(([nom, val]) => ({
+          nom_du_champ: nom,
+          est_visible: val
+        }));
+
+        console.log("Données envoyées au serveur :", visibilityPayload);
+        
+        await scholarshipAdminRepository.bulkUpdateVisibility(bourseId, visibilityPayload);
+      } else {
+        console.error("Erreur : ID de bourse manquant pour la visibilité");
+      }
+
+      fetchData(page);
+      alert("Bourse enregistrée avec succès !");
+    } catch (err) {
+      console.error(err);
+      alert("Erreur lors de la sauvegarde complète.");
     }
-    fetchData(1);
   };
 
   const handleDelete = async (id: string) => {
-    await scholarshipAdminRepository.delete(id);
-    setDeleteId(null);
-    fetchData(page);
+    try {
+      await scholarshipAdminRepository.delete(id);
+      setDeleteId(null);
+      fetchData(page);
+    } catch (err) {
+      alert("Impossible de supprimer cette bourse. Elle est peut-être liée à des demandes de contact.");
+    }
   };
 
   const handleDuplicate = async (s: ScholarshipAdmin) => {
-    await scholarshipAdminRepository.create({
-      titre_fr: `${s.titre_fr} (copie)`,
-      titre_en: `${s.titre_en} (copy)`,
-      organisme_fr: s.organisme_fr,
-      organisme_en: s.organisme_en,
-      description_fr: s.description_fr,
-      description_en: s.description_en,
-      pays_destination: s.pays_destination,
-      niveau: s.niveau,
-      type_couverture: s.type_couverture,
-      statut: "brouillon",
-      est_mise_en_avant: false,
-    });
-    fetchData(page);
+    try {
+      await scholarshipAdminRepository.duplicate(s.id);
+      // On rafraîchit la liste à la page 1 pour voir la copie (souvent en haut)
+      fetchData(1);
+    } catch (err) {
+      alert("Erreur lors de la duplication de la bourse.");
+    }
   };
 
   // FIX : toggle via statut (pas est_publie)
   const handleQuickToggle = async (s: ScholarshipAdmin) => {
-    await scholarshipAdminRepository.patch(s.id, {
-      statut: s.statut === "publie" ? "brouillon" : "publie",
-    });
-    fetchData(page);
+    try {
+      await scholarshipAdminRepository.patch(s.id, {
+        statut: s.statut === "publie" ? "brouillon" : "publie",
+      });
+      fetchData(page);
+    } catch (err) {
+      alert("Erreur lors du changement de statut rapide.");
+    }
   };
 
   const handleSearch = (e: React.FormEvent<HTMLFormElement>) => {
