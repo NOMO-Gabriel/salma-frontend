@@ -1,13 +1,15 @@
 "use client";
 // =============================================================================
 //  NavDropdown.tsx — SALMA · Menu déroulant desktop
-//  Pattern : hover → ouvre le dropdown / clic → navigue vers la page principale
-//  Délai de fermeture 150ms pour permettre de glisser vers le panneau
+//  Fix : clic pour toggle le dropdown (en plus du hover)
+//        Fonctionne sur desktop, tactile hybride et tablette
+//  Pattern : hover OU clic → ouvre le dropdown
+//            clic sur le titre (non-action) → toggle dropdown
+//            hover leave → ferme après délai
 // =============================================================================
 
-import { useState, useRef, useCallback } from "react";
+import { useState, useRef, useCallback, useEffect } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import type { NavBourses, NavServices, NavContact, NavAbout, NavHome } from "@/types";
 
 type NavDropdownData = NavHome | NavBourses | NavServices | NavContact | NavAbout;
@@ -37,45 +39,67 @@ export default function NavDropdown({
 }) {
   const [isOpen, setIsOpen] = useState(false);
   const closeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const router = useRouter();
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  const cancelClose = useCallback(() => {
+    if (closeTimer.current) {
+      clearTimeout(closeTimer.current);
+      closeTimer.current = null;
+    }
+  }, []);
 
   const handleMouseEnter = useCallback(() => {
-    if (closeTimer.current) clearTimeout(closeTimer.current);
+    cancelClose();
     setIsOpen(true);
-  }, []);
+  }, [cancelClose]);
 
   const handleMouseLeave = useCallback(() => {
-    closeTimer.current = setTimeout(() => setIsOpen(false), 150);
+    closeTimer.current = setTimeout(() => setIsOpen(false), 200);
   }, []);
 
+  // Clic sur le bouton trigger : toggle le dropdown
   const handleClick = useCallback(() => {
-    // isAction (Contact) n'a pas de page dédiée dans le menu — on ouvre juste le dropdown
-    if (isAction) return;
-    const href = HREF_MAP[type];
-    if (href) {
-      setIsOpen(false);
-      router.push(href);
-    }
-  }, [isAction, type, router]);
+    setIsOpen((prev) => !prev);
+  }, []);
 
-  const href = HREF_MAP[type];
+  // Fermer quand on clique en dehors
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const handleClickOutside = (e: MouseEvent) => {
+      if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
+        setIsOpen(false);
+      }
+    };
+
+    // Petit délai pour éviter que le clic d'ouverture ne ferme immédiatement
+    const timer = setTimeout(() => {
+      document.addEventListener("click", handleClickOutside);
+    }, 10);
+
+    return () => {
+      clearTimeout(timer);
+      document.removeEventListener("click", handleClickOutside);
+    };
+  }, [isOpen]);
 
   return (
     <div
+      ref={containerRef}
       className="relative h-20 flex items-center"
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
     >
       {/* ===================================================================
           BOUTON TRIGGER
-          • Clic  → navigation directe vers la page principale
+          • Clic  → toggle le dropdown ouvert/fermé
           • Hover → ouvre le dropdown (géré par le parent div)
       =================================================================== */}
       <button
+        type="button"
         onClick={handleClick}
         aria-haspopup="true"
         aria-expanded={isOpen}
-        title={href ? `Aller à ${title}` : title}
         className={`
           relative px-4 py-2 flex items-center gap-1.5
           text-[11px] font-bold uppercase tracking-widest
@@ -116,11 +140,9 @@ export default function NavDropdown({
 
       {/* ===================================================================
           PANNEAUX DÉROULANTS
-          Le panneau hérite du handleMouseEnter/Leave du parent pour éviter
-          la fermeture quand la souris glisse du bouton vers le panneau
       =================================================================== */}
 
-      {/* ── CAS HOME ──────────────────────────────────────────────────── */}
+      {/* ── CAS HOME ──────────────────────────────────────────────── */}
       {isOpen && type === "home" && (() => {
         const d = data as NavHome;
         return (
@@ -142,7 +164,7 @@ export default function NavDropdown({
         );
       })()}
 
-      {/* ── CAS BOURSES ───────────────────────────────────────────────── */}
+      {/* ── CAS BOURSES ───────────────────────────────────────────── */}
       {isOpen && type === "bourses" && (() => {
         const d = data as NavBourses;
         return (
@@ -195,7 +217,7 @@ export default function NavDropdown({
         );
       })()}
 
-      {/* ── CAS SERVICES ──────────────────────────────────────────────── */}
+      {/* ── CAS SERVICES ──────────────────────────────────────────── */}
       {isOpen && type === "services" && (() => {
         const d = data as NavServices;
         return (
@@ -220,7 +242,7 @@ export default function NavDropdown({
         );
       })()}
 
-      {/* ── CAS À PROPOS ──────────────────────────────────────────────── */}
+      {/* ── CAS À PROPOS ──────────────────────────────────────────── */}
       {isOpen && type === "about" && (() => {
         const d = data as NavAbout;
         return (
@@ -269,7 +291,7 @@ export default function NavDropdown({
         );
       })()}
 
-      {/* ── CAS CONTACT (isAction) ────────────────────────────────────── */}
+      {/* ── CAS CONTACT (isAction) ────────────────────────────────── */}
       {isOpen && isAction && (() => {
         const d = data as NavContact;
         return (

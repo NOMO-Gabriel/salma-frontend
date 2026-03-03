@@ -44,6 +44,7 @@ export const enCommon = {
     placeholder: "your@email.com", submit: "Subscribe",
     submitting: "Sending…", success: "Subscribed successfully!",
     error: "Something went wrong. Please try again.",
+    subscribe_label: "I'd like to receive scholarship offers by email"
   },
 
   /** ThemeSwitcher labels (accessibility) */

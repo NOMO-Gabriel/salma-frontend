@@ -44,6 +44,7 @@ export const frCommon = {
     placeholder: "votre@email.com", submit: "S'abonner",
     submitting: "Envoi…", success: "Inscription réussie !",
     error: "Une erreur est survenue. Veuillez réessayer.",
+    subscribe_label: "Je souhaite recevoir les offres de bourses par email",
   },
 
   /** Labels ThemeSwitcher (accessibilité) */

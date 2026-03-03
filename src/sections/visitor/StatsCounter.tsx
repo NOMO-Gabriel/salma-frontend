@@ -64,11 +64,11 @@ function StatCard({ stat, active }: { stat: StatItem; active: boolean }) {
 
   return (
     <div className="flex flex-col items-center text-center group">
-      <span className="text-4xl md:text-5xl font-serif font-bold text-salma-primary dark:text-salma-gold mb-2 transition-transform group-hover:scale-110 duration-300">
+      <span className="text-3xl sm:text-4xl md:text-5xl font-serif font-bold text-salma-primary dark:text-salma-gold mb-2 transition-transform group-hover:scale-110 duration-300">
         {display}{suffix}
       </span>
       <div className="w-8 h-1 bg-salma-gold rounded-full mb-4 opacity-50" />
-      <span className="text-xs md:text-sm font-sans font-bold uppercase tracking-widest text-salma-text-muted">
+      <span className="text-[10px] sm:text-xs md:text-sm font-sans font-bold uppercase tracking-widest text-salma-text-muted">
         {stat.label}
       </span>
     </div>
@@ -95,7 +95,9 @@ export default function StatsCounter({ kpi }: Props) {
         {
           id: "satisfaction",
           // Priorité à la donnée KPI réelle si disponible
-          value: kpi ? `${Math.round(kpi.taux_conversion_global * 100)}%` : s.satisfaction.value,
+          value: (kpi && typeof kpi.taux_conversion_global === 'number' && !isNaN(kpi.taux_conversion_global) && isFinite(kpi.taux_conversion_global))
+            ? `${Math.round(kpi.taux_conversion_global * 100)}%`
+            : s.satisfaction.value,
           label: s.satisfaction.label,
         },
       ]);
@@ -124,9 +126,9 @@ export default function StatsCounter({ kpi }: Props) {
   if (!stats.length) return null;
 
   return (
-    <section ref={sectionRef} className="py-20 bg-salma-accent/5 dark:bg-salma-surface/20">
-      <div className="container mx-auto px-6">
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-8 md:gap-12">
+    <section ref={sectionRef} className="py-12 sm:py-16 lg:py-20 bg-salma-accent/5 dark:bg-salma-surface/20">
+      <div className="container mx-auto px-4 sm:px-6">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8 md:gap-12">
           {stats.map((stat) => (
             <StatCard key={stat.id} stat={stat} active={active} />
           ))}
@@ -135,3 +137,4 @@ export default function StatsCounter({ kpi }: Props) {
     </section>
   );
 }
+// END OF FILE: src/sections/visitor/StatsCounter.tsx

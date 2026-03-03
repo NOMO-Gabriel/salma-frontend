@@ -32,6 +32,7 @@ export interface NewsletterFormLabels {
 
   /** Message d'erreur en cas d'échec */
   error: string;
+  subscribe_label?: string;
 }
 
 /**
