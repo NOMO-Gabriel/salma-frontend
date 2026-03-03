@@ -1,5 +1,5 @@
 ﻿Next.js Project Context
-Generated On: 2026-03-03 15:51:00
+Generated On: 2026-03-03 17:11:13
 Root: C:\Users\hp\Documents\stage gabriel\SALMA\salma-frontend
 ===============================================
 
@@ -1140,15 +1140,21 @@ export default async function AdminBoursesPage() {
 
 // FILE: src/app/(admin)/admin/chatbot/page.tsx
 -----------------------------------------------
+// src/app/(admin)/admin/chatbot/page.tsx
 import { chatbotRepository } from "@/repositories/chatbot.repository";
 import AdminChatbotClient from "@/components/admin/AdminChatbotClient";
 
 async function getFaqs() {
   try {
     const data = await chatbotRepository.adminGetFaqs();
-    // Le backend DRF avec DefaultRouter renvoie toujours un objet paginé { results: [...] }
     
-    return <AdminKpiClient realtime={data.realtime} conversion={data.conversion} />;
+    /**
+     * Le backend DRF avec DefaultRouter renvoie un objet paginé { results: [...] }
+     * mais le repository est typé pour renvoyer directement le tableau.
+     * On utilise @ts-expect-error pour gérer la structure réelle de l'API (results).
+     */
+    // @ts-expect-error - L'API renvoie { results: FaqEntry[] }
+    return data.results || [];
   } catch (error) {
     console.error("Erreur Chatbot FAQ:", error);
     return [];
@@ -1157,6 +1163,7 @@ async function getFaqs() {
 
 export default async function AdminChatbotPage() {
   const faqs = await getFaqs();
+  
   return <AdminChatbotClient initialFaqs={faqs} />;
 }
 
@@ -1303,7 +1310,7 @@ async function getKpiData() {
 
 export default async function AdminKpiPage() {
   const data = await getKpiData();
-  // @ts-ignore
+   // @ts-expect-error - Données typées côté API mais structure complexe pour le client
   return <AdminKpiClient realtime={data.realtime} conversion={data.conversion} />;
 }
 
@@ -1313,22 +1320,23 @@ export default async function AdminKpiPage() {
 // FILE: src/app/(admin)/admin/login/page.tsx
 -----------------------------------------------
 "use client";
-// src/app/(admin)/admin/login/page.tsx
 
 import { useState, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useAuth } from "@/hooks/useAuth";
+import { useLanguage } from "@/hooks/useLanguage";
 import type { LoginPayload } from "@/types/api/auth.types";
 
 export default function AdminLoginPage() {
-  const router       = useRouter();
+  const router = useRouter();
   const searchParams = useSearchParams();
   const { login, isLoading, isAuthenticated, error, clearError } = useAuth();
+  const { dictionary } = useLanguage();
+  const t = dictionary.admin.login;
 
-  const [form, setForm]                 = useState<LoginPayload>({ email: "", password: "" });
+  const [form, setForm] = useState<LoginPayload>({ email: "", password: "" });
   const [showPassword, setShowPassword] = useState(false);
 
-  // Si déjà connecté → rediriger
   useEffect(() => {
     if (isAuthenticated) {
       const redirect = searchParams.get("redirect") || "/admin/dashboard";
@@ -1350,56 +1358,36 @@ export default function AdminLoginPage() {
 
   return (
     <div className="min-h-screen flex font-sans">
-
       {/* ── Panneau gauche — Brand ─────────────────────────────────── */}
       <div className="hidden lg:flex lg:w-[45%] flex-col justify-between p-12 bg-[#0F1F3D] relative overflow-hidden">
-
-        {/* Grille géométrique décorative */}
-        <div className="absolute inset-0 opacity-[0.03]"
-          style={{
-            backgroundImage: "linear-gradient(#fff 1px,transparent 1px),linear-gradient(90deg,#fff 1px,transparent 1px)",
-            backgroundSize: "40px 40px",
-          }}
-        />
-        {/* Cercle décoratif */}
+        <div className="absolute inset-0 opacity-[0.03]" style={{ backgroundImage: "linear-gradient(#fff 1px,transparent 1px),linear-gradient(90deg,#fff 1px,transparent 1px)", backgroundSize: "40px 40px" }} />
         <div className="absolute -top-20 -right-20 w-80 h-80 rounded-full border border-[#C9A84C]/10" />
-        <div className="absolute -bottom-16 -left-16 w-52 h-52 rounded-full border border-[#C9A84C]/8" />
-        {/* Halo doré */}
-        <div className="absolute top-0 right-0 w-96 h-96 rounded-full"
-          style={{ background: "radial-gradient(circle, rgba(201,168,76,0.07) 0%, transparent 70%)" }}
-        />
+        <div className="absolute top-0 right-0 w-96 h-96 rounded-full" style={{ background: "radial-gradient(circle, rgba(201,168,76,0.07) 0%, transparent 70%)" }} />
 
-        {/* Logo */}
         <div className="relative z-10 flex items-center gap-3">
           <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-[#C9A84C] to-[#A68635] flex items-center justify-center shadow-lg shadow-[#C9A84C]/30">
-            <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M4.26 10.147a60.436 60.436 0 00-.491 6.347A48.627 48.627 0 0112 20.904a48.627 48.627 0 018.232-4.41 60.46 60.46 0 00-.491-6.347m-15.482 0a50.57 50.57 0 00-2.658-.813A59.905 59.905 0 0112 3.493a59.902 59.902 0 0110.399 5.84c-.896.248-1.783.52-2.658.814m-15.482 0A50.697 50.697 0 0112 13.489a50.702 50.702 0 017.74-3.342" />
-            </svg>
+            <span className="text-white font-serif font-bold text-xl">{t.logoInitial}</span>
           </div>
           <div>
-            <p className="font-serif text-2xl font-bold text-white leading-none">SALMA</p>
-            <p className="text-[9px] font-bold text-[#C9A84C] uppercase tracking-[0.3em] mt-0.5">AG Technologies</p>
+            <p className="font-serif text-2xl font-bold text-white leading-none">{t.brandName}</p>
+            <p className="text-[9px] font-bold text-[#C9A84C] uppercase tracking-[0.3em] mt-0.5">{t.brandCompany}</p>
           </div>
         </div>
 
-        {/* Citation centrale */}
         <div className="relative z-10">
           <div className="w-8 h-0.5 bg-[#C9A84C] rounded mb-6" />
           <blockquote className="font-serif text-3xl font-semibold text-white leading-snug max-w-xs">
-            La passerelle entre l&apos;Afrique et les meilleures universités du monde.
+            {t.quote}
           </blockquote>
-          <p className="mt-5 text-sm text-white/40">
-            Espace réservé aux administrateurs de la plateforme
-          </p>
+          <p className="mt-5 text-sm text-white/40">{t.adminOnly}</p>
         </div>
 
-        {/* Stats */}
         <div className="relative z-10 grid grid-cols-2 gap-3">
           {[
-            { v: "500+",    l: "Étudiants accompagnés" },
-            { v: "25+",     l: "Universités partenaires" },
-            { v: "03 sem.", l: "Délai moyen visas" },
-            { v: "100%",    l: "Taux de réussite" },
+            { v: t.stats.studentsValue,     l: t.stats.students },
+            { v: t.stats.universitiesValue, l: t.stats.universities },
+            { v: t.stats.visasValue,        l: t.stats.visas },
+            { v: t.stats.successValue,      l: t.stats.success },
           ].map((s) => (
             <div key={s.l} className="flex items-center gap-3 px-3 py-2.5 rounded-xl bg-white/5 border border-white/8">
               <span className="font-serif text-xl font-bold text-[#C9A84C] leading-none">{s.v}</span>
@@ -1411,163 +1399,81 @@ export default function AdminLoginPage() {
 
       {/* ── Panneau droit — Formulaire ─────────────────────────────── */}
       <div className="flex-1 flex items-center justify-center px-6 py-12 bg-slate-50 relative">
-
-        {/* Points décoratifs fond */}
-        <div className="absolute inset-0 opacity-40"
-          style={{
-            backgroundImage: "radial-gradient(#CBD5E1 1px, transparent 1px)",
-            backgroundSize: "24px 24px",
-          }}
-        />
+        <div className="absolute inset-0 opacity-40" style={{ backgroundImage: "radial-gradient(#CBD5E1 1px, transparent 1px)", backgroundSize: "24px 24px" }} />
 
         <div className="relative z-10 w-full max-w-sm">
-
-          {/* Badge sécurité */}
           <div className="flex items-center gap-2 mb-8">
             <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[#0F1F3D]/6 border border-[#0F1F3D]/8">
               <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 shadow-[0_0_0_3px_rgba(34,197,94,0.2)]" />
-              <span className="text-[11px] font-semibold text-[#0F1F3D] tracking-wide">Système sécurisé</span>
+              <span className="text-[11px] font-semibold text-[#0F1F3D] tracking-wide">{t.secureSystem}</span>
             </div>
           </div>
 
-          {/* Titre */}
           <div className="mb-8">
-            <h1 className="font-serif text-4xl font-bold text-[#0F1F3D] leading-tight mb-2">
-              Connexion Admin
-            </h1>
-            <p className="text-sm text-slate-500 leading-relaxed">
-              Accédez au tableau de bord de gestion de la plateforme SALMA.
-            </p>
+            <h1 className="font-serif text-4xl font-bold text-[#0F1F3D] leading-tight mb-2">{t.title}</h1>
+            <p className="text-sm text-slate-500 leading-relaxed">{t.subtitle}</p>
           </div>
 
-          {/* Erreur */}
           {error && (
             <div className="flex items-start gap-3 p-4 rounded-xl bg-red-50 border border-red-200 mb-6">
-              <svg className="w-4 h-4 text-red-500 flex-shrink-0 mt-0.5" viewBox="0 0 20 20" fill="currentColor">
-                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
-              </svg>
               <p className="text-sm text-red-700 font-medium">{error}</p>
             </div>
           )}
 
-          {/* Formulaire */}
           <form onSubmit={handleSubmit} className="space-y-5">
-
-            {/* Email */}
             <div>
-              <label className="block text-[11px] font-bold text-slate-500 uppercase tracking-widest mb-2">
-                Adresse e-mail
-              </label>
-              <div className="relative">
-                <svg className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 01-2.25 2.25h-15a2.25 2.25 0 01-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25m19.5 0v.243a2.25 2.25 0 01-1.07 1.916l-7.5 4.615a2.25 2.25 0 01-2.36 0L3.32 8.91a2.25 2.25 0 01-1.07-1.916V6.75" />
-                </svg>
-                <input
-                  name="email"
-                  type="email"
-                  autoComplete="email"
-                  required
-                  value={form.email}
-                  onChange={handleChange}
-                  placeholder="admin@salma.cm"
-                  className={`w-full pl-10 pr-4 py-3 rounded-xl border text-sm text-slate-800 bg-white placeholder:text-slate-300 outline-none transition-all
-                    ${error
-                      ? "border-red-300 focus:border-red-400 focus:ring-2 focus:ring-red-100"
-                      : "border-slate-200 focus:border-[#C9A84C] focus:ring-2 focus:ring-[#C9A84C]/15"
-                    }`}
-                />
-              </div>
+              <label className="block text-[11px] font-bold text-slate-500 uppercase tracking-widest mb-2">{t.emailLabel}</label>
+              <input
+                name="email"
+                type="email"
+                required
+                value={form.email}
+                onChange={handleChange}
+                placeholder={t.emailPlaceholder}
+                className="w-full px-4 py-3 rounded-xl border border-slate-200 text-sm text-slate-800 bg-white outline-none focus:border-[#C9A84C] focus:ring-2 focus:ring-[#C9A84C]/15 transition-all"
+              />
             </div>
 
-            {/* Mot de passe */}
             <div>
               <div className="flex items-center justify-between mb-2">
-                <label className="block text-[11px] font-bold text-slate-500 uppercase tracking-widest">
-                  Mot de passe
-                </label>
-                <span className="text-xs text-slate-400 cursor-pointer hover:text-[#1B365D] transition-colors">
-                  Mot de passe oublié ?
-                </span>
+                <label className="block text-[11px] font-bold text-slate-500 uppercase tracking-widest">{t.passwordLabel}</label>
+                <span className="text-xs text-slate-400 cursor-pointer hover:text-[#1B365D] transition-colors">{t.forgotPassword}</span>
               </div>
               <div className="relative">
-                <svg className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z" />
-                </svg>
                 <input
                   name="password"
                   type={showPassword ? "text" : "password"}
-                  autoComplete="current-password"
                   required
                   value={form.password}
                   onChange={handleChange}
-                  placeholder="••••••••••"
-                  className={`w-full pl-10 pr-11 py-3 rounded-xl border text-sm text-slate-800 bg-white placeholder:text-slate-300 outline-none transition-all
-                    ${error
-                      ? "border-red-300 focus:border-red-400 focus:ring-2 focus:ring-red-100"
-                      : "border-slate-200 focus:border-[#C9A84C] focus:ring-2 focus:ring-[#C9A84C]/15"
-                    }`}
+                  placeholder={t.passwordPlaceholder}
+                  className="w-full px-4 py-3 rounded-xl border border-slate-200 text-sm text-slate-800 bg-white outline-none focus:border-[#C9A84C] focus:ring-2 focus:ring-[#C9A84C]/15 transition-all"
                 />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors"
+                <button 
+                  type="button" 
+                  onClick={() => setShowPassword(!showPassword)} 
+                  className="absolute right-3.5 top-1/2 -translate-y-1/2 text-lg"
+                  aria-label={showPassword ? dictionary.admin.common.hide : dictionary.admin.common.show}
                 >
-                  {showPassword ? (
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M3.98 8.223A10.477 10.477 0 001.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.45 10.45 0 0112 4.5c4.756 0 8.773 3.162 10.065 7.498a10.523 10.523 0 01-4.293 5.774M6.228 6.228L3 3m3.228 3.228l3.65 3.65m7.894 7.894L21 21m-3.228-3.228l-3.65-3.65m0 0a3 3 0 10-4.243-4.243m4.242 4.242L9.88 9.88" />
-                    </svg>
-                  ) : (
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" />
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                    </svg>
-                  )}
+                  {showPassword ? "👁️" : "🙈"}
                 </button>
               </div>
             </div>
 
-            {/* Bouton submit */}
             <button
               type="submit"
               disabled={isLoading || !form.email || !form.password}
-              className="w-full flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl bg-[#0F1F3D] text-white text-sm font-semibold
-                hover:bg-[#1B365D] transition-all duration-200 shadow-md shadow-[#0F1F3D]/20
-                hover:-translate-y-0.5 hover:shadow-lg hover:shadow-[#0F1F3D]/25
-                active:translate-y-0 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none disabled:shadow-none"
+              className="w-full flex items-center justify-center gap-2 px-6 py-3.5 rounded-xl bg-[#0F1F3D] text-white text-sm font-semibold hover:bg-[#1B365D] transition-all disabled:opacity-50 shadow-md"
             >
-              {isLoading ? (
-                <>
-                  <svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
-                  </svg>
-                  Connexion en cours…
-                </>
-              ) : (
-                <>
-                  Accéder au tableau de bord
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
-                  </svg>
-                </>
-              )}
+              {isLoading ? t.submitting : t.submitBtn}
             </button>
           </form>
 
-          {/* Mention sécurité */}
           <div className="flex items-center gap-2.5 mt-6 px-4 py-3 rounded-xl bg-[#0F1F3D]/4 border border-[#0F1F3D]/6">
-            <svg className="w-3.5 h-3.5 text-slate-400 flex-shrink-0" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z" />
-            </svg>
-            <span className="text-xs text-slate-400">
-              Accès protégé — Réservé aux administrateurs AG Technologies
-            </span>
+            <span className="text-xs text-slate-400">{t.protectedAccess}</span>
           </div>
 
-          {/* Footer */}
-          <p className="mt-6 text-center text-[11px] text-slate-400">
-            © 2026 SALMA · AG Technologies · Yaoundé, Cameroun
-          </p>
+          <p className="mt-6 text-center text-[11px] text-slate-400">{t.copyright}</p>
         </div>
       </div>
     </div>
@@ -1661,10 +1567,11 @@ export default async function AdminTemoignagesPage() {
 "use client";
 // src/app/(admin)/admin/layout.tsx
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import Link from "next/link";
 import { useAuth } from "@/hooks/useAuth";
+import { useLanguage } from "@/hooks/useLanguage";
 
 // ---------------------------------------------------------------------------
 //  Composants UI Internes
@@ -1695,33 +1602,6 @@ const ICONS = {
   chevron: "M15 19l-7-7 7-7",
 };
 
-const NAV_SECTIONS = [
-  {
-    label: "Principal",
-    items: [
-      { href: "/admin/dashboard", label: "Tableau de bord", icon: "dashboard" },
-      { href: "/admin/bourses",   label: "Bourses",         icon: "bourses" },
-      { href: "/admin/contacts",  label: "Contacts & RDV",  icon: "contacts", badge: true },
-    ],
-  },
-  {
-    label: "Contenu",
-    items: [
-      { href: "/admin/cms",         label: "Pages & CMS",   icon: "cms" },
-      { href: "/admin/medias",      label: "Médiathèque",   icon: "media" },
-      { href: "/admin/temoignages", label: "Témoignages",   icon: "temoignages" },
-      { href: "/admin/newsletter",  label: "Newsletter",    icon: "newsletter" },
-    ],
-  },
-  {
-    label: "Intelligence",
-    items: [
-      { href: "/admin/chatbot", label: "Chatbot / FAQ",  icon: "chatbot" },
-      { href: "/admin/kpi",     label: "KPI & Analytics", icon: "kpi" },
-    ],
-  },
-];
-
 // ---------------------------------------------------------------------------
 //  Composant Principal
 // ---------------------------------------------------------------------------
@@ -1730,15 +1610,45 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   const pathname = usePathname();
   const router = useRouter();
   const { user, isLoading, isAuthenticated, logout } = useAuth();
+  const { dictionary } = useLanguage();
+  const t = dictionary.admin.layout;
 
   const [collapsed, setCollapsed] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
 
   const isLoginPage = pathname === "/admin/login";
 
+  // Configuration de la navigation localisée
+  const navSections = useMemo(() => [
+    {
+      label: t.sections.principal,
+      items: [
+        { href: "/admin/dashboard", label: t.menu.dashboard, icon: "dashboard" },
+        { href: "/admin/bourses",   label: t.menu.scholarships, icon: "bourses" },
+        { href: "/admin/contacts",  label: t.menu.contacts,  icon: "contacts", badge: true },
+      ],
+    },
+    {
+      label: t.sections.content,
+      items: [
+        { href: "/admin/cms",         label: t.menu.cms,   icon: "cms" },
+        { href: "/admin/medias",      label: t.menu.medias,   icon: "media" },
+        { href: "/admin/temoignages", label: t.menu.testimonials, icon: "temoignages" },
+        { href: "/admin/newsletter",  label: t.menu.newsletter,    icon: "newsletter" },
+      ],
+    },
+    {
+      label: t.sections.intelligence,
+      items: [
+        { href: "/admin/chatbot", label: t.menu.chatbot,  icon: "chatbot" },
+        { href: "/admin/kpi",     label: t.menu.kpi, icon: "kpi" },
+      ],
+    },
+  ], [t]);
+
   // 1. PROTECTION : Attendre la fin du chargement avant de rediriger
   useEffect(() => {
-    if (isLoading) return; // CRITIQUE : Ne rien faire pendant le chargement
+    if (isLoading) return;
 
     if (!isAuthenticated && !isLoginPage) {
       router.replace(`/admin/login?redirect=${pathname}`);
@@ -1748,24 +1658,22 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   // 2. Fermer le menu mobile au changement de route
   useEffect(() => { setMobileOpen(false); }, [pathname]);
 
-  // 3. Écran de chargement (évite le flash de contenu)
+  // 3. Écran de chargement
   if (isLoading) {
     return (
       <div className="min-h-screen bg-[#F0F2F7] flex items-center justify-center">
         <div className="flex flex-col items-center gap-4">
           <div className="w-10 h-10 border-2 border-[#1B365D] border-t-transparent rounded-full animate-spin" />
-          <p className="text-sm text-slate-400">Vérification des accès…</p>
+          <p className="text-sm text-slate-400">{t.loadingAuth}</p>
         </div>
       </div>
     );
   }
 
-  // 4. SI PAGE LOGIN : Rendu nu
   if (isLoginPage) {
     return <>{children}</>;
   }
 
-  // 5. SI PAS AUTHENTIFIÉ : On ne rend rien (le useEffect redirige)
   if (!isAuthenticated) return null;
 
   const isActive = (href: string) => pathname === href || pathname.startsWith(href + "/");
@@ -1789,7 +1697,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       </div>
 
       <nav className="flex-1 overflow-y-auto py-4 space-y-5 px-3">
-        {NAV_SECTIONS.map((section) => (
+        {navSections.map((section) => (
           <div key={section.label}>
             {!collapsed && (
               <p className="px-3 mb-1.5 text-[9px] font-bold uppercase tracking-[0.2em] text-white/30">
@@ -1819,14 +1727,14 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       <div className={`border-t border-white/10 p-3 space-y-1 ${collapsed && "flex flex-col items-center"}`}>
         <Link href="/" target="_blank" className={`flex items-center gap-3 px-3 py-2 rounded-xl text-white/40 hover:text-white/70 hover:bg-white/5 transition-all ${collapsed && "justify-center px-0"}`}>
           <SvgIcon d={ICONS.site} />
-          {!collapsed && <span className="text-xs font-medium">Voir le site</span>}
+          {!collapsed && <span className="text-xs font-medium">{t.viewSite}</span>}
         </Link>
         <div className="flex items-center gap-3 px-3 py-2 rounded-xl hover:bg-white/5 transition-colors">
           <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[#C9A84C] to-[#A68635] flex items-center justify-center text-white font-bold text-xs flex-shrink-0">{initials}</div>
           {!collapsed && (
             <div className="flex-1 min-w-0">
               <p className="text-white text-xs font-semibold truncate">{user?.nom_complet || "Admin"}</p>
-              <button onClick={logout} className="text-red-400 text-[10px] hover:underline">Déconnexion</button>
+              <button onClick={logout} className="text-red-400 text-[10px] hover:underline">{t.logout}</button>
             </div>
           )}
         </div>
@@ -1836,10 +1744,8 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
   return (
     <div className="min-h-screen bg-[#F0F2F7] flex font-sans">
-      {/* Overlay mobile */}
       {mobileOpen && <div className="fixed inset-0 bg-black/50 z-40 md:hidden backdrop-blur-sm" onClick={() => setMobileOpen(false)} />}
 
-      {/* Sidebar Desktop */}
       <aside className={`fixed top-0 left-0 h-full z-50 hidden md:flex flex-col bg-[#0F1F3D] text-white transition-all duration-300 ${collapsed ? "w-[72px]" : "w-64"}`}>
         <SidebarContent />
         <button onClick={() => setCollapsed(!collapsed)} className="absolute -right-3 top-[72px] w-6 h-6 bg-[#0F1F3D] border border-white/20 rounded-full flex items-center justify-center text-white/50 hover:text-white transition-colors shadow-lg">
@@ -1847,16 +1753,14 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         </button>
       </aside>
 
-      {/* Sidebar Mobile */}
       <aside className={`fixed top-0 left-0 h-full z-50 flex flex-col md:hidden bg-[#0F1F3D] text-white w-64 transition-transform duration-300 ${mobileOpen ? "translate-x-0" : "-translate-x-full"}`}>
         <SidebarContent />
       </aside>
 
-      {/* Zone principale */}
       <div className={`flex-1 flex flex-col min-h-screen transition-all duration-300 ${collapsed ? "md:ml-[72px]" : "md:ml-64"}`}>
         <header className="h-16 bg-white/80 backdrop-blur-md border-b border-slate-200/80 flex items-center gap-4 px-6 sticky top-0 z-30 shadow-sm">
           <button onClick={() => setMobileOpen(true)} className="md:hidden p-2 rounded-lg text-slate-500 hover:bg-slate-100 transition-colors"><SvgIcon d={ICONS.menu} /></button>
-          <div className="flex-1 text-sm font-semibold text-slate-700">Administration SALMA</div>
+          <div className="flex-1 text-sm font-semibold text-slate-700">{t.adminTitle}</div>
           <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[#C9A84C] to-[#A68635] flex items-center justify-center text-white font-bold text-xs">{initials}</div>
         </header>
         <main className="flex-1 p-6 overflow-auto">
@@ -3187,7 +3091,7 @@ interface Props {
 export default function AdminCmsClient({ initialPages }: Props) {
   const { dictionary } = useLanguage();
   const t = dictionary.admin.cms;
-  const common = dictionary.admin.common;
+
   
   const [pages, setPages] = useState<SitePageAdmin[]>(Array.isArray(initialPages) ? initialPages : []);
   const [selectedPage, setSelectedPage] = useState<SitePageAdmin | null>(null);
@@ -3374,7 +3278,7 @@ export default function AdminContactsClient({ initialContacts }: Props) {
       await contactAdminRepository.patch(id, { est_lu: true });
       // Mise à jour locale de la liste
       setContacts(contacts.map(c => c.id === id ? { ...c, est_lu: true } : c));
-    } catch (error) {
+    } catch{
       alert("Erreur lors de la mise à jour.");
     }
   };
@@ -3440,18 +3344,13 @@ export default function AdminContactsClient({ initialContacts }: Props) {
 // FILE: src/components/admin/AdminDashboardClient.tsx
 -----------------------------------------------
 "use client";
-// src/components/admin/AdminDashboardClient.tsx
-// ==============================================================================
-//  Dashboard Admin — Contenu interactif côté client
-//  KPI Cards + Graphique d'activité + Dernières bourses + Derniers contacts
-// ==============================================================================
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { useLanguage } from "@/hooks/useLanguage";
 import type { KpiRealtime } from "@/types/api/kpi.types";
 import type { ScholarshipAdminListResponse } from "@/types/api/scholarship.types";
 import type { PaginatedContactResponse } from "@/types/api/contact.types";
-// --- Types locaux ---
 
 interface DashboardProps {
   kpi: KpiRealtime | null;
@@ -3529,11 +3428,10 @@ function KpiCard({
   );
 }
 
-// --- Graphique d'activité (barres CSS) ----------------------------------------
+// --- Graphique d'activité -----------------------------------------------------
 
-function ActivityChart({ data }: { data: number[] }) {
+function ActivityChart({ data, daysLabels }: { data: number[], daysLabels: string[] }) {
   const max = Math.max(...data, 1);
-  const days = ["Lun", "Mar", "Mer", "Jeu", "Ven", "Sam", "Dim"];
 
   return (
     <div className="flex items-end gap-2 h-32 mt-4">
@@ -3543,7 +3441,7 @@ function ActivityChart({ data }: { data: number[] }) {
             className="w-full rounded-t-md bg-[#1B365D] transition-all duration-500 hover:bg-[#C9A84C]"
             style={{ height: `${(val / max) * 100}%`, minHeight: val > 0 ? "4px" : "0" }}
           />
-          <span className="text-[10px] text-slate-400 font-medium">{days[i]}</span>
+          <span className="text-[10px] text-slate-400 font-medium">{daysLabels[i]}</span>
         </div>
       ))}
     </div>
@@ -3552,24 +3450,22 @@ function ActivityChart({ data }: { data: number[] }) {
 
 // --- Badge statut -------------------------------------------------------------
 
-function StatusBadge({ status }: { status: string }) {
-  const map: Record<string, { label: string; class: string }> = {
-    publie: { label: "Publié", class: "bg-emerald-100 text-emerald-700" },
-    brouillon: { label: "Brouillon", class: "bg-slate-100 text-slate-600" },
-    archive: { label: "Archivé", class: "bg-orange-100 text-orange-700" },
-    ouvert: { label: "Ouvert", class: "bg-emerald-100 text-emerald-700" },
-    ferme: { label: "Fermé", class: "bg-slate-100 text-slate-600" },
-    urgent: { label: "Urgent", class: "bg-red-100 text-red-700" },
-    nouveau: { label: "Nouveau", class: "bg-blue-100 text-blue-700" },
-    en_cours: { label: "En cours", class: "bg-amber-100 text-amber-700" },
-    traite: { label: "Traité", class: "bg-emerald-100 text-emerald-700" },
+function StatusBadge({ status, labels }: { status: string, labels: Record<string, string> }) {
+  const colorMap: Record<string, string> = {
+    publie: "bg-emerald-100 text-emerald-700",
+    brouillon: "bg-slate-100 text-slate-600",
+    archive: "bg-orange-100 text-orange-700",
+    ouvert: "bg-emerald-100 text-emerald-700",
+    ferme: "bg-slate-100 text-slate-600",
+    urgent: "bg-red-100 text-red-700",
+    nouveau: "bg-blue-100 text-blue-700",
+    en_cours: "bg-amber-100 text-amber-700",
+    traite: "bg-emerald-100 text-emerald-700",
   };
 
-  const s = map[status] || { label: status, class: "bg-slate-100 text-slate-600" };
-
   return (
-    <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${s.class}`}>
-      {s.label}
+    <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${colorMap[status] || "bg-slate-100 text-slate-600"}`}>
+      {labels[status] || status}
     </span>
   );
 }
@@ -3577,15 +3473,19 @@ function StatusBadge({ status }: { status: string }) {
 // --- Composant principal ------------------------------------------------------
 
 export default function AdminDashboardClient({ kpi, scholarships, contacts }: DashboardProps) {
-  const [greeting, setGreeting] = useState("Bonjour");
+  const { dictionary, locale } = useLanguage();
+  const t = dictionary.admin.dashboard;
+  const statusLabels = dictionary.admin.statusLabels;
+
+  const [greeting, setGreeting] = useState("");
   const [activityData] = useState([12, 19, 8, 24, 16, 5, 11]);
 
   useEffect(() => {
     const h = new Date().getHours();
-    if (h < 12) setGreeting("Bonjour");
-    else if (h < 18) setGreeting("Bon après-midi");
-    else setGreeting("Bonsoir");
-  }, []);
+    if (h < 12) setGreeting(t.greetingMorning);
+    else if (h < 18) setGreeting(t.greetingAfternoon);
+    else setGreeting(t.greetingEvening);
+  }, [t]);
 
   const totalVisitors = kpi?.total_visiteurs ?? 0;
   const totalScholarships = scholarships?.count ?? 0;
@@ -3593,6 +3493,11 @@ export default function AdminDashboardClient({ kpi, scholarships, contacts }: Da
   const conversionRate = kpi?.taux_conversion_global
     ? `${(kpi.taux_conversion_global * 100).toFixed(1)}%`
     : "—";
+
+  // Jours de la semaine localisés (pour le graphique)
+  const days = locale === "fr" 
+    ? ["Lun", "Mar", "Mer", "Jeu", "Ven", "Sam", "Dim"]
+    : ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 
   return (
     <div className="space-y-6 max-w-[1400px]">
@@ -3602,9 +3507,7 @@ export default function AdminDashboardClient({ kpi, scholarships, contacts }: Da
           <h1 className="text-2xl font-serif font-bold text-[#0F1F3D]">
             {greeting}, Admin 👋
           </h1>
-          <p className="text-slate-500 text-sm mt-0.5">
-            Voici un aperçu de votre plateforme SALMA aujourd&apos;hui.
-          </p>
+          <p className="text-slate-500 text-sm mt-0.5">{t.subtitle}</p>
         </div>
         <div className="flex gap-3">
           <Link
@@ -3614,7 +3517,7 @@ export default function AdminDashboardClient({ kpi, scholarships, contacts }: Da
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className="w-4 h-4">
               <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
             </svg>
-            Nouvelle bourse
+            {t.newScholarship}
           </Link>
         </div>
       </div>
@@ -3622,205 +3525,138 @@ export default function AdminDashboardClient({ kpi, scholarships, contacts }: Da
       {/* ── KPI Cards ────────────────────────────────────────────── */}
       <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-5">
         <KpiCard
-          label="Visiteurs totaux"
-          value={totalVisitors.toLocaleString("fr-FR")}
-          delta="+12% ce mois"
+          label={t.cards.totalVisitors}
+          value={totalVisitors.toLocaleString(locale === "fr" ? "fr-FR" : "en-US")}
+          delta={t.cards.visitorsMonth}
           color="navy"
-          icon={
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5} className="w-5 h-5">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
-            </svg>
-          }
+          icon={<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5} className="w-5 h-5"><path strokeLinecap="round" strokeLinejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" /></svg>}
         />
         <KpiCard
-          label="Bourses actives"
+          label={t.cards.activeScholarships}
           value={totalScholarships}
-          delta={`${totalScholarships} au total`}
+          delta={t.cards.totalCount.replace("{count}", totalScholarships.toString())}
           color="gold"
-          icon={
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5} className="w-5 h-5">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M4.26 10.147a60.436 60.436 0 00-.491 6.347A48.627 48.627 0 0112 20.904a48.627 48.627 0 018.232-4.41 60.46 60.46 0 00-.491-6.347m-15.482 0a50.57 50.57 0 00-2.658-.813A59.905 59.905 0 0112 3.493a59.902 59.902 0 0110.399 5.84c-.896.248-1.783.52-2.658.814m-15.482 0A50.697 50.697 0 0112 13.489a50.702 50.702 0 017.74-3.342M6.75 15a.75.75 0 100-1.5.75.75 0 000 1.5zm0 0v-3.675A55.378 55.378 0 0112 8.443m-7.007 11.55A5.981 5.981 0 006.75 15.75v-1.5" />
-            </svg>
-          }
+          icon={<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5} className="w-5 h-5"><path strokeLinecap="round" strokeLinejoin="round" d="M4.26 10.147a60.436 60.436 0 00-.491 6.347A48.627 48.627 0 0112 20.904a48.627 48.627 0 018.232-4.41 60.46 60.46 0 00-.491-6.347m-15.482 0a50.57 50.57 0 00-2.658-.813A59.905 59.905 0 0112 3.493a59.902 59.902 0 0110.399 5.84c-.896.248-1.783.52-2.658.814m-15.482 0A50.697 50.697 0 0112 13.489a50.702 50.702 0 017.74-3.342M6.75 15a.75.75 0 100-1.5.75.75 0 000 1.5zm0 0v-3.675A55.378 55.378 0 0112 8.443m-7.007 11.55A5.981 5.981 0 006.75 15.75v-1.5" /></svg>}
         />
         <KpiCard
-          label="Demandes reçues"
+          label={t.cards.receivedRequests}
           value={totalContacts}
-          delta="dont non lues"
+          delta={t.cards.unreadCount}
           color="green"
-          icon={
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5} className="w-5 h-5">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 01-2.25 2.25h-15a2.25 2.25 0 01-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25m19.5 0v.243a2.25 2.25 0 01-1.07 1.916l-7.5 4.615a2.25 2.25 0 01-2.36 0L3.32 8.91a2.25 2.25 0 01-1.07-1.916V6.75" />
-            </svg>
-          }
+          icon={<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5} className="w-5 h-5"><path strokeLinecap="round" strokeLinejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 01-2.25 2.25h-15a2.25 2.25 0 01-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25m19.5 0v.243a2.25 2.25 0 01-1.07 1.916l-7.5 4.615a2.25 2.25 0 01-2.36 0L3.32 8.91a2.25 2.25 0 01-1.07-1.916V6.75" /></svg>}
         />
         <KpiCard
-          label="Taux de conversion"
+          label={t.cards.conversionRate}
           value={conversionRate}
-          delta="visiteurs → contacts"
+          delta={t.cards.conversionDesc}
           color="blue"
-          icon={
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5} className="w-5 h-5">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 18L9 11.25l4.306 4.307a11.95 11.95 0 015.814-5.519l2.74-1.22m0 0l-5.94-2.28m5.94 2.28l-2.28 5.941" />
-            </svg>
-          }
+          icon={<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5} className="w-5 h-5"><path strokeLinecap="round" strokeLinejoin="round" d="M2.25 18L9 11.25l4.306 4.307a11.95 11.95 0 015.814-5.519l2.74-1.22m0 0l-5.94-2.28m5.94 2.28l-2.28 5.941" /></svg>}
         />
       </div>
 
       {/* ── Ligne principale ─────────────────────────────────────── */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-
-        {/* Graphique d'activité */}
         <div className="lg:col-span-2 bg-white rounded-2xl p-6 shadow-sm border border-slate-100">
           <div className="flex items-center justify-between mb-1">
-            <h2 className="text-base font-bold text-slate-800">Activité cette semaine</h2>
-            <span className="text-xs text-slate-400 font-medium">Vues bourses</span>
+            <h2 className="text-base font-bold text-slate-800">{t.charts.activityTitle}</h2>
+            <span className="text-xs text-slate-400 font-medium">{t.charts.viewsLabel}</span>
           </div>
-          <p className="text-xs text-slate-400 mb-2">Nombre de pages bourses vues par jour</p>
-          <ActivityChart data={activityData} />
+          <p className="text-xs text-slate-400 mb-2">{t.charts.activitySubtitle}</p>
+          <ActivityChart data={activityData} daysLabels={days} />
         </div>
 
-        {/* Répartition bourses */}
         <div className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100">
-          <h2 className="text-base font-bold text-slate-800 mb-4">Répartition</h2>
+          <h2 className="text-base font-bold text-slate-800 mb-4">{t.distribution.title}</h2>
           <div className="space-y-4">
             {[
-              { label: "Bourses Chine", value: 68, color: "bg-[#0F1F3D]", flag: "🇨🇳" },
-              { label: "Bourses Allemagne", value: 32, color: "bg-[#C9A84C]", flag: "🇩🇪" },
+              { label: t.distribution.china, value: 68, color: "bg-[#0F1F3D]", flag: "🇨🇳" },
+              { label: t.distribution.germany, value: 32, color: "bg-[#C9A84C]", flag: "🇩🇪" },
             ].map((item) => (
               <div key={item.label}>
                 <div className="flex items-center justify-between mb-1.5">
                   <span className="text-sm text-slate-600 flex items-center gap-1.5">
-                    <span>{item.flag}</span>
-                    {item.label}
+                    <span>{item.flag}</span>{item.label}
                   </span>
                   <span className="text-sm font-bold text-slate-800">{item.value}%</span>
                 </div>
                 <div className="h-2 bg-slate-100 rounded-full overflow-hidden">
-                  <div
-                    className={`h-full ${item.color} rounded-full transition-all duration-700`}
-                    style={{ width: `${item.value}%` }}
-                  />
+                  <div className={`h-full ${item.color} rounded-full transition-all duration-700`} style={{ width: `${item.value}%` }} />
                 </div>
               </div>
             ))}
-
             <div className="h-px bg-slate-100 my-2" />
-
-            {/* Quick links */}
             <div className="space-y-2">
-              <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400">Actions rapides</p>
-              {[
-                { href: "/admin/bourses/new", label: "+ Ajouter une bourse" },
-                { href: "/admin/contacts", label: "→ Voir les contacts" },
-                { href: "/admin/kpi", label: "📊 Voir les analytics" },
-              ].map((link) => (
-                <Link
-                  key={link.href}
-                  href={link.href}
-                  className="block text-xs text-[#1B365D] hover:text-[#C9A84C] font-medium transition-colors"
-                >
-                  {link.label}
-                </Link>
-              ))}
+              <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400">{t.quickActions.title}</p>
+              <Link href="/admin/bourses/new" className="block text-xs text-[#1B365D] hover:text-[#C9A84C] font-medium transition-colors">{t.quickActions.addScholarship}</Link>
+              <Link href="/admin/contacts" className="block text-xs text-[#1B365D] hover:text-[#C9A84C] font-medium transition-colors">{t.quickActions.viewContacts}</Link>
+              <Link href="/admin/kpi" className="block text-xs text-[#1B365D] hover:text-[#C9A84C] font-medium transition-colors">{t.quickActions.viewKpi}</Link>
             </div>
           </div>
         </div>
       </div>
 
-      {/* ── Ligne inférieure : Dernières bourses + Derniers contacts ─ */}
+      {/* ── Ligne inférieure ─────────────────────────────────────── */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-
-        {/* Dernières bourses */}
         <div className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
           <div className="px-6 py-4 border-b border-slate-100 flex items-center justify-between">
-            <h2 className="text-base font-bold text-slate-800">Dernières bourses</h2>
-            <Link href="/admin/bourses" className="text-xs text-[#1B365D] hover:text-[#C9A84C] font-semibold transition-colors">
-              Voir tout →
-            </Link>
+            <h2 className="text-base font-bold text-slate-800">{t.recentScholarships.title}</h2>
+            <Link href="/admin/bourses" className="text-xs text-[#1B365D] hover:text-[#C9A84C] font-semibold transition-colors">{t.recentScholarships.viewAll}</Link>
           </div>
           <div className="divide-y divide-slate-50">
             {scholarships?.results.length ? (
               scholarships.results.map((s) => (
                 <div key={s.id} className="px-6 py-3.5 flex items-center gap-4 hover:bg-slate-50/60 transition-colors">
-                  <div className="w-8 h-8 rounded-lg bg-[#0F1F3D]/5 flex items-center justify-center text-sm flex-shrink-0">
-                    {s.pays_destination === "chine" ? "🇨🇳" : "🇩🇪"}
-                  </div>
+                  <div className="w-8 h-8 rounded-lg bg-[#0F1F3D]/5 flex items-center justify-center text-sm flex-shrink-0">{s.pays_destination === "chine" ? "🇨🇳" : "🇩🇪"}</div>
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-semibold text-slate-800 truncate">{s.titre_fr}</p>
-                    <p className="text-[10px] text-slate-400">
-                      {new Date(s.date_creation).toLocaleDateString("fr-FR", { day: "numeric", month: "short", year: "numeric" })}
-                    </p>
+                    <p className="text-[10px] text-slate-400">{new Date(s.date_creation).toLocaleDateString(locale === "fr" ? "fr-FR" : "en-US")}</p>
                   </div>
-                  <StatusBadge status={s.statut} />
-                  <Link href={`/admin/bourses/${s.id}/edit`} className="text-slate-300 hover:text-[#1B365D] transition-colors ml-1">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5} className="w-4 h-4">
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931z" />
-                    </svg>
-                  </Link>
+                  <StatusBadge status={s.statut} labels={statusLabels} />
                 </div>
               ))
             ) : (
-              <div className="px-6 py-8 text-center text-sm text-slate-400">
-                Aucune bourse pour le moment.
-              </div>
+              <div className="px-6 py-8 text-center text-sm text-slate-400">{t.recentScholarships.empty}</div>
             )}
           </div>
         </div>
 
-        {/* Derniers contacts */}
         <div className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
           <div className="px-6 py-4 border-b border-slate-100 flex items-center justify-between">
-            <h2 className="text-base font-bold text-slate-800">Dernières demandes</h2>
-            <Link href="/admin/contacts" className="text-xs text-[#1B365D] hover:text-[#C9A84C] font-semibold transition-colors">
-              Voir tout →
-            </Link>
+            <h2 className="text-base font-bold text-slate-800">{t.recentContacts.title}</h2>
+            <Link href="/admin/contacts" className="text-xs text-[#1B365D] hover:text-[#C9A84C] font-semibold transition-colors">{t.recentContacts.viewAll}</Link>
           </div>
           <div className="divide-y divide-slate-50">
             {contacts?.results.length ? (
-              contacts.results.map((c) => {
-                const initials = c.nom_complet
-                  .split(" ")
-                  .map((n: string) => n[0])
-                  .join("")
-                  .slice(0, 2)
-                  .toUpperCase();
-                return (
-                  <div key={c.id} className="px-6 py-3.5 flex items-center gap-4 hover:bg-slate-50/60 transition-colors">
-                    <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[#1B365D] to-[#2D5284] flex items-center justify-center text-white text-xs font-bold flex-shrink-0">
-                      {initials}
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm font-semibold text-slate-800 truncate">{c.nom_complet}</p>
-                      <p className="text-[10px] text-slate-400 truncate">{c.email}</p>
-                    </div>
-                    <div className="flex flex-col items-end gap-1">
-                      <StatusBadge status={c.statut} />
-                      <span className="text-[9px] text-slate-400">
-                        {new Date(c.date_creation).toLocaleDateString("fr-FR", { day: "numeric", month: "short" })}
-                      </span>
-                    </div>
+              contacts.results.map((c) => (
+                <div key={c.id} className="px-6 py-3.5 flex items-center gap-4 hover:bg-slate-50/60 transition-colors">
+                  <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[#1B365D] to-[#2D5284] flex items-center justify-center text-white text-xs font-bold flex-shrink-0">
+                    {c.nom_complet.split(" ").map(n => n[0]).join("").slice(0, 2).toUpperCase()}
                   </div>
-                );
-              })
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-semibold text-slate-800 truncate">{c.nom_complet}</p>
+                    <p className="text-[10px] text-slate-400 truncate">{c.email}</p>
+                  </div>
+                  <div className="flex flex-col items-end gap-1">
+                    <StatusBadge status={c.statut} labels={statusLabels} />
+                    <span className="text-[9px] text-slate-400">{new Date(c.date_creation).toLocaleDateString(locale === "fr" ? "fr-FR" : "en-US", { day: "numeric", month: "short" })}</span>
+                  </div>
+                </div>
+              ))
             ) : (
-              <div className="px-6 py-8 text-center text-sm text-slate-400">
-                Aucune demande pour le moment.
-              </div>
+              <div className="px-6 py-8 text-center text-sm text-slate-400">{t.recentContacts.empty}</div>
             )}
           </div>
         </div>
       </div>
 
-      {/* ── Footer info ──────────────────────────────────────────── */}
+      {/* Footer info */}
       <div className="flex items-center justify-between text-xs text-slate-400 pt-2 pb-4">
-        <span>SALMA Admin v1.0 — AG Technologies</span>
-        <span>Backend : <a href="https://api-x75k2m8-v1.agtgroupholding.com/api/docs/" target="_blank" rel="noopener noreferrer" className="text-[#1B365D] hover:underline">API Docs</a></span>
+        <span>{t.footer.version}</span>
+        <span>{t.footer.backend} <a href="https://api-x75k2m8-v1.agtgroupholding.com/api/docs/" target="_blank" rel="noopener noreferrer" className="text-[#1B365D] hover:underline">API Docs</a></span>
       </div>
     </div>
   );
 }
-
 
 // END OF FILE: src/components/admin/AdminDashboardClient.tsx
 
@@ -4791,7 +4627,7 @@ export default function AdminScholarshipsClient({ initialData }: Props) {
       await scholarshipAdminRepository.delete(id);
       setDeleteId(null);
       fetchData(page);
-    } catch (err) {
+    } catch {
       alert("Impossible de supprimer cette bourse. Elle est peut-être liée à des demandes de contact.");
     }
   };
@@ -4801,7 +4637,7 @@ export default function AdminScholarshipsClient({ initialData }: Props) {
       await scholarshipAdminRepository.duplicate(s.id);
       // On rafraîchit la liste à la page 1 pour voir la copie (souvent en haut)
       fetchData(1);
-    } catch (err) {
+    } catch {
       alert("Erreur lors de la duplication de la bourse.");
     }
   };
@@ -4813,7 +4649,7 @@ export default function AdminScholarshipsClient({ initialData }: Props) {
         statut: s.statut === "publie" ? "brouillon" : "publie",
       });
       fetchData(page);
-    } catch (err) {
+    } catch{
       alert("Erreur lors du changement de statut rapide.");
     }
   };
@@ -7071,32 +6907,83 @@ export default function ChatbotWidget({
 
 // FILE: src/components/ui/ConversionCTA.tsx
 -----------------------------------------------
+// src/components/ui/ConversionCTA.tsx
+// ==============================================================================
+// CTA de Conversion — Design System SALMA
+//
+// Affiche un bloc d'appel à l'action avec 3 options de conversion :
+//   1. WhatsApp (urgence — contact direct)
+//   2. Rendez-vous (engagement — formulaire contact)
+//   3. Newsletter (nurturing — inscription email)
+//
+// Utilisé sur : Services, Bourses (catalogue), Confidentialité, À propos.
+// Reçoit tout par props (NavContact). Zéro texte en dur.
+// ==============================================================================
+
 "use client";
 
 import Link from "next/link";
 import { NavContact } from "@/types";
 import SectionTitle from "./SectionTitle";
+import NewsletterForm from "./NewsletterForm";
+import type { NewsletterFormLabels } from "@/types/ui/newsletter-form.types";
+
+// — Types internes --------------------------------------------------------------
 
 interface Props {
+  /** Labels de la section contact (provient de dictionary.nav_contact). */
   labels: NavContact;
 }
 
+// — Helpers ---------------------------------------------------------------------
+
+/**
+ * Construit les NewsletterFormLabels à partir des clés NavContact.
+ * Les clés `submitting`, `success` et `error` sont optionnelles dans NavContact.
+ * On fournit des fallbacks raisonnables pour ne pas casser le build.
+ */
+function buildNewsletterLabels(labels: NavContact): NewsletterFormLabels {
+  return {
+    placeholder: labels.newsletter_placeholder,
+    submit: labels.newsletter_btn,
+    submitting: labels.newsletter_btn ?? "…",
+    success: labels.newsletter_placeholder ?? "✓",
+    error: labels.newsletter_desc ?? "✗",
+  };
+}
+
+// — Composant principal ---------------------------------------------------------
+
+/**
+ * **ConversionCTA** — Bloc de conversion tripartite SALMA.
+ *
+ * Layout :
+ *   - Ligne 1 : Titre + sous-titre centré (SectionTitle)
+ *   - Ligne 2 : WhatsApp (gauche) + RDV (droite) — grille 2 colonnes
+ *   - Ligne 3 : Newsletter pleine largeur avec formulaire inline
+ *
+ * @example
+ * <ConversionCTA labels={dictionary.nav_contact} />
+ */
 export default function ConversionCTA({ labels }: Props) {
+  const newsletterLabels = buildNewsletterLabels(labels);
+
   return (
     <section className="py-24 bg-salma-bg border-t border-salma-border/20">
       <div className="container mx-auto px-6">
         <div className="max-w-5xl mx-auto">
-          <SectionTitle 
-            title={labels.title} 
-            subtitle={labels.subtitle} 
-            align="center" 
+          <SectionTitle
+            title={labels.title}
+            subtitle={labels.subtitle}
+            align="center"
           />
 
+          {/* ── Ligne 1 : WhatsApp + Rendez-vous ───────────────────── */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mt-12">
             {/* WhatsApp */}
-            <a 
-              href="https://wa.me/237699450984" 
-              target="_blank" 
+            <a
+              href="https://wa.me/237699450984"
+              target="_blank"
               rel="noopener noreferrer"
               className="group relative overflow-hidden bg-white dark:bg-salma-surface p-10 rounded-[2.5rem] border border-salma-border hover:border-green-500/50 transition-all duration-500 shadow-salma-sm hover:shadow-2xl"
             >
@@ -7115,7 +7002,7 @@ export default function ConversionCTA({ labels }: Props) {
             </a>
 
             {/* Rendez-vous */}
-            <Link 
+            <Link
               href="/contact"
               className="group relative overflow-hidden bg-salma-primary p-10 rounded-[2.5rem] border border-white/5 hover:border-salma-gold/50 transition-all duration-500 shadow-salma-sm hover:shadow-2xl"
             >
@@ -7132,6 +7019,36 @@ export default function ConversionCTA({ labels }: Props) {
               </div>
               <div className="absolute inset-0 bg-gradient-to-br from-salma-gold/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
             </Link>
+          </div>
+
+          {/* ── Ligne 2 : Newsletter pleine largeur ────────────────── */}
+          <div className="mt-8 group relative overflow-hidden bg-white dark:bg-salma-surface p-10 rounded-[2.5rem] border border-salma-border hover:border-salma-accent/50 transition-all duration-500 shadow-salma-sm hover:shadow-2xl">
+            <div className="relative z-10 flex flex-col md:flex-row items-center gap-8">
+              {/* Icône + texte */}
+              <div className="flex items-center gap-6 md:flex-1">
+                <div className="w-16 h-16 bg-salma-accent/10 rounded-2xl flex items-center justify-center text-3xl flex-shrink-0 group-hover:scale-110 transition-transform duration-500">
+                  ✉️
+                </div>
+                <div>
+                  <h3 className="text-xl font-serif font-bold text-salma-primary dark:text-white mb-1">
+                    {labels.newsletter_title}
+                  </h3>
+                  <p className="text-sm text-salma-text-muted font-medium">
+                    {labels.newsletter_desc}
+                  </p>
+                </div>
+              </div>
+
+              {/* Formulaire inline */}
+              <div className="w-full md:w-auto md:min-w-[340px]">
+                <NewsletterForm
+                  labels={newsletterLabels}
+                  variant="inline"
+                  source="conversion-cta"
+                />
+              </div>
+            </div>
+            <div className="absolute inset-0 bg-gradient-to-br from-salma-accent/[0.02] to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
           </div>
         </div>
       </div>
@@ -9256,10 +9173,10 @@ export function ThemeProvider({ children, ...props }: ThemeProviderProps) {
 
 // FILE: src/dictionaries/data/admin/en.ts
 -----------------------------------------------
-// src/dictionaries/data/admin/en.ts
-
 export const adminEn = {
   common: {
+    show: "Show",
+    hide: "Hide",
     actions: "Actions",
     save: "Save",
     cancel: "Cancel",
@@ -9274,6 +9191,7 @@ export const adminEn = {
     confirmDelete: "This action cannot be undone.",
     success: "Operation successful",
     error: "An error occurred",
+    errorSave: "Error while saving",
     status: "Status",
     date: "Date",
     back: "Back",
@@ -9282,15 +9200,55 @@ export const adminEn = {
     pageOf: "Page {current} of {total}",
     results: "{count} results",
     french: "French",
-  english: "English",
-  errorSave: "Error while saving",
-  underDevelopment: "Under development",
-   anonymous: "Anonymous",
+    english: "English",
+    underDevelopment: "Under development",
+    anonymous: "Anonymous",
+  },
+  countries: {
+    chine: "China",
+    allemagne: "Germany",
+  },
+  levels: {
+    licence: "Bachelor",
+    master: "Master",
+    doctorat: "PhD",
+    postdoc: "Post-Doc",
+    formation: "Training",
+    autre: "Other",
+  },
+  statusLabels: {
+    publie: "Published",
+    brouillon: "Draft",
+    archive: "Archived",
+    expire: "Expired",
+    ouvert: "Open",
+    ferme: "Closed",
+    urgent: "Urgent",
+    en_attente: "Pending",
+    nouveau: "New",
+    en_cours: "In Progress",
+    traite: "Processed",
   },
   dashboard: {
-    greeting: "Hello",
+    greetingMorning: "Good morning",
+    greetingAfternoon: "Good afternoon",
+    greetingEvening: "Good evening",
     subtitle: "Here is an overview of your SALMA platform today.",
     newScholarship: "New Scholarship",
+    recentScholarships: {
+      title: "Recent Scholarships",
+      viewAll: "View all →",
+      empty: "No scholarships at the moment."
+    },
+    recentContacts: {
+      title: "Recent Requests",
+      viewAll: "View all →",
+      empty: "No requests at the moment."
+    },
+    footer: {
+      version: "SALMA Admin v1.0 — AG Technologies",
+      backend: "Backend:"
+    },
     cards: {
       totalVisitors: "Total Visitors",
       activeScholarships: "Active Scholarships",
@@ -9317,13 +9275,34 @@ export const adminEn = {
       viewContacts: "→ View contacts",
       viewKpi: "📊 View analytics",
     },
-    recentScholarships: {
-      title: "Recent Scholarships",
-      viewAll: "View all →",
-    },
-    recentContacts: {
-      title: "Recent Requests",
-      viewAll: "View all →",
+  },
+  login: {
+    brandName: "SALMA",
+    brandCompany: "AG Technologies",
+    logoInitial: "S",
+    emailPlaceholder: "admin@salma.cm",
+    passwordPlaceholder: "••••••••••",
+    title: "Admin Login",
+    subtitle: "Access the SALMA platform management dashboard.",
+    emailLabel: "Email Address",
+    passwordLabel: "Password",
+    forgotPassword: "Forgot password?",
+    submitBtn: "Access Dashboard",
+    submitting: "Logging in…",
+    secureSystem: "Secure System",
+    protectedAccess: "Protected Access — Reserved for AG Technologies administrators",
+    quote: "The gateway between Africa and the world's best universities.",
+    adminOnly: "Space reserved for platform administrators",
+    copyright: "© 2026 SALMA · AG Technologies · Yaoundé, Cameroon",
+    stats: {
+      students: "Students supported",
+      studentsValue: "500+",
+      universities: "Partner universities",
+      universitiesValue: "25+",
+      visas: "Average visa time",
+      visasValue: "03 wks.",
+      success: "Success rate",
+      successValue: "100%"
     }
   },
   scholarships: {
@@ -9351,11 +9330,6 @@ export const adminEn = {
         visibility: "Field Visibility",
         options: "Options"
       },
-      sections: {
-        titleOrg: "Title & Organization",
-        features: "Features",
-        description: "Description"
-      },
       fields: {
         titleFr: "Title (FR) *",
         titleEn: "Title (EN)",
@@ -9373,8 +9347,6 @@ export const adminEn = {
         langEn: "Language Req. (EN)",
         isFeatured: "Feature on Home",
         isFeaturedDesc: "Display as priority on the homepage",
-        publish: "Publish on site",
-        publishDesc: "Set status to 'published'"
       },
       visibilityNote: "⚠️ Control what visitors see on the storefront.",
       visibilityWarning: "Recommended: hidden on storefront",
@@ -9382,6 +9354,45 @@ export const adminEn = {
       btnCreate: "Create Scholarship",
       saving: "Saving..."
     }
+  },
+  medias: {
+    title: "Media Library",
+    subtitle: "Manage images used on your platform.",
+    uploadBtn: "+ Upload an image",
+    uploading: "Uploading...",
+    copyLink: "Link copied!",
+    confirmDelete: "Permanently delete this image?",
+    errorUpload: "Error uploading image.",
+    errorDelete: "Error deleting image."
+  },
+  newsletter: {
+    title: "Newsletter & Marketing",
+    subtitle: "Manage your prospect base and email campaigns.",
+    confirmDeleteSub: "Delete this subscriber?",
+    tabs: {
+      subscribers: "Subscribers ({count})",
+      announcements: "Announcements ({count})"
+    },
+    table: {
+      thSubscriber: "Subscriber",
+      thDestination: "Destination",
+      thSource: "Source",
+    },
+    announcements: {
+      btnDetails: "Details",
+      statusSent: "SENT",
+      statusDraft: "DRAFT"
+    }
+  },
+  testimonials: {
+    title: "Testimonial Moderation",
+    subtitle: "Approve customer reviews to display them on the storefront.",
+    labelApproved: "Approved",
+    labelVisible: "Visible on Site",
+    btnDelete: "Delete",
+    confirmDelete: "Permanently delete this testimonial?",
+    errorStatus: "Error updating status.",
+    errorDelete: "Error deleting testimonial."
   },
   contacts: {
     title: "Contacts & Applications",
@@ -9393,6 +9404,48 @@ export const adminEn = {
       thStatus: "Status",
       btnMarkRead: "Mark as read"
     }
+  },
+  layout: {
+    adminTitle: "SALMA Administration",
+    loadingAuth: "Checking access…",
+    viewSite: "View site",
+    logout: "Logout",
+    sections: {
+      principal: "Main",
+      content: "Content",
+      intelligence: "Intelligence"
+    },
+    menu: {
+      dashboard: "Dashboard",
+      scholarships: "Scholarships",
+      contacts: "Contacts & Appt",
+      cms: "Pages & CMS",
+      medias: "Media Library",
+      testimonials: "Testimonials",
+      newsletter: "Newsletter",
+      chatbot: "Chatbot / FAQ",
+      kpi: "KPI & Analytics"
+    }
+  },
+  notifications: {
+    title: "Notifications",
+    newSingular: "1 new",
+    newPlural: "{count} new",
+    viewAction: "View {count} unprocessed requests",
+    empty: "No new notifications",
+  },
+  chatbot: {
+    title: "Chatbot Intelligence (FAQ)",
+    subtitle: "Manage automatic responses for your virtual assistant.",
+    newQuestion: "+ New Question",
+    categoryDefault: "General",
+    statusDisabled: "Disabled",
+    btnDeactivate: "Deactivate",
+    btnActivate: "Activate",
+    btnDelete: "Delete",
+    confirmDelete: "Delete this question from the knowledge base?",
+    errorUpdate: "Error updating.",
+    errorDelete: "Error deleting."
   },
   cms: {
     title: "Content Management (CMS)",
@@ -9415,58 +9468,6 @@ export const adminEn = {
       error: "Error updating the block."
     }
   },
-  medias: {
-    title: "Media Library",
-    subtitle: "Manage images used on your platform.",
-    uploadBtn: "+ Upload an image",
-    uploading: "Uploading...",
-    copyLink: "Link copied!",
-    confirmDelete: "Permanently delete this image?",
-    errorUpload: "Error uploading image.",
-    errorDelete: "Error deleting image."
-  },
-  testimonials: {
-    title: "Testimonial Moderation",
-    subtitle: "Approve customer reviews to display them on the storefront.",
-    labelApproved: "Approved",
-    labelVisible: "Visible on Site",
-    btnDelete: "Delete",
-    confirmDelete: "Permanently delete this testimonial?",
-    errorStatus: "Error updating status.",
-    errorDelete: "Error deleting testimonial."
-  },
-  newsletter: {
-    title: "Newsletter & Marketing",
-    subtitle: "Manage your prospect base and email campaigns.",
-    tabs: {
-      subscribers: "Subscribers ({count})",
-      announcements: "Announcements ({count})"
-    },
-    table: {
-      thSubscriber: "Subscriber",
-      thDestination: "Destination",
-      thSource: "Source",
-    },
-    announcements: {
-      btnDetails: "Details",
-      statusSent: "SENT",
-      statusDraft: "DRAFT"
-    },
-    confirmDeleteSub: "Delete this subscriber?"
-  },
-  chatbot: {
-    title: "Chatbot Intelligence (FAQ)",
-    subtitle: "Manage automatic responses for your virtual assistant.",
-    newQuestion: "+ New Question",
-    categoryDefault: "General",
-    statusDisabled: "Disabled",
-    btnDeactivate: "Deactivate",
-    btnActivate: "Activate",
-    btnDelete: "Delete",
-    confirmDelete: "Delete this question from the knowledge base?",
-    errorUpdate: "Error updating.",
-    errorDelete: "Error deleting."
-  },
   kpi: {
     title: "Analytics & Performance",
     subtitle: "Track your conversion funnel efficiency in real-time.",
@@ -9483,14 +9484,7 @@ export const adminEn = {
       thConversions: "Conversions",
       thEfficiency: "Efficiency"
     }
-  },
-  notifications: {
-  title: "Notifications",
-  newSingular: "1 new",
-  newPlural: "{count} new",
-  viewAction: "View {count} unprocessed requests",
-  empty: "No new notifications",
-},
+  }
 };
 
 // END OF FILE: src/dictionaries/data/admin/en.ts
@@ -9498,10 +9492,10 @@ export const adminEn = {
 
 // FILE: src/dictionaries/data/admin/fr.ts
 -----------------------------------------------
-// src/dictionaries/data/admin/fr.ts
-
 export const adminFr = {
   common: {
+    show: "Afficher",
+    hide: "Masquer",
     actions: "Actions",
     save: "Enregistrer",
     cancel: "Annuler",
@@ -9516,6 +9510,7 @@ export const adminFr = {
     confirmDelete: "Cette action est irréversible.",
     success: "Opération réussie",
     error: "Une erreur est survenue",
+    errorSave: "Erreur lors de la sauvegarde",
     status: "Statut",
     date: "Date",
     back: "Retour",
@@ -9524,29 +9519,55 @@ export const adminFr = {
     pageOf: "Page {current} sur {total}",
     results: "{count} résultats",
     french: "Français",
-  english: "Anglais",
-  errorSave: "Erreur lors de la sauvegarde",
+    english: "Anglais",
     underDevelopment: "En cours de développement",
-   anonymous: "Anonyme",
+    anonymous: "Anonyme",
+  },
+  countries: {
+    chine: "Chine",
+    allemagne: "Allemagne",
+  },
+  levels: {
+    licence: "Licence",
+    master: "Master",
+    doctorat: "Doctorat",
+    postdoc: "Post-Doc",
+    formation: "Formation",
+    autre: "Autre",
+  },
+  statusLabels: {
+    publie: "Publié",
+    brouillon: "Brouillon",
+    archive: "Archivé",
+    expire: "Expiré",
+    ouvert: "Ouvert",
+    ferme: "Fermé",
+    urgent: "Urgent",
+    en_attente: "En attente",
+    nouveau: "Nouveau",
+    en_cours: "En cours",
+    traite: "Traité",
   },
   dashboard: {
-     greetingMorning: "Bonjour",
-  greetingAfternoon: "Bon après-midi",
-  greetingEvening: "Bonsoir",
-  recentScholarships: {
-    title: "Dernières bourses",
-    viewAll: "Voir tout →",
-    empty: "Aucune bourse pour le moment."
-  },
-  recentContacts: {
-    title: "Dernières demandes",
-    viewAll: "Voir tout →",
-    empty: "Aucune demande pour le moment."
-  },
-  footer: {
-    version: "SALMA Admin v1.0 — AG Technologies",
-    backend: "Backend :"
-  },
+    greetingMorning: "Bonjour",
+    greetingAfternoon: "Bon après-midi",
+    greetingEvening: "Bonsoir",
+    subtitle: "Voici un aperçu de votre plateforme SALMA aujourd'hui.",
+    newScholarship: "Nouvelle bourse",
+    recentScholarships: {
+      title: "Dernières bourses",
+      viewAll: "Voir tout →",
+      empty: "Aucune bourse pour le moment."
+    },
+    recentContacts: {
+      title: "Dernières demandes",
+      viewAll: "Voir tout →",
+      empty: "Aucune demande pour le moment."
+    },
+    footer: {
+      version: "SALMA Admin v1.0 — AG Technologies",
+      backend: "Backend :"
+    },
     cards: {
       totalVisitors: "Visiteurs totaux",
       activeScholarships: "Bourses actives",
@@ -9573,7 +9594,35 @@ export const adminFr = {
       viewContacts: "→ Voir les contacts",
       viewKpi: "📊 Voir les analytics",
     },
-   
+  },
+  login: {
+    brandName: "SALMA",
+    brandCompany: "AG Technologies",
+    logoInitial: "S",
+    emailPlaceholder: "admin@salma.cm",
+    passwordPlaceholder: "••••••••••",
+    title: "Connexion Admin",
+    subtitle: "Accédez au tableau de bord de gestion de la plateforme SALMA.",
+    emailLabel: "Adresse e-mail",
+    passwordLabel: "Mot de passe",
+    forgotPassword: "Mot de passe oublié ?",
+    submitBtn: "Accéder au tableau de bord",
+    submitting: "Connexion en cours…",
+    secureSystem: "Système sécurisé",
+    protectedAccess: "Accès protégé — Réservé aux administrateurs AG Technologies",
+    quote: "La passerelle entre l'Afrique et les meilleures universités du monde.",
+    adminOnly: "Espace réservé aux administrateurs de la plateforme",
+    copyright: "© 2026 SALMA · AG Technologies · Yaoundé, Cameroun",
+    stats: {
+      students: "Étudiants accompagnés",
+      studentsValue: "500+",
+      universities: "Universités partenaires",
+      universitiesValue: "25+",
+      visas: "Délai moyen visas",
+      visasValue: "03 sem.",
+      success: "Taux de réussite",
+      successValue: "100%"
+    }
   },
   scholarships: {
     title: "Gestion des bourses",
@@ -9600,11 +9649,6 @@ export const adminFr = {
         visibility: "Visibilité champs",
         options: "Options"
       },
-      sections: {
-        titleOrg: "Titre & Organisme",
-        features: "Caractéristiques",
-        description: "Description"
-      },
       fields: {
         titleFr: "Titre (FR) *",
         titleEn: "Titre (EN)",
@@ -9622,8 +9666,6 @@ export const adminFr = {
         langEn: "Exigence langue (EN)",
         isFeatured: "Mettre en avant",
         isFeaturedDesc: "Afficher en priorité sur la page d'accueil",
-        publish: "Publier sur le site",
-        publishDesc: "Passe le statut à 'publié'"
       },
       visibilityNote: "⚠️ Contrôlez ce que les visiteurs voient sur la vitrine.",
       visibilityWarning: "Recommandé : masqué sur la vitrine",
@@ -9631,6 +9673,45 @@ export const adminFr = {
       btnCreate: "Créer la bourse",
       saving: "Enregistrement..."
     }
+  },
+  medias: {
+    title: "Médiathèque",
+    subtitle: "Gérez les images utilisées sur votre plateforme.",
+    uploadBtn: "+ Uploader une image",
+    uploading: "Upload en cours...",
+    copyLink: "Lien copié !",
+    confirmDelete: "Supprimer cette image définitivement ?",
+    errorUpload: "Erreur lors de l'upload de l'image.",
+    errorDelete: "Erreur lors de la suppression."
+  },
+  newsletter: {
+    title: "Newsletter & Marketing",
+    subtitle: "Gérez votre base de prospects et vos campagnes e-mail.",
+    confirmDeleteSub: "Supprimer cet abonné ?",
+    tabs: {
+      subscribers: "Abonnés ({count})",
+      announcements: "Annonces ({count})"
+    },
+    table: {
+      thSubscriber: "Abonné",
+      thDestination: "Destination",
+      thSource: "Source",
+    },
+    announcements: {
+      btnDetails: "Détails",
+      statusSent: "ENVOYÉ",
+      statusDraft: "BROUILLON"
+    }
+  },
+  testimonials: {
+    title: "Modération des Témoignages",
+    subtitle: "Approuvez les avis clients pour les afficher sur la vitrine.",
+    labelApproved: "Approuvé",
+    labelVisible: "Visible Site",
+    btnDelete: "Supprimer",
+    confirmDelete: "Supprimer définitivement ce témoignage ?",
+    errorStatus: "Erreur lors de la mise à jour du statut.",
+    errorDelete: "Erreur lors de la suppression."
   },
   contacts: {
     title: "Contacts & Candidatures",
@@ -9642,6 +9723,48 @@ export const adminFr = {
       thStatus: "Statut",
       btnMarkRead: "Marquer lu"
     }
+  },
+  layout: {
+    adminTitle: "Administration SALMA",
+    loadingAuth: "Vérification des accès…",
+    viewSite: "Voir le site",
+    logout: "Déconnexion",
+    sections: {
+      principal: "Principal",
+      content: "Contenu",
+      intelligence: "Intelligence"
+    },
+    menu: {
+      dashboard: "Tableau de bord",
+      scholarships: "Bourses",
+      contacts: "Contacts & RDV",
+      cms: "Pages & CMS",
+      medias: "Médiathèque",
+      testimonials: "Témoignages",
+      newsletter: "Newsletter",
+      chatbot: "Chatbot / FAQ",
+      kpi: "KPI & Analytics"
+    }
+  },
+  notifications: {
+    title: "Notifications",
+    newSingular: "1 nouveau",
+    newPlural: "{count} nouveaux",
+    viewAction: "Voir les {count} demandes non traitées",
+    empty: "Aucune nouvelle notification",
+  },
+  chatbot: {
+    title: "Intelligence du Chatbot (FAQ)",
+    subtitle: "Gérez les réponses automatiques de votre assistant virtuel.",
+    newQuestion: "+ Nouvelle Question",
+    categoryDefault: "Général",
+    statusDisabled: "Désactivé",
+    btnDeactivate: "Désactiver",
+    btnActivate: "Activer",
+    btnDelete: "Supprimer",
+    confirmDelete: "Supprimer cette question de la base de connaissances ?",
+    errorUpdate: "Erreur lors de la mise à jour.",
+    errorDelete: "Erreur lors de la suppression."
   },
   cms: {
     title: "Gestion du Contenu (CMS)",
@@ -9664,58 +9787,6 @@ export const adminFr = {
       error: "Erreur lors de la mise à jour du bloc."
     }
   },
-  medias: {
-    title: "Médiathèque",
-    subtitle: "Gérez les images utilisées sur votre plateforme.",
-    uploadBtn: "+ Uploader une image",
-    uploading: "Upload en cours...",
-    copyLink: "Lien copié !",
-    confirmDelete: "Supprimer cette image définitivement ?",
-    errorUpload: "Erreur lors de l'upload de l'image.",
-    errorDelete: "Erreur lors de la suppression."
-  },
-  testimonials: {
-    title: "Modération des Témoignages",
-    subtitle: "Approuvez les avis clients pour les afficher sur la vitrine.",
-    labelApproved: "Approuvé",
-    labelVisible: "Visible Site",
-    btnDelete: "Supprimer",
-    confirmDelete: "Supprimer définitivement ce témoignage ?",
-    errorStatus: "Erreur lors de la mise à jour du statut.",
-    errorDelete: "Erreur lors de la suppression."
-  },
-  newsletter: {
-    title: "Newsletter & Marketing",
-    subtitle: "Gérez votre base de prospects et vos campagnes e-mail.",
-    tabs: {
-      subscribers: "Abonnés ({count})",
-      announcements: "Annonces ({count})"
-    },
-    table: {
-      thSubscriber: "Abonné",
-      thDestination: "Destination",
-      thSource: "Source",
-    },
-    announcements: {
-      btnDetails: "Détails",
-      statusSent: "ENVOYÉ",
-      statusDraft: "BROUILLON"
-    },
-    confirmDeleteSub: "Supprimer cet abonné ?"
-  },
-  chatbot: {
-    title: "Intelligence du Chatbot (FAQ)",
-    subtitle: "Gérez les réponses automatiques de votre assistant virtuel.",
-    newQuestion: "+ Nouvelle Question",
-    categoryDefault: "Général",
-    statusDisabled: "Désactivé",
-    btnDeactivate: "Désactiver",
-    btnActivate: "Activer",
-    btnDelete: "Supprimer",
-    confirmDelete: "Supprimer cette question de la base de connaissances ?",
-    errorUpdate: "Erreur lors de la mise à jour.",
-    errorDelete: "Erreur lors de la suppression."
-  },
   kpi: {
     title: "Analyses & Performances",
     subtitle: "Suivez l'efficacité de votre tunnel de conversion en temps réel.",
@@ -9733,14 +9804,6 @@ export const adminFr = {
       thEfficiency: "Efficacité"
     }
   }
-  ,
-  notifications: {
-  title: "Notifications",
-  newSingular: "1 nouveau",
-  newPlural: "{count} nouveaux",
-  viewAction: "Voir les {count} demandes non traitées",
-  empty: "Aucune nouvelle notification",
-},
 };
 
 // END OF FILE: src/dictionaries/data/admin/fr.ts
@@ -11974,7 +12037,7 @@ type DeepString<T> = {
   [K in keyof T]: T[K] extends object ? DeepString<T[K]> : string;
 };
 
-// On définit le type global comme l'union de Layout, Common et l'objet Admin
+// Définition du type global
 export type DictionaryType = DeepString<typeof frLayout> & 
   DeepString<typeof frCommon> & {
     admin: DeepString<typeof adminFr>;
@@ -11982,15 +12045,23 @@ export type DictionaryType = DeepString<typeof frLayout> &
 
 const dictionaries: Record<Locale, DictionaryType> = {
   fr: {
-    ...(frLayout as any),
-    ...(frCommon as any),
-    admin: adminFr as any,
-  },
+    ...frLayout,
+    ...frCommon,
+    footer: {
+      ...frLayout.footer,
+      ...frCommon.footer,
+    },
+    admin: adminFr,
+  } as unknown as DictionaryType, // Passage par unknown pour éviter l'erreur 'any'
   en: {
-    ...(enLayout as any),
-    ...(enCommon as any),
-    admin: adminEn as any,
-  },
+    ...enLayout,
+    ...enCommon,
+    footer: {
+      ...enLayout.footer,
+      ...enCommon.footer,
+    },
+    admin: adminEn,
+  } as unknown as DictionaryType,
 };
 
 export function getDictionary(locale: Locale): DictionaryType {
@@ -12194,14 +12265,12 @@ export function useTheme() {
 // src/lib/api-client.ts
 // ==============================================================================
 //  Client HTTP central du projet SALMA
-//  - Toutes les requêtes passent par ici
 //  - Gestion automatique du token JWT (Authorization header)
+//  - Nettoyage critique des guillemets de cookies (SSR Fix)
 //  - Gestion des erreurs unifiée
-//  - Support des query params, revalidation ISR et multipart/form-data
 // ==============================================================================
 
 export const API_URL = (process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000/api").replace(/\/+$/, "");
-
 export const BACKEND_URL = new URL(API_URL).origin;
 
 // ==============================================================================
@@ -12227,17 +12296,13 @@ export class ApiException extends Error {
 }
 
 interface FetchOptions extends RequestInit {
-  /** Query params ajoutés à l'URL : { page: "2", country: "cn" } */
   params?: Record<string, string | number | boolean | undefined>;
-  /** Secondes de revalidation ISR Next.js (Server Components uniquement) */
   revalidate?: number | false;
-  /** Si true, ne pas ajouter Content-Type (pour FormData/multipart) */
   isMultipart?: boolean;
 }
 
 // ==============================================================================
 //  Helpers JWT
-//  Côté client uniquement — les Server Components utilisent les cookies httpOnly
 // ==============================================================================
 
 const TOKEN_KEY = "salma_access_token";
@@ -12264,25 +12329,11 @@ export const tokenStorage = {
   },
 };
 
-// ==============================================================================
-//  Helper — construire l'URL complète d'un média Django
-//  Usage : getMediaUrl("/media/bourses/image.jpg") → "http://....:8000/media/..."
-// ==============================================================================
 export function getMediaUrl(path: string | null | undefined): string | null {
   if (!path) return null;
-  
-  // 1. Si c'est déjà une URL complète (Unsplash), on la renvoie
   if (path.startsWith("http") && !path.includes("/api/media/")) return path;
-  
-  // 2. On nettoie le chemin : on enlève le segment /api s'il existe
-  // car Django sert les médias sur /media/ et non /api/media/
-  let cleanPath = path.replace("/api/media/", "/media/");
-  cleanPath = cleanPath.replace("api/media/", "/media/");
-
-  // 3. Si après nettoyage c'est une URL complète, on la renvoie
+  let cleanPath = path.replace("/api/media/", "/media/").replace("api/media/", "/media/");
   if (cleanPath.startsWith("http")) return cleanPath;
-
-  // 4. Sinon on ajoute l'origine du serveur devant
   const finalPath = cleanPath.startsWith("/") ? cleanPath : `/${cleanPath}`;
   return `${BACKEND_URL}${finalPath}`;
 }
@@ -12294,7 +12345,6 @@ export function getMediaUrl(path: string | null | undefined): string | null {
 async function apiFetch<T>(endpoint: string, options: FetchOptions = {}): Promise<T> {
   const { params, revalidate, isMultipart, ...customConfig } = options;
 
-  // --- Construction de l'URL ---
   const url = new URL(`${API_URL}${endpoint.startsWith("/") ? endpoint : `/${endpoint}`}`);
   if (params) {
     Object.entries(params).forEach(([key, value]) => {
@@ -12304,10 +12354,9 @@ async function apiFetch<T>(endpoint: string, options: FetchOptions = {}): Promis
     });
   }
 
-  // --- Headers ---
   const headers: Record<string, string> = {};
 
-  // 1. Récupération du token (Hybride Client/Serveur)
+  // 1. Récupération du token
   let token = tokenStorage.getAccess();
 
   // Si on est sur le serveur (Server Component), on cherche dans les cookies
@@ -12315,42 +12364,44 @@ async function apiFetch<T>(endpoint: string, options: FetchOptions = {}): Promis
     try {
       const { cookies } = await import("next/headers");
       const cookieStore = await cookies();
-      token = cookieStore.get("salma_auth")?.value || null;
-    } catch (e) {
+      const cookieValue = cookieStore.get("salma_auth")?.value;
+      if (cookieValue) {
+        token = cookieValue;
+      }
+    } catch {
       // Contexte hors requête (ex: build)
     }
   }
 
+  // 2. NETTOYAGE CRITIQUE DU TOKEN
+  // Supprime les guillemets doubles au début/fin et les espaces
   if (token) {
-    headers["Authorization"] = `Bearer ${token}`;
+    const cleanToken = token.replace(/^"|"$/g, '').trim();
+    
+    // On ne l'ajoute que s'il est valide (pas "null" ou "undefined" en string)
+    if (cleanToken && cleanToken !== "null" && cleanToken !== "undefined" && cleanToken.length > 20) {
+      headers["Authorization"] = `Bearer ${cleanToken}`;
+    }
   }
 
-  // Content-Type automatique (sauf pour FormData/Multipart)
   if (!isMultipart) {
     headers["Content-Type"] = "application/json";
   }
 
-  // Merge avec les headers personnalisés passés en options
   if (customConfig.headers) {
     Object.assign(headers, customConfig.headers);
   }
 
-  // --- Config fetch ---
   const isAdminRequest = endpoint.startsWith("/admin");
-
   const config: RequestInit = {
     ...customConfig,
     headers,
-    // On désactive le cache UNIQUEMENT pour l'admin. 
-    // La vitrine garde ses performances (grâce au revalidate).
     cache: isAdminRequest ? "no-store" : "default",
     next: revalidate !== undefined ? { revalidate } : customConfig.next,
   };
 
-  // --- Exécution ---
   try {
     const response = await fetch(url.toString(), config);
-
     if (response.status === 204) return {} as T;
 
     const data = await response.json().catch(() => ({}));
@@ -12374,10 +12425,6 @@ async function apiFetch<T>(endpoint: string, options: FetchOptions = {}): Promis
   }
 }
 
-// ==============================================================================
-//  Helper — Extraction du message d'erreur Django DRF
-// ==============================================================================
-
 function extractErrorMessage(data: Record<string, unknown>, status: number): string {
   if (typeof data?.detail === "string") return data.detail;
   if (typeof data?.message === "string") return data.message;
@@ -12388,10 +12435,6 @@ function extractErrorMessage(data: Record<string, unknown>, status: number): str
   if (status >= 500) return "Erreur serveur. Contactez l'administrateur.";
   return `Erreur inattendue (${status})`;
 }
-
-// ==============================================================================
-//  API publique du client — utilisée par tous les repositories
-// ==============================================================================
 
 export const api = {
   get: <T>(url: string, options?: FetchOptions) =>
@@ -12409,11 +12452,9 @@ export const api = {
   delete: <T>(url: string, options?: FetchOptions) =>
     apiFetch<T>(url, { ...options, method: "DELETE" }),
 
-  /** Pour les uploads fichiers (FormData — pas de Content-Type automatique) */
   upload: <T>(url: string, formData: FormData, options?: FetchOptions) =>
     apiFetch<T>(url, { ...options, method: "POST", body: formData, isMultipart: true }),
 
-  /** Upload avec méthode PATCH (ex: mise à jour partielle avec fichier) */
   uploadPatch: <T>(url: string, formData: FormData, options?: FetchOptions) =>
     apiFetch<T>(url, { ...options, method: "PATCH", body: formData, isMultipart: true }),
 };
@@ -12803,14 +12844,15 @@ import type {
   UpdatePitchVideoPayload,
 } from "@/types/api/cms.types";
 
+
 // ==============================================================================
 //  Endpoints PUBLICS (vitrine)
 // ==============================================================================
 import { PaginatedResponse } from "@/types";
 export const cmsPublicRepository = {
-/**
+ /**
    * GET /api/admin/pages
-   * Retourne maintenant une réponse paginée conforme au backend Django
+   * Correction du type de retour : PaginatedResponse au lieu de SitePageAdmin[]
    */
   getPages: (): Promise<PaginatedResponse<SitePageAdmin>> => {
     return api.get<PaginatedResponse<SitePageAdmin>>("/admin/pages/");
@@ -12850,10 +12892,10 @@ export const cmsAdminRepository = {
 
   /**
    * GET /api/admin/pages
-   * Liste de toutes les pages (publiées ou non)
+   * Correction ici : il faut aussi utiliser PaginatedResponse ici !
    */
-  getPages: (): Promise<SitePageAdmin[]> => {
-    return api.get<SitePageAdmin[]>("/admin/pages/");
+  getPages: (): Promise<PaginatedResponse<SitePageAdmin>> => {
+    return api.get<PaginatedResponse<SitePageAdmin>>("/admin/pages/");
   },
 
   /**
@@ -13106,6 +13148,52 @@ export const contactAdminRepository = {
 
 // FILE: src/repositories/events.repository.ts
 -----------------------------------------------
+
+// src/repositories/events.repository.ts
+// ==============================================================================
+//  Tracking silencieux des événements visiteurs (côté client uniquement)
+// ==============================================================================
+import { api as apiClient } from "@/lib/api-client";
+import type { VisitorEventPayload } from "@/types/api/kpi.types";
+
+const TRACKING_ENABLED = process.env.NEXT_PUBLIC_ENABLE_TRACKING === "true";
+
+export const eventsRepository = {
+  /**
+   * POST /api/evenements — enregistrer un événement visiteur
+   * Silencieux : ne throw jamais (échec ignoré pour ne pas impacter l'UX)
+   */
+  track: async (payload: VisitorEventPayload): Promise<void> => {
+    if (!TRACKING_ENABLED) return;
+    try {
+      await apiClient.post("/evenements", payload);
+    } catch {
+      // Tracking silencieux — on n'impacte jamais l'UX en cas d'erreur
+    }
+  },
+
+  /** Raccourcis pour les événements les plus fréquents */
+  trackPageView: (page: string) =>
+    eventsRepository.track({ type: "PAGE_VIEW", page }),
+
+  trackScholarshipView: (bourseId: string, page?: string) =>
+    eventsRepository.track({ type: "BOURSE_VUE", bourse_id: bourseId, page }),
+
+  trackContactSubmit: (bourseId?: string) =>
+    eventsRepository.track({ type: "CONTACT_SOUMIS", bourse_id: bourseId }),
+
+  trackNewsletterSignup: () =>
+    eventsRepository.track({ type: "NEWSLETTER_INSCRIPTION" }),
+
+  trackWhatsappClick: (bourseId?: string) =>
+    eventsRepository.track({ type: "WHATSAPP_CLIC", bourse_id: bourseId }),
+
+  trackChatbotOpen: () =>
+    eventsRepository.track({ type: "CHATBOT_OUVERT" }),
+
+  trackAppointmentSubmit: () =>
+    eventsRepository.track({ type: "RENDEZ_VOUS_SOUMIS" }),
+};
 
 // END OF FILE: src/repositories/events.repository.ts
 
@@ -19263,6 +19351,34 @@ C'est une erreur de ma part, je rectifie immédiatement. Voici la version intég
 
 // FILE: tsconfig.json
 -----------------------------------------------
+{
+  "compilerOptions": {
+    "target": "ES2017",
+    "lib": ["dom", "dom.iterable", "esnext"],
+    "allowJs": true,
+    "skipLibCheck": true,
+    "strict": true,
+    "noEmit": true,
+    "esModuleInterop": true,
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "jsx": "preserve",
+    "incremental": true,
+    "plugins": [
+      {
+        "name": "next"
+      }
+    ],
+    "paths": {
+      "@/*": ["./src/*"]
+    }
+  },
+  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
+  "exclude": ["node_modules"]
+}
+
 
 // END OF FILE: tsconfig.json
 

@@ -1,14 +1,12 @@
 // src/lib/api-client.ts
 // ==============================================================================
 //  Client HTTP central du projet SALMA
-//  - Toutes les requêtes passent par ici
 //  - Gestion automatique du token JWT (Authorization header)
+//  - Nettoyage critique des guillemets de cookies (SSR Fix)
 //  - Gestion des erreurs unifiée
-//  - Support des query params, revalidation ISR et multipart/form-data
 // ==============================================================================
 
 export const API_URL = (process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000/api").replace(/\/+$/, "");
-
 export const BACKEND_URL = new URL(API_URL).origin;
 
 // ==============================================================================
@@ -34,17 +32,13 @@ export class ApiException extends Error {
 }
 
 interface FetchOptions extends RequestInit {
-  /** Query params ajoutés à l'URL : { page: "2", country: "cn" } */
   params?: Record<string, string | number | boolean | undefined>;
-  /** Secondes de revalidation ISR Next.js (Server Components uniquement) */
   revalidate?: number | false;
-  /** Si true, ne pas ajouter Content-Type (pour FormData/multipart) */
   isMultipart?: boolean;
 }
 
 // ==============================================================================
 //  Helpers JWT
-//  Côté client uniquement — les Server Components utilisent les cookies httpOnly
 // ==============================================================================
 
 const TOKEN_KEY = "salma_access_token";
@@ -71,25 +65,11 @@ export const tokenStorage = {
   },
 };
 
-// ==============================================================================
-//  Helper — construire l'URL complète d'un média Django
-//  Usage : getMediaUrl("/media/bourses/image.jpg") → "http://....:8000/media/..."
-// ==============================================================================
 export function getMediaUrl(path: string | null | undefined): string | null {
   if (!path) return null;
-  
-  // 1. Si c'est déjà une URL complète (Unsplash), on la renvoie
   if (path.startsWith("http") && !path.includes("/api/media/")) return path;
-  
-  // 2. On nettoie le chemin : on enlève le segment /api s'il existe
-  // car Django sert les médias sur /media/ et non /api/media/
-  let cleanPath = path.replace("/api/media/", "/media/");
-  cleanPath = cleanPath.replace("api/media/", "/media/");
-
-  // 3. Si après nettoyage c'est une URL complète, on la renvoie
+  let cleanPath = path.replace("/api/media/", "/media/").replace("api/media/", "/media/");
   if (cleanPath.startsWith("http")) return cleanPath;
-
-  // 4. Sinon on ajoute l'origine du serveur devant
   const finalPath = cleanPath.startsWith("/") ? cleanPath : `/${cleanPath}`;
   return `${BACKEND_URL}${finalPath}`;
 }
@@ -101,7 +81,6 @@ export function getMediaUrl(path: string | null | undefined): string | null {
 async function apiFetch<T>(endpoint: string, options: FetchOptions = {}): Promise<T> {
   const { params, revalidate, isMultipart, ...customConfig } = options;
 
-  // --- Construction de l'URL ---
   const url = new URL(`${API_URL}${endpoint.startsWith("/") ? endpoint : `/${endpoint}`}`);
   if (params) {
     Object.entries(params).forEach(([key, value]) => {
@@ -111,10 +90,9 @@ async function apiFetch<T>(endpoint: string, options: FetchOptions = {}): Promis
     });
   }
 
-  // --- Headers ---
   const headers: Record<string, string> = {};
 
-  // 1. Récupération du token (Hybride Client/Serveur)
+  // 1. Récupération du token
   let token = tokenStorage.getAccess();
 
   // Si on est sur le serveur (Server Component), on cherche dans les cookies
@@ -122,42 +100,44 @@ async function apiFetch<T>(endpoint: string, options: FetchOptions = {}): Promis
     try {
       const { cookies } = await import("next/headers");
       const cookieStore = await cookies();
-      token = cookieStore.get("salma_auth")?.value || null;
-    } catch  {
+      const cookieValue = cookieStore.get("salma_auth")?.value;
+      if (cookieValue) {
+        token = cookieValue;
+      }
+    } catch {
       // Contexte hors requête (ex: build)
     }
   }
 
+  // 2. NETTOYAGE CRITIQUE DU TOKEN
+  // Supprime les guillemets doubles au début/fin et les espaces
   if (token) {
-    headers["Authorization"] = `Bearer ${token}`;
+    const cleanToken = token.replace(/^"|"$/g, '').trim();
+    
+    // On ne l'ajoute que s'il est valide (pas "null" ou "undefined" en string)
+    if (cleanToken && cleanToken !== "null" && cleanToken !== "undefined" && cleanToken.length > 20) {
+      headers["Authorization"] = `Bearer ${cleanToken}`;
+    }
   }
 
-  // Content-Type automatique (sauf pour FormData/Multipart)
   if (!isMultipart) {
     headers["Content-Type"] = "application/json";
   }
 
-  // Merge avec les headers personnalisés passés en options
   if (customConfig.headers) {
     Object.assign(headers, customConfig.headers);
   }
 
-  // --- Config fetch ---
   const isAdminRequest = endpoint.startsWith("/admin");
-
   const config: RequestInit = {
     ...customConfig,
     headers,
-    // On désactive le cache UNIQUEMENT pour l'admin. 
-    // La vitrine garde ses performances (grâce au revalidate).
     cache: isAdminRequest ? "no-store" : "default",
     next: revalidate !== undefined ? { revalidate } : customConfig.next,
   };
 
-  // --- Exécution ---
   try {
     const response = await fetch(url.toString(), config);
-
     if (response.status === 204) return {} as T;
 
     const data = await response.json().catch(() => ({}));
@@ -181,10 +161,6 @@ async function apiFetch<T>(endpoint: string, options: FetchOptions = {}): Promis
   }
 }
 
-// ==============================================================================
-//  Helper — Extraction du message d'erreur Django DRF
-// ==============================================================================
-
 function extractErrorMessage(data: Record<string, unknown>, status: number): string {
   if (typeof data?.detail === "string") return data.detail;
   if (typeof data?.message === "string") return data.message;
@@ -195,10 +171,6 @@ function extractErrorMessage(data: Record<string, unknown>, status: number): str
   if (status >= 500) return "Erreur serveur. Contactez l'administrateur.";
   return `Erreur inattendue (${status})`;
 }
-
-// ==============================================================================
-//  API publique du client — utilisée par tous les repositories
-// ==============================================================================
 
 export const api = {
   get: <T>(url: string, options?: FetchOptions) =>
@@ -216,11 +188,9 @@ export const api = {
   delete: <T>(url: string, options?: FetchOptions) =>
     apiFetch<T>(url, { ...options, method: "DELETE" }),
 
-  /** Pour les uploads fichiers (FormData — pas de Content-Type automatique) */
   upload: <T>(url: string, formData: FormData, options?: FetchOptions) =>
     apiFetch<T>(url, { ...options, method: "POST", body: formData, isMultipart: true }),
 
-  /** Upload avec méthode PATCH (ex: mise à jour partielle avec fichier) */
   uploadPatch: <T>(url: string, formData: FormData, options?: FetchOptions) =>
     apiFetch<T>(url, { ...options, method: "PATCH", body: formData, isMultipart: true }),
 };
