@@ -29,10 +29,8 @@ export const authRepository = {
 
     // 2. Stockage Cookie pour le Middleware Next.js (Protection des routes serveur)
     if (typeof document !== "undefined") {
-      // Expire dans 24h, accessible sur tout le domaine
-      document.cookie = `salma_auth=${response.access}; path=/; max-age=86400; SameSite=Lax`;
-    }
-    
+  document.cookie = `salma_auth=${response.access}; path=/; max-age=86400; SameSite=Lax`;
+}
     return response;
   },
 

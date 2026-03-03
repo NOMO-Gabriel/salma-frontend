@@ -68,7 +68,7 @@ export const tokenStorage = {
 export function getMediaUrl(path: string | null | undefined): string | null {
   if (!path) return null;
   if (path.startsWith("http") && !path.includes("/api/media/")) return path;
-  let cleanPath = path.replace("/api/media/", "/media/").replace("api/media/", "/media/");
+  const cleanPath = path.replace("/api/media/", "/media/").replace("api/media/", "/media/");
   if (cleanPath.startsWith("http")) return cleanPath;
   const finalPath = cleanPath.startsWith("/") ? cleanPath : `/${cleanPath}`;
   return `${BACKEND_URL}${finalPath}`;
