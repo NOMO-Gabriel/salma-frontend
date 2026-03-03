@@ -29,7 +29,7 @@ export const newsletterRepository = {
    * S'inscrire à la newsletter
    */
   subscribe: (payload: NewsletterInscriptionPayload): Promise<{ detail: string }> => {
-    return api.post<{ detail: string }>("/newsletter/inscription", payload);
+    return api.post<{ detail: string }>("/newsletter/inscription/", payload);
   },
 
   /**
@@ -37,7 +37,7 @@ export const newsletterRepository = {
    * Se désinscrire
    */
   unsubscribe: (payload: NewsletterDesinscriptionPayload): Promise<{ detail: string }> => {
-    return api.post<{ detail: string }>("/newsletter/desinscription", payload);
+    return api.post<{ detail: string }>("/newsletter/desinscription/", payload);
   },
 
   // ==============================================================================
@@ -59,7 +59,7 @@ export const newsletterRepository = {
     if (filters?.page_size) params.page_size = String(filters.page_size);
     if (filters?.ordering) params.ordering = filters.ordering;
 
-    return api.get<PaginatedSubscriberResponse>("/admin/newsletter/abonnes", { params });
+    return api.get<PaginatedSubscriberResponse>("/admin/newsletter/abonnes/", { params });
   },
 
   /**
@@ -94,7 +94,7 @@ export const newsletterRepository = {
     if (filters?.page_size) params.page_size = String(filters.page_size);
     if (filters?.ordering) params.ordering = filters.ordering;
 
-    return api.get<PaginatedAnnouncementResponse>("/admin/annonces", { params });
+    return api.get<PaginatedAnnouncementResponse>("/admin/annonces/", { params });
   },
 
   /**
@@ -110,7 +110,7 @@ export const newsletterRepository = {
    * Créer une annonce (brouillon)
    */
   adminCreateAnnouncement: (payload: CreateAnnouncementPayload): Promise<Announcement> => {
-    return api.post<Announcement>("/admin/annonces", payload);
+    return api.post<Announcement>("/admin/annonces/", payload);
   },
 
   /**

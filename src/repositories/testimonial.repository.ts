@@ -67,7 +67,7 @@ export const testimonialAdminRepository = {
    * Détail d'un témoignage
    */
   getById: (id: string): Promise<TestimonialAdmin> => {
-    return api.get<TestimonialAdmin>(`${ADMIN}/${id}`);
+    return api.get<TestimonialAdmin>(`${ADMIN}/${id}/`);
   },
 
   /**
@@ -83,7 +83,7 @@ export const testimonialAdminRepository = {
    * Modifier complètement
    */
   update: (id: string, payload: CreateTestimonialPayload): Promise<TestimonialAdmin> => {
-    return api.put<TestimonialAdmin>(`${ADMIN}/${id}`, payload);
+    return api.put<TestimonialAdmin>(`${ADMIN}/${id}/`, payload);
   },
 
   /**
@@ -91,13 +91,13 @@ export const testimonialAdminRepository = {
    * Modifier partiellement (ex: approuver)
    */
   patch: (id: string, payload: UpdateTestimonialPayload): Promise<TestimonialAdmin> => {
-    return api.patch<TestimonialAdmin>(`${ADMIN}/${id}`, payload);
+    return api.patch<TestimonialAdmin>(`${ADMIN}/${id}/`, payload);
   },
 
   /**
    * DELETE /api/admin/temoignages/{id}
    */
   delete: (id: string): Promise<void> => {
-    return api.delete<void>(`${ADMIN}/${id}`);
+    return api.delete<void>(`${ADMIN}/${id}/`);
   },
 };

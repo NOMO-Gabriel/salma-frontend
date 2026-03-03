@@ -11,25 +11,25 @@ import type {
 export const chatbotRepository = {
   /** POST /api/chatbot/message — interroger le chatbot (public) */
   query: (payload: ChatbotMessagePayload): Promise<ChatbotMessageResponse> =>
-    apiClient.post("/chatbot/message", payload),
+    apiClient.post("/chatbot/message/", payload), // Ajout du slash final
 
-  /** GET /api/admin/chatbot/questions */
+  /** GET /api/admin/faq/ */
   adminGetFaqs: (): Promise<FaqEntry[]> =>
-    apiClient.get<FaqEntry[]>("/admin/chatbot/questions"),
+    apiClient.get<FaqEntry[]>("/admin/faq/"), // Changé chatbot/questions -> faq/
 
-  /** GET /api/admin/chatbot/questions/{id} */
+  /** GET /api/admin/faq/{id}/ */
   adminGetFaq: (id: string): Promise<FaqEntry> =>
-    apiClient.get(`/admin/chatbot/questions/${id}`),
+    apiClient.get(`/admin/faq/${id}/`),
 
-  /** POST /api/admin/chatbot/questions */
+  /** POST /api/admin/faq/ */
   adminCreateFaq: (payload: CreateFaqEntryPayload): Promise<FaqEntry> =>
-    apiClient.post("/admin/chatbot/questions", payload),
+    apiClient.post("/admin/faq/", payload),
 
-  /** PATCH /api/admin/chatbot/questions/{id} */
+  /** PATCH /api/admin/faq/{id}/ */
   adminUpdateFaq: (id: string, payload: UpdateFaqEntryPayload): Promise<FaqEntry> =>
-    apiClient.patch(`/admin/chatbot/questions/${id}`, payload),
+    apiClient.patch(`/admin/faq/${id}/`, payload),
 
-  /** DELETE /api/admin/chatbot/questions/{id} */
+  /** DELETE /api/admin/faq/{id}/ */
   adminDeleteFaq: (id: string): Promise<void> =>
-    apiClient.delete(`/admin/chatbot/questions/${id}`),
+    apiClient.delete(`/admin/faq/${id}/`),
 };

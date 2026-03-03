@@ -1,10 +1,25 @@
-import AdminComingSoon from "@/components/admin/AdminComingSoon";
-export default function Page() {
-  return (
-    <AdminComingSoon
-      title="KPI & Analytics"
-      description="Visualisez vos performances : visiteurs, taux de conversion, bourses les plus consultées."
-      icon={<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5} className="w-8 h-8"><path strokeLinecap="round" strokeLinejoin="round" d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 013 19.875v-6.75zM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V8.625zM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V4.125z" /></svg>}
-    />
-  );
+import { kpiRepository } from "@/repositories/kpi.repository";
+import AdminKpiClient from "@/components/admin/AdminKpiClient";
+
+async function getKpiData() {
+  try {
+    const [realtime, conversion] = await Promise.all([
+      kpiRepository.adminGetRealtime(),
+      kpiRepository.adminGetConversion()
+    ]);
+    return { realtime, conversion };
+  } catch (error) {
+    console.error("Erreur KPI:", error);
+    // Fallback vide pour éviter le crash
+    return { 
+      realtime: { visiteurs_uniques: 0, pages_vues: 0, soumissions_formulaire: 0 },
+      conversion: { taux_global: 0, par_bourse: [] }
+    };
+  }
+}
+
+export default async function AdminKpiPage() {
+  const data = await getKpiData();
+  // @ts-ignore
+  return <AdminKpiClient realtime={data.realtime} conversion={data.conversion} />;
 }

@@ -7,8 +7,9 @@
 //  - Support des query params, revalidation ISR et multipart/form-data
 // ==============================================================================
 
-export const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000/api";
-export const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || "http://127.0.0.1:8000";
+export const API_URL = (process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000/api").replace(/\/+$/, "");
+
+export const BACKEND_URL = new URL(API_URL).origin;
 
 // ==============================================================================
 //  Types
@@ -76,8 +77,21 @@ export const tokenStorage = {
 // ==============================================================================
 export function getMediaUrl(path: string | null | undefined): string | null {
   if (!path) return null;
-  if (path.startsWith("http")) return path; // déjà absolu
-  return `${BACKEND_URL}${path.startsWith("/") ? path : `/${path}`}`;
+  
+  // 1. Si c'est déjà une URL complète (Unsplash), on la renvoie
+  if (path.startsWith("http") && !path.includes("/api/media/")) return path;
+  
+  // 2. On nettoie le chemin : on enlève le segment /api s'il existe
+  // car Django sert les médias sur /media/ et non /api/media/
+  let cleanPath = path.replace("/api/media/", "/media/");
+  cleanPath = cleanPath.replace("api/media/", "/media/");
+
+  // 3. Si après nettoyage c'est une URL complète, on la renvoie
+  if (cleanPath.startsWith("http")) return cleanPath;
+
+  // 4. Sinon on ajoute l'origine du serveur devant
+  const finalPath = cleanPath.startsWith("/") ? cleanPath : `/${cleanPath}`;
+  return `${BACKEND_URL}${finalPath}`;
 }
 
 // ==============================================================================
@@ -100,27 +114,43 @@ async function apiFetch<T>(endpoint: string, options: FetchOptions = {}): Promis
   // --- Headers ---
   const headers: Record<string, string> = {};
 
-  // Content-Type automatique (sauf pour FormData)
-  if (!isMultipart) {
-    headers["Content-Type"] = "application/json";
+  // 1. Récupération du token (Hybride Client/Serveur)
+  let token = tokenStorage.getAccess();
+
+  // Si on est sur le serveur (Server Component), on cherche dans les cookies
+  if (!token && typeof window === "undefined") {
+    try {
+      const { cookies } = await import("next/headers");
+      const cookieStore = await cookies();
+      token = cookieStore.get("salma_auth")?.value || null;
+    } catch (e) {
+      // Contexte hors requête (ex: build)
+    }
   }
 
-  // Injection du token JWT si disponible (côté client)
-  const token = tokenStorage.getAccess();
   if (token) {
     headers["Authorization"] = `Bearer ${token}`;
   }
 
-  // Merge avec les headers personnalisés
+  // Content-Type automatique (sauf pour FormData/Multipart)
+  if (!isMultipart) {
+    headers["Content-Type"] = "application/json";
+  }
+
+  // Merge avec les headers personnalisés passés en options
   if (customConfig.headers) {
     Object.assign(headers, customConfig.headers);
   }
 
   // --- Config fetch ---
+  const isAdminRequest = endpoint.startsWith("/admin");
+
   const config: RequestInit = {
     ...customConfig,
     headers,
-    // Support ISR Next.js pour les Server Components
+    // On désactive le cache UNIQUEMENT pour l'admin. 
+    // La vitrine garde ses performances (grâce au revalidate).
+    cache: isAdminRequest ? "no-store" : "default",
     next: revalidate !== undefined ? { revalidate } : customConfig.next,
   };
 
@@ -128,13 +158,10 @@ async function apiFetch<T>(endpoint: string, options: FetchOptions = {}): Promis
   try {
     const response = await fetch(url.toString(), config);
 
-    // Réponse vide (DELETE, etc.)
     if (response.status === 204) return {} as T;
 
-    // Tentative de parsing JSON
     const data = await response.json().catch(() => ({}));
 
-    // Erreur HTTP
     if (!response.ok) {
       throw new ApiException({
         status: response.status,
@@ -145,13 +172,10 @@ async function apiFetch<T>(endpoint: string, options: FetchOptions = {}): Promis
 
     return data as T;
   } catch (error) {
-    // Re-throw si c'est déjà notre type d'erreur
     if (error instanceof ApiException) throw error;
-
-    // Erreur réseau (backend inaccessible, CORS, etc.)
     throw new ApiException({
       status: 0,
-      message: "Impossible de contacter le serveur. Vérifie ta connexion ou l'adresse API.",
+      message: "Impossible de contacter le serveur.",
       detail: { originalError: String(error) },
     });
   }

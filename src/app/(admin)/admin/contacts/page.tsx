@@ -1,10 +1,17 @@
-import AdminComingSoon from "@/components/admin/AdminComingSoon";
-export default function Page() {
-  return (
-    <AdminComingSoon
-      title="Contacts & Candidatures"
-      description="Gérez les demandes de contact, les candidatures et les rendez-vous pris par vos prospects."
-      icon={<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5} className="w-8 h-8"><path strokeLinecap="round" strokeLinejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 01-2.25 2.25h-15a2.25 2.25 0 01-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25m19.5 0v.243a2.25 2.25 0 01-1.07 1.916l-7.5 4.615a2.25 2.25 0 01-2.36 0L3.32 8.91a2.25 2.25 0 01-1.07-1.916V6.75" /></svg>}
-    />
-  );
+import { contactAdminRepository } from "@/repositories/contact.repository";
+import AdminContactsClient from "@/components/admin/AdminContactsClient";
+
+async function getContacts() {
+  try {
+    // On récupère la liste paginée
+    return await contactAdminRepository.getList({ page: 1, page_size: 50 });
+  } catch (error) {
+    console.error("Erreur Contacts:", error);
+    return { results: [], count: 0 };
+  }
+}
+
+export default async function AdminContactsPage() {
+  const data = await getContacts();
+  return <AdminContactsClient initialContacts={data} />;
 }
