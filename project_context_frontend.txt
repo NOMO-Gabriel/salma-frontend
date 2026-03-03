@@ -1,5 +1,5 @@
 Next.js Project Context
-Generated On: 2026-03-03 01:33:24
+Generated On: 2026-03-03 01:35:36
 Root: /home/gabriel/Documents/projets/AGT/SALMA/salma-frontend
 ===============================================
 
@@ -13909,23 +13909,12 @@ export const scholarshipAdminRepository = {
    * POST /api/admin/bourses/{id}/visibilites/bulk
    * Mettre à jour plusieurs visibilités d'un coup
    */
-<<<<<<< HEAD
-  bulkUpdateVisibility: (
-    bourseId: string,
-    visibilities: UpdateFieldVisibilityPayload[]
-  ): Promise<void> => {
-    // Ajout de <void> pour indiquer que l'API ne retourne pas de corps de réponse
-    return api.post<void>(`${ADMIN}/${bourseId}/visibilites/bulk`, { 
-      visibilities: visibilities 
-    });
-=======
  bulkUpdateVisibility: (
     bourseId: string,
     visibilities: UpdateFieldVisibilityPayload[]
   ): Promise<void> => {
     // On envoie le tableau 'visibilities' directement comme corps de la requête
     return api.put<void>(`${ADMIN}/${bourseId}/visibilite/`, visibilities);
->>>>>>> 28de63f3a33b067b4f2abb3e781403b6189fac5f
   },
 
   // --- Images ---------------------------------------------------------------
