@@ -9,13 +9,29 @@ import HeroDecorations from "./HeroDecroration";
 import type { HeroSlideData, NavContent, HeroSlideCMS } from "@/types";
 
 /**
- * Palettes de design pour les fonds de slides.
- * Ces données sont purement visuelles et ne sont pas gérées par le CMS.
+ * Config de design par slide.
+ * bgImage : chemin vers l'image de fond dans /public/images/hero/
+ * Si bgImage est défini, le gradient sert de fallback et l'overlay est ajouté.
  */
 const SLIDE_DESIGN_CONFIG = [
-  { gradient: "from-white via-white to-white", accent: "from-transparent to-transparent", deco: "circle-top-right" },
-  { gradient: "from-[#EDF3FC] via-[#E5EEF9] to-[#DCE9F7]", accent: "from-[#1B365D]/4 to-transparent", deco: "circle-bottom-left" },
-  { gradient: "from-[#CCDDF0] via-[#C2D5EC] to-[#B8CCE8]", accent: "from-[#1B365D]/6 to-transparent", deco: "circle-center" },
+  {
+    gradient: "from-white via-white to-white",
+    accent: "from-transparent to-transparent",
+    deco: "circle-top-right",
+    bgImage: "/images/hero/hero-slide-1.jpg",
+  },
+  {
+    gradient: "from-[#EDF3FC] via-[#E5EEF9] to-[#DCE9F7]",
+    accent: "from-[#1B365D]/4 to-transparent",
+    deco: "circle-bottom-left",
+    bgImage: "/images/hero/hero-slide-2.jpg",
+  },
+  {
+    gradient: "from-[#CCDDF0] via-[#C2D5EC] to-[#B8CCE8]",
+    accent: "from-[#1B365D]/6 to-transparent",
+    deco: "circle-center",
+    bgImage: "/images/hero/hero-slide-3.jpg",
+  },
 ];
 
 export default function HeroCarousel() {
@@ -29,15 +45,13 @@ export default function HeroCarousel() {
   // Chargement des données via le Switcher typé
   useEffect(() => {
     cmsSwitcher.getScopeContent<NavContent>("layout", locale).then((data) => {
-      // On récupère les slides bruts du CMS
       const rawSlides = data.hero_carousel?.slides ?? [];
-      
-      // On les enrichit avec la config de design (gradient, deco, etc.)
+
       const enrichedSlides: HeroSlideData[] = rawSlides.map((s: HeroSlideCMS, i: number) => ({
         ...s,
         ...SLIDE_DESIGN_CONFIG[i % SLIDE_DESIGN_CONFIG.length],
       })) as HeroSlideData[];
-      
+
       setSlides(enrichedSlides);
     });
   }, [locale]);
@@ -64,6 +78,7 @@ export default function HeroCarousel() {
   }
 
   const activeSlide = slides[current];
+  const hasBgImage = !!activeSlide.bgImage;
 
   return (
     <section
@@ -72,16 +87,36 @@ export default function HeroCarousel() {
       onMouseLeave={() => setPaused(false)}
       aria-label="Présentation SALMA"
     >
-      {/* Background dynamique */}
+      {/* ── Background layer ─────────────────────────────────────────── */}
+
+      {/* Gradient de fallback (toujours présent) */}
       <div className={`absolute inset-0 bg-gradient-to-br ${activeSlide.gradient} transition-all duration-700`} />
       <div className={`absolute inset-0 bg-gradient-to-tr ${activeSlide.accent} opacity-60`} />
-      
-      {/* Éléments décoratifs flottants */}
-      <HeroDecorations type={activeSlide.deco} />
+
+      {/* Image de fond (si configurée) */}
+      {hasBgImage && (
+        <>
+          {/* Image */}
+          <div
+            key={activeSlide.bgImage}
+            className="absolute inset-0 bg-cover bg-center bg-no-repeat transition-opacity duration-700"
+            style={{ backgroundImage: `url(${activeSlide.bgImage})` }}
+          />
+          {/* Overlay sombre uniforme */}
+          <div className="absolute inset-0 bg-salma-primary/70" />
+          {/* Gradient renforcé côté texte (gauche) */}
+          <div className="absolute inset-0 bg-gradient-to-r from-black/60 via-black/30 to-transparent" />
+        </>
+      )}
+
+      {/* Éléments décoratifs flottants (atténués si image de fond) */}
+      <div className={hasBgImage ? "opacity-30" : ""}>
+        <HeroDecorations type={activeSlide.deco} />
+      </div>
 
       {/* Contenu du slide actif */}
       <div className="relative z-10 flex-1 flex items-center">
-        <HeroSlide slide={activeSlide} animating={animating} />
+        <HeroSlide slide={activeSlide} animating={animating} hasBgImage={hasBgImage} />
       </div>
 
       {/* Barre de navigation et progression */}
@@ -92,6 +127,7 @@ export default function HeroCarousel() {
         onPrev={prev}
         onNext={next}
         onGoTo={goTo}
+        hasBgImage={hasBgImage}
       />
     </section>
   );

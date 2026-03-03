@@ -8,10 +8,20 @@ import type { HeroSlideData } from "@/types";
 interface Props {
   slide: HeroSlideData;
   animating: boolean;
+  /** Si true, le slide est sur fond image sombre → texte blanc */
+  hasBgImage?: boolean;
 }
 
-export default function HeroSlide({ slide, animating }: Props) {
+export default function HeroSlide({ slide, animating, hasBgImage = false }: Props) {
   const fade = animating ? "opacity-0 translate-y-3" : "opacity-100 translate-y-0";
+
+  // Classes de couleur selon le mode (fond clair par défaut, fond image sombre)
+  const textPrimary = hasBgImage ? "!text-salma-gold" : "text-salma-primary";
+  const textMuted = hasBgImage ? "text-white/70" : "text-salma-text-muted";
+  const textGold = "text-salma-gold";
+  const badgeBg = hasBgImage
+    ? "bg-white/15 border-white/25 text-white"
+    : "bg-salma-primary/8 border-salma-primary/15 text-salma-primary";
 
   return (
     <div className="max-w-7xl mx-auto px-6 lg:px-12 w-full py-20 lg:py-0
@@ -21,15 +31,15 @@ export default function HeroSlide({ slide, animating }: Props) {
       <div>
         {/* Badge */}
         <div className={`inline-flex items-center gap-2 px-4 py-2 rounded-full
-          bg-salma-primary/8 border border-salma-primary/15
-          text-salma-primary text-xs font-bold tracking-wide mb-8
+          ${badgeBg} border
+          text-xs font-bold tracking-wide mb-8
           transition-all duration-500 ${fade}`}
         >
           {slide.badge}
         </div>
 
         {/* Titre */}
-        <h1 className={`text-4xl lg:text-6xl font-serif font-bold text-salma-primary
+        <h1 className={`text-4xl lg:text-6xl font-serif font-bold ${textPrimary}
           leading-tight mb-4 whitespace-pre-line
           transition-all duration-500 delay-75 ${fade}`}
         >
@@ -38,7 +48,7 @@ export default function HeroSlide({ slide, animating }: Props) {
         </h1>
 
         {/* Sous-titre */}
-        <p className={`text-salma-text-muted text-base lg:text-lg leading-relaxed
+        <p className={`${textMuted} text-base lg:text-lg leading-relaxed
           max-w-xl mb-8
           transition-all duration-500 delay-100 ${fade}`}
         >
@@ -56,7 +66,9 @@ export default function HeroSlide({ slide, animating }: Props) {
               transition-all duration-200 active:scale-[0.97]
               ${cta.variant === "gold"
                 ? "bg-salma-gold text-salma-primary shadow-[0_4px_16px_rgba(201,168,76,0.35)] hover:bg-salma-gold-light"
-                : "bg-salma-primary text-white hover:bg-salma-primary-light"
+                : hasBgImage
+                  ? "bg-white text-salma-primary hover:bg-white/90"
+                  : "bg-salma-primary text-white hover:bg-salma-primary-light"
               }`}
             >
               {cta.label}
@@ -70,10 +82,10 @@ export default function HeroSlide({ slide, animating }: Props) {
         >
           {slide.stats.map((stat, i) => (
             <div key={i} className="flex flex-col">
-              <span className="text-2xl font-serif font-bold text-salma-gold leading-none">
+              <span className={`text-2xl font-serif font-bold ${textGold} leading-none`}>
                 {stat.value}
               </span>
-              <span className="text-[10px] font-bold uppercase tracking-widest text-salma-text-muted mt-1">
+              <span className={`text-[10px] font-bold uppercase tracking-widest ${textMuted} mt-1`}>
                 {stat.label}
               </span>
             </div>

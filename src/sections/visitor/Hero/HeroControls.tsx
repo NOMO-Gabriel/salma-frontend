@@ -8,19 +8,32 @@ interface Props {
   onPrev: () => void;
   onNext: () => void;
   onGoTo: (i: number) => void;
+  /** Si true, les contrôles sont sur fond image sombre → style clair */
+  hasBgImage?: boolean;
 }
 
-export default function HeroControls({ total, current, paused, onPrev, onNext, onGoTo }: Props) {
+export default function HeroControls({ total, current, paused, onPrev, onNext, onGoTo, hasBgImage = false }: Props) {
+  const arrowCls = hasBgImage
+    ? "bg-white/15 border-white/25 text-white hover:bg-white/25"
+    : "bg-salma-primary/8 border-salma-primary/15 text-salma-primary hover:bg-salma-primary/15";
+
+  const bulletInactive = hasBgImage
+    ? "bg-white/30 hover:bg-white/50"
+    : "bg-salma-primary/20 hover:bg-salma-primary/40";
+
+  const progressBg = hasBgImage ? "bg-white/20" : "bg-salma-border";
+  const counterText = hasBgImage ? "text-white/60" : "text-salma-text-muted";
+
   return (
     <>
       {/* Flèche gauche */}
       <button
         onClick={onPrev}
-        className="hidden lg:flex absolute left-6 top-1/2 -translate-y-1/2 z-20
+        className={`hidden lg:flex absolute left-6 top-1/2 -translate-y-1/2 z-20
           w-11 h-11 rounded-full backdrop-blur-sm
-          bg-salma-primary/8 border border-salma-primary/15 text-salma-primary
+          ${arrowCls} border
           items-center justify-center
-          hover:bg-salma-primary/15 transition-all duration-150"
+          transition-all duration-150`}
         aria-label="Slide précédent"
       >
         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -31,11 +44,11 @@ export default function HeroControls({ total, current, paused, onPrev, onNext, o
       {/* Flèche droite */}
       <button
         onClick={onNext}
-        className="hidden lg:flex absolute right-6 top-1/2 -translate-y-1/2 z-20
+        className={`hidden lg:flex absolute right-6 top-1/2 -translate-y-1/2 z-20
           w-11 h-11 rounded-full backdrop-blur-sm
-          bg-salma-primary/8 border border-salma-primary/15 text-salma-primary
+          ${arrowCls} border
           items-center justify-center
-          hover:bg-salma-primary/15 transition-all duration-150"
+          transition-all duration-150`}
         aria-label="Slide suivant"
       >
         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -47,7 +60,7 @@ export default function HeroControls({ total, current, paused, onPrev, onNext, o
       <div className="relative z-20 flex flex-col items-center gap-3 pb-8 pt-2">
         {/* Barre de progression */}
         {!paused && (
-          <div className="w-40 h-px bg-salma-border rounded-full overflow-hidden">
+          <div className={`w-40 h-px ${progressBg} rounded-full overflow-hidden`}>
             <div
               key={current}
               className="h-full bg-salma-gold rounded-full"
@@ -68,14 +81,14 @@ export default function HeroControls({ total, current, paused, onPrev, onNext, o
               className={`transition-all duration-300 rounded-full
                 ${i === current
                   ? "w-7 h-2 bg-salma-gold"
-                  : "w-2 h-2 bg-salma-primary/20 hover:bg-salma-primary/40"
+                  : `w-2 h-2 ${bulletInactive}`
                 }`}
             />
           ))}
         </div>
 
         {/* X/Y mobile */}
-        <p className="lg:hidden text-[10px] font-bold uppercase tracking-widest text-salma-text-muted">
+        <p className={`lg:hidden text-[10px] font-bold uppercase tracking-widest ${counterText}`}>
           {current + 1} / {total}
         </p>
       </div>
