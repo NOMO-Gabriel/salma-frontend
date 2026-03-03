@@ -123,7 +123,7 @@ async function apiFetch<T>(endpoint: string, options: FetchOptions = {}): Promis
       const { cookies } = await import("next/headers");
       const cookieStore = await cookies();
       token = cookieStore.get("salma_auth")?.value || null;
-    } catch (e) {
+    } catch  {
       // Contexte hors requête (ex: build)
     }
   }

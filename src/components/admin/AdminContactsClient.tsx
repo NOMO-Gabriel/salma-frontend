@@ -16,7 +16,7 @@ export default function AdminContactsClient({ initialContacts }: Props) {
       await contactAdminRepository.patch(id, { est_lu: true });
       // Mise à jour locale de la liste
       setContacts(contacts.map(c => c.id === id ? { ...c, est_lu: true } : c));
-    } catch (error) {
+    } catch{
       alert("Erreur lors de la mise à jour.");
     }
   };

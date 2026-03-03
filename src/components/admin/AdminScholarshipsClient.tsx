@@ -495,7 +495,7 @@ export default function AdminScholarshipsClient({ initialData }: Props) {
       await scholarshipAdminRepository.delete(id);
       setDeleteId(null);
       fetchData(page);
-    } catch (err) {
+    } catch {
       alert("Impossible de supprimer cette bourse. Elle est peut-être liée à des demandes de contact.");
     }
   };
@@ -505,7 +505,7 @@ export default function AdminScholarshipsClient({ initialData }: Props) {
       await scholarshipAdminRepository.duplicate(s.id);
       // On rafraîchit la liste à la page 1 pour voir la copie (souvent en haut)
       fetchData(1);
-    } catch (err) {
+    } catch {
       alert("Erreur lors de la duplication de la bourse.");
     }
   };
@@ -517,7 +517,7 @@ export default function AdminScholarshipsClient({ initialData }: Props) {
         statut: s.statut === "publie" ? "brouillon" : "publie",
       });
       fetchData(page);
-    } catch (err) {
+    } catch{
       alert("Erreur lors du changement de statut rapide.");
     }
   };

@@ -1,30 +1,44 @@
 // src/dictionaries/index.ts
-// ============================================================
-//  COEUR DE L'INTERNATIONALISATION (V2 - CMS Switcher Ready)
-//  Désormais basé sur les fichiers de layout statiques.
-// ============================================================
 
 import { frLayout } from "./data/static/layout/fr";
 import { enLayout } from "./data/static/layout/en";
+import { frCommon } from "./data/static/common/fr";
+import { enCommon } from "./data/static/common/en";
+import { adminFr } from "./data/admin/fr";
+import { adminEn } from "./data/admin/en";
 import type { Locale } from "@/config/i18n";
 
-// Utilitaire pour transformer les types "littéraux" en type "string"
 type DeepString<T> = {
   [K in keyof T]: T[K] extends object ? DeepString<T[K]> : string;
 };
 
-// Le type global est désormais restreint au Layout (Navbar, Footer, etc.)
-// Les contenus de pages spécifiques doivent passer par cmsSwitcher.getScopeContent()
-export type DictionaryType = DeepString<typeof frLayout>;
+// Définition du type global
+export type DictionaryType = DeepString<typeof frLayout> & 
+  DeepString<typeof frCommon> & {
+    admin: DeepString<typeof adminFr>;
+  };
 
 const dictionaries: Record<Locale, DictionaryType> = {
-  fr: frLayout as DictionaryType,
-  en: enLayout as DictionaryType,
+  fr: {
+    ...frLayout,
+    ...frCommon,
+    footer: {
+      ...frLayout.footer,
+      ...frCommon.footer,
+    },
+    admin: adminFr,
+  } as unknown as DictionaryType, // Passage par unknown pour éviter l'erreur 'any'
+  en: {
+    ...enLayout,
+    ...enCommon,
+    footer: {
+      ...enLayout.footer,
+      ...enCommon.footer,
+    },
+    admin: adminEn,
+  } as unknown as DictionaryType,
 };
 
-/**
- * Retourne le dictionnaire de base (Layout/Global) pour une langue donnée.
- */
 export function getDictionary(locale: Locale): DictionaryType {
   return dictionaries[locale] ?? dictionaries.fr;
 }

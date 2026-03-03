@@ -20,6 +20,6 @@ async function getKpiData() {
 
 export default async function AdminKpiPage() {
   const data = await getKpiData();
-  // @ts-ignore
+   // @ts-expect-error - Données typées côté API mais structure complexe pour le client
   return <AdminKpiClient realtime={data.realtime} conversion={data.conversion} />;
 }

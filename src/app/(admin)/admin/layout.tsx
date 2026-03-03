@@ -1,10 +1,11 @@
 "use client";
 // src/app/(admin)/admin/layout.tsx
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import Link from "next/link";
 import { useAuth } from "@/hooks/useAuth";
+import { useLanguage } from "@/hooks/useLanguage";
 
 // ---------------------------------------------------------------------------
 //  Composants UI Internes
@@ -35,33 +36,6 @@ const ICONS = {
   chevron: "M15 19l-7-7 7-7",
 };
 
-const NAV_SECTIONS = [
-  {
-    label: "Principal",
-    items: [
-      { href: "/admin/dashboard", label: "Tableau de bord", icon: "dashboard" },
-      { href: "/admin/bourses",   label: "Bourses",         icon: "bourses" },
-      { href: "/admin/contacts",  label: "Contacts & RDV",  icon: "contacts", badge: true },
-    ],
-  },
-  {
-    label: "Contenu",
-    items: [
-      { href: "/admin/cms",         label: "Pages & CMS",   icon: "cms" },
-      { href: "/admin/medias",      label: "Médiathèque",   icon: "media" },
-      { href: "/admin/temoignages", label: "Témoignages",   icon: "temoignages" },
-      { href: "/admin/newsletter",  label: "Newsletter",    icon: "newsletter" },
-    ],
-  },
-  {
-    label: "Intelligence",
-    items: [
-      { href: "/admin/chatbot", label: "Chatbot / FAQ",  icon: "chatbot" },
-      { href: "/admin/kpi",     label: "KPI & Analytics", icon: "kpi" },
-    ],
-  },
-];
-
 // ---------------------------------------------------------------------------
 //  Composant Principal
 // ---------------------------------------------------------------------------
@@ -70,15 +44,45 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   const pathname = usePathname();
   const router = useRouter();
   const { user, isLoading, isAuthenticated, logout } = useAuth();
+  const { dictionary } = useLanguage();
+  const t = dictionary.admin.layout;
 
   const [collapsed, setCollapsed] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
 
   const isLoginPage = pathname === "/admin/login";
 
+  // Configuration de la navigation localisée
+  const navSections = useMemo(() => [
+    {
+      label: t.sections.principal,
+      items: [
+        { href: "/admin/dashboard", label: t.menu.dashboard, icon: "dashboard" },
+        { href: "/admin/bourses",   label: t.menu.scholarships, icon: "bourses" },
+        { href: "/admin/contacts",  label: t.menu.contacts,  icon: "contacts", badge: true },
+      ],
+    },
+    {
+      label: t.sections.content,
+      items: [
+        { href: "/admin/cms",         label: t.menu.cms,   icon: "cms" },
+        { href: "/admin/medias",      label: t.menu.medias,   icon: "media" },
+        { href: "/admin/temoignages", label: t.menu.testimonials, icon: "temoignages" },
+        { href: "/admin/newsletter",  label: t.menu.newsletter,    icon: "newsletter" },
+      ],
+    },
+    {
+      label: t.sections.intelligence,
+      items: [
+        { href: "/admin/chatbot", label: t.menu.chatbot,  icon: "chatbot" },
+        { href: "/admin/kpi",     label: t.menu.kpi, icon: "kpi" },
+      ],
+    },
+  ], [t]);
+
   // 1. PROTECTION : Attendre la fin du chargement avant de rediriger
   useEffect(() => {
-    if (isLoading) return; // CRITIQUE : Ne rien faire pendant le chargement
+    if (isLoading) return;
 
     if (!isAuthenticated && !isLoginPage) {
       router.replace(`/admin/login?redirect=${pathname}`);
@@ -88,24 +92,22 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   // 2. Fermer le menu mobile au changement de route
   useEffect(() => { setMobileOpen(false); }, [pathname]);
 
-  // 3. Écran de chargement (évite le flash de contenu)
+  // 3. Écran de chargement
   if (isLoading) {
     return (
       <div className="min-h-screen bg-[#F0F2F7] flex items-center justify-center">
         <div className="flex flex-col items-center gap-4">
           <div className="w-10 h-10 border-2 border-[#1B365D] border-t-transparent rounded-full animate-spin" />
-          <p className="text-sm text-slate-400">Vérification des accès…</p>
+          <p className="text-sm text-slate-400">{t.loadingAuth}</p>
         </div>
       </div>
     );
   }
 
-  // 4. SI PAGE LOGIN : Rendu nu
   if (isLoginPage) {
     return <>{children}</>;
   }
 
-  // 5. SI PAS AUTHENTIFIÉ : On ne rend rien (le useEffect redirige)
   if (!isAuthenticated) return null;
 
   const isActive = (href: string) => pathname === href || pathname.startsWith(href + "/");
@@ -129,7 +131,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       </div>
 
       <nav className="flex-1 overflow-y-auto py-4 space-y-5 px-3">
-        {NAV_SECTIONS.map((section) => (
+        {navSections.map((section) => (
           <div key={section.label}>
             {!collapsed && (
               <p className="px-3 mb-1.5 text-[9px] font-bold uppercase tracking-[0.2em] text-white/30">
@@ -159,14 +161,14 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       <div className={`border-t border-white/10 p-3 space-y-1 ${collapsed && "flex flex-col items-center"}`}>
         <Link href="/" target="_blank" className={`flex items-center gap-3 px-3 py-2 rounded-xl text-white/40 hover:text-white/70 hover:bg-white/5 transition-all ${collapsed && "justify-center px-0"}`}>
           <SvgIcon d={ICONS.site} />
-          {!collapsed && <span className="text-xs font-medium">Voir le site</span>}
+          {!collapsed && <span className="text-xs font-medium">{t.viewSite}</span>}
         </Link>
         <div className="flex items-center gap-3 px-3 py-2 rounded-xl hover:bg-white/5 transition-colors">
           <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[#C9A84C] to-[#A68635] flex items-center justify-center text-white font-bold text-xs flex-shrink-0">{initials}</div>
           {!collapsed && (
             <div className="flex-1 min-w-0">
               <p className="text-white text-xs font-semibold truncate">{user?.nom_complet || "Admin"}</p>
-              <button onClick={logout} className="text-red-400 text-[10px] hover:underline">Déconnexion</button>
+              <button onClick={logout} className="text-red-400 text-[10px] hover:underline">{t.logout}</button>
             </div>
           )}
         </div>
@@ -176,10 +178,8 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
   return (
     <div className="min-h-screen bg-[#F0F2F7] flex font-sans">
-      {/* Overlay mobile */}
       {mobileOpen && <div className="fixed inset-0 bg-black/50 z-40 md:hidden backdrop-blur-sm" onClick={() => setMobileOpen(false)} />}
 
-      {/* Sidebar Desktop */}
       <aside className={`fixed top-0 left-0 h-full z-50 hidden md:flex flex-col bg-[#0F1F3D] text-white transition-all duration-300 ${collapsed ? "w-[72px]" : "w-64"}`}>
         <SidebarContent />
         <button onClick={() => setCollapsed(!collapsed)} className="absolute -right-3 top-[72px] w-6 h-6 bg-[#0F1F3D] border border-white/20 rounded-full flex items-center justify-center text-white/50 hover:text-white transition-colors shadow-lg">
@@ -187,16 +187,14 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         </button>
       </aside>
 
-      {/* Sidebar Mobile */}
       <aside className={`fixed top-0 left-0 h-full z-50 flex flex-col md:hidden bg-[#0F1F3D] text-white w-64 transition-transform duration-300 ${mobileOpen ? "translate-x-0" : "-translate-x-full"}`}>
         <SidebarContent />
       </aside>
 
-      {/* Zone principale */}
       <div className={`flex-1 flex flex-col min-h-screen transition-all duration-300 ${collapsed ? "md:ml-[72px]" : "md:ml-64"}`}>
         <header className="h-16 bg-white/80 backdrop-blur-md border-b border-slate-200/80 flex items-center gap-4 px-6 sticky top-0 z-30 shadow-sm">
           <button onClick={() => setMobileOpen(true)} className="md:hidden p-2 rounded-lg text-slate-500 hover:bg-slate-100 transition-colors"><SvgIcon d={ICONS.menu} /></button>
-          <div className="flex-1 text-sm font-semibold text-slate-700">Administration SALMA</div>
+          <div className="flex-1 text-sm font-semibold text-slate-700">{t.adminTitle}</div>
           <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[#C9A84C] to-[#A68635] flex items-center justify-center text-white font-bold text-xs">{initials}</div>
         </header>
         <main className="flex-1 p-6 overflow-auto">

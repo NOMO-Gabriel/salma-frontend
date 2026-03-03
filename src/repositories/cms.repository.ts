@@ -21,20 +21,19 @@ import type {
   UpdatePitchVideoPayload,
 } from "@/types/api/cms.types";
 
+
 // ==============================================================================
 //  Endpoints PUBLICS (vitrine)
 // ==============================================================================
-
+import { PaginatedResponse } from "@/types";
 export const cmsPublicRepository = {
-  /**
-   * GET /api/pages
-   * Liste des pages publiées
+ /**
+   * GET /api/admin/pages
+   * Correction du type de retour : PaginatedResponse au lieu de SitePageAdmin[]
    */
-  // On change le type de retour : ce n'est plus SitePageAdmin[] mais un objet avec results
-  getPages: (): Promise<{ results: SitePageAdmin[] }> => {
-    return api.get<{ results: SitePageAdmin[] }>("/admin/pages/");
+  getPages: (): Promise<PaginatedResponse<SitePageAdmin>> => {
+    return api.get<PaginatedResponse<SitePageAdmin>>("/admin/pages/");
   },
-
   /**
    * GET /api/pages/{slug}
    * Contenu complet d'une page (blocs visibles uniquement)
@@ -70,10 +69,10 @@ export const cmsAdminRepository = {
 
   /**
    * GET /api/admin/pages
-   * Liste de toutes les pages (publiées ou non)
+   * Correction ici : il faut aussi utiliser PaginatedResponse ici !
    */
-  getPages: (): Promise<SitePageAdmin[]> => {
-    return api.get<SitePageAdmin[]>("/admin/pages/");
+  getPages: (): Promise<PaginatedResponse<SitePageAdmin>> => {
+    return api.get<PaginatedResponse<SitePageAdmin>>("/admin/pages/");
   },
 
   /**

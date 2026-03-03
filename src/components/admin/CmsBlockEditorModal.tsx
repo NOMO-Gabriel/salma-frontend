@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useLanguage } from "@/hooks/useLanguage";
 import { cmsAdminRepository } from "@/repositories/cms.repository";
 import type { ContentBlock } from "@/types/api/cms.types";
 import SalmaButton from "../ui/SalmaButton";
@@ -13,6 +14,8 @@ interface Props {
 }
 
 export default function CmsBlockEditorModal({ pageId, block, onClose, onSave }: Props) {
+  const { dictionary } = useLanguage();
+  const t = dictionary.admin.cms.modal;
   const [loading, setLoading] = useState(false);
   const [form, setForm] = useState({
     contenu_fr: block.contenu_fr,
@@ -23,12 +26,11 @@ export default function CmsBlockEditorModal({ pageId, block, onClose, onSave }: 
   const handleSave = async () => {
     setLoading(true);
     try {
-      // Utilisation de l'ID de page et l'ID de bloc pour le nested endpoint
       await cmsAdminRepository.patchBlock(pageId, block.id, form);
       onSave();
       onClose();
-    } catch (error) {
-      alert("Erreur lors de la mise à jour du bloc.");
+    } catch {
+      alert(t.error);
     } finally {
       setLoading(false);
     }
@@ -39,7 +41,7 @@ export default function CmsBlockEditorModal({ pageId, block, onClose, onSave }: 
       <div className="bg-white rounded-[2rem] w-full max-w-2xl shadow-2xl overflow-hidden border border-salma-border">
         <div className="p-8 border-b border-salma-border bg-salma-bg/50 flex justify-between items-center">
           <div>
-            <h2 className="text-xl font-serif font-bold text-salma-primary">Modifier le bloc</h2>
+            <h2 className="text-xl font-serif font-bold text-salma-primary">{t.title}</h2>
             <p className="text-xs text-salma-text-muted uppercase font-bold tracking-widest">{block.cle_bloc}</p>
           </div>
           <button onClick={onClose} className="text-2xl text-salma-text-muted hover:text-salma-primary">✕</button>
@@ -47,7 +49,7 @@ export default function CmsBlockEditorModal({ pageId, block, onClose, onSave }: 
 
         <div className="p-8 space-y-6">
           <div className="space-y-2">
-            <label className="text-[10px] font-black uppercase text-salma-gold">Contenu Français</label>
+            <label className="text-[10px] font-black uppercase text-salma-gold">{t.labelFr}</label>
             <textarea 
               className="w-full p-4 rounded-xl border border-salma-border bg-salma-bg min-h-[120px]"
               value={form.contenu_fr}
@@ -55,7 +57,7 @@ export default function CmsBlockEditorModal({ pageId, block, onClose, onSave }: 
             />
           </div>
           <div className="space-y-2">
-            <label className="text-[10px] font-black uppercase text-salma-gold">Contenu Anglais</label>
+            <label className="text-[10px] font-black uppercase text-salma-gold">{t.labelEn}</label>
             <textarea 
               className="w-full p-4 rounded-xl border border-salma-border bg-salma-bg min-h-[120px]"
               value={form.contenu_en}
@@ -69,14 +71,14 @@ export default function CmsBlockEditorModal({ pageId, block, onClose, onSave }: 
               onChange={(e) => setForm({...form, est_visible: e.target.checked})}
               className="w-5 h-5 accent-salma-primary"
             />
-            <span className="text-sm font-bold text-salma-primary">Rendre ce bloc visible sur le site</span>
+            <span className="text-sm font-bold text-salma-primary">{t.labelVisible}</span>
           </label>
         </div>
 
         <div className="p-8 border-t border-salma-border bg-salma-bg/30 flex justify-end gap-4">
-          <button onClick={onClose} className="text-xs font-bold uppercase text-salma-text-muted">Annuler</button>
+          <button onClick={onClose} className="text-xs font-bold uppercase text-salma-text-muted">{t.btnCancel}</button>
           <SalmaButton onClick={handleSave} disabled={loading}>
-            {loading ? "Enregistrement..." : "Mettre à jour"}
+            {loading ? t.saving : t.btnSave}
           </SalmaButton>
         </div>
       </div>

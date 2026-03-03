@@ -76,7 +76,7 @@ function ContactItem({
 
 function SectionHeading({ text }: { text: string }) {
   return (
-    <h4 className="text-white font-bold uppercase tracking-widest text-[11px] mb-8 flex items-center gap-2">
+    <h4 className="!text-white font-bold uppercase tracking-widest text-[11px] mb-8 flex items-center gap-2">
       <span className="w-4 h-px bg-salma-gold" aria-hidden="true" />
       {text}
     </h4>
