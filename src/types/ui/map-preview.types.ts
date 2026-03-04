@@ -37,7 +37,7 @@ export interface MapPreviewProps {
   /** Labels i18n. */
   labels: MapPreviewLabels;
 
-  /** URL de l'image à afficher. @default "/agt_home.jpg" */
+  /** URL de l'image à afficher. @default "/images/agt_home.jpg" */
   imageSrc?: string;
 
   /** Hauteur du composant sur mobile. @default "h-[350px]" */

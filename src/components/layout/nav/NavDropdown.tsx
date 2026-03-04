@@ -14,14 +14,6 @@ import type { NavBourses, NavServices, NavContact, NavAbout, NavHome } from "@/t
 
 type NavDropdownData = NavHome | NavBourses | NavServices | NavContact | NavAbout;
 
-// Href principale de chaque dropdown (destination au clic)
-const HREF_MAP: Record<string, string> = {
-  home:     "/",
-  bourses:  "/bourses",
-  services: "/services",
-  about:    "/a-propos",
-  contact:  "/contact",
-};
 
 // =============================================================================
 //  Composant principal

@@ -40,7 +40,7 @@ import type { MapPreviewProps } from "@/types/ui/map-preview.types";
 export default function MapPreview({
   address,
   labels,
-  imageSrc = "/agt_home.jpg",
+  imageSrc = "/images/agt_home.jpg",
   mobileHeight = "h-[350px]",
   desktopHeight = "md:h-[450px]",
   className = "",

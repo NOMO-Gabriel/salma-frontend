@@ -1,11 +1,6 @@
 ﻿Next.js Project Context
-<<<<<<< HEAD
-Generated On: 2026-03-04 07:31:51
+Generated On: 2026-03-04 10:31:47
 Root: C:\Users\hp\Documents\stage gabriel\SALMA\salma-frontend
-=======
-Generated On: 2026-03-04 09:40:24
-Root: E:\AG_Technologie\Salma\salma-frontend
->>>>>>> a3c58bd73b58397488b474a30305072da73c049d
 ===============================================
 
 // FILE: docs/data/bourses.md
@@ -1107,6 +1102,7 @@ L'innovation majeure est le **"Scholarship Matcher"** :
 //  Page Gestion Bourses — tableau CRUD complet
 // ==============================================================================
 
+export const dynamic = "force-dynamic";
 import { Suspense } from "react";
 import AdminScholarshipsClient from "@/components/admin/AdminScholarshipsClient";
 import { scholarshipAdminRepository } from "@/repositories/scholarship.repository";
@@ -1146,6 +1142,7 @@ export default async function AdminBoursesPage() {
 // FILE: src/app/(admin)/admin/chatbot/page.tsx
 -----------------------------------------------
 // src/app/(admin)/admin/chatbot/page.tsx
+export const dynamic = "force-dynamic";
 import { chatbotRepository } from "@/repositories/chatbot.repository";
 import AdminChatbotClient from "@/components/admin/AdminChatbotClient";
 
@@ -1177,6 +1174,7 @@ export default async function AdminChatbotPage() {
 
 // FILE: src/app/(admin)/admin/cms/page.tsx
 -----------------------------------------------
+export const dynamic = "force-dynamic";
 import { cmsAdminRepository } from "@/repositories/cms.repository";
 import AdminCmsClient from "@/components/admin/AdminCmsClient";
 
@@ -1202,15 +1200,21 @@ export default async function AdminCmsPage() {
 
 // FILE: src/app/(admin)/admin/contacts/page.tsx
 -----------------------------------------------
-import { contactAdminRepository } from "@/repositories/contact.repository";
+export const dynamic = "force-dynamic";
 import AdminContactsClient from "@/components/admin/AdminContactsClient";
 
+/**
+ * Page admin contacts — Server Component.
+ * En SSR, le token JWT n'est pas disponible → le fetch échoue.
+ * On charge la page à vide et le client rechargera les données.
+ */
 async function getContacts() {
   try {
-    // On récupère la liste paginée
+    // Import dynamique pour éviter que l'erreur ne crash le build
+    const { contactAdminRepository } = await import("@/repositories/contact.repository");
     return await contactAdminRepository.getList({ page: 1, page_size: 50 });
-  } catch (error) {
-    console.error("Erreur Contacts:", error);
+  } catch {
+    // SSR sans token → on retourne un état vide
     return { results: [], count: 0 };
   }
 }
@@ -1232,6 +1236,7 @@ export default async function AdminContactsPage() {
 //  ✅ Ajoute   : KPI temps réel, graphique activité, contacts récents
 // ==============================================================================
 
+export const dynamic = "force-dynamic";
 import { Suspense } from "react";
 import AdminDashboardClient from "@/components/admin/AdminDashboardClient";
 import { 
@@ -1293,6 +1298,7 @@ function DashboardSkeleton() {
 
 // FILE: src/app/(admin)/admin/kpi/page.tsx
 -----------------------------------------------
+export const dynamic = "force-dynamic";
 import { kpiRepository } from "@/repositories/kpi.repository";
 import AdminKpiClient from "@/components/admin/AdminKpiClient";
 
@@ -1354,13 +1360,6 @@ export default function AdminLoginPage() {
     setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
   };
 
-<<<<<<< HEAD
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!form.email || !form.password) return;
-    const redirect = searchParams.get("redirect") || "/admin/dashboard";
-    await login(form, redirect).catch(() => {});
-=======
   // Dans src/app/(admin)/admin/login/page.tsx
 
 const handleSubmit = async (e: React.FormEvent) => {
@@ -1372,7 +1371,6 @@ const handleSubmit = async (e: React.FormEvent) => {
 
     const redirect = searchParams.get("redirect") || "/admin/dashboard";
     await login({ email, password }, redirect).catch(() => {});
->>>>>>> a3c58bd73b58397488b474a30305072da73c049d
   };
 
   return (
@@ -1504,6 +1502,7 @@ const handleSubmit = async (e: React.FormEvent) => {
 
 // FILE: src/app/(admin)/admin/medias/page.tsx
 -----------------------------------------------
+export const dynamic = "force-dynamic";
 import { mediaRepository } from "@/repositories/media.repository";
 import AdminMediaClient from "@/components/admin/AdminMediaClient";
 
@@ -1526,6 +1525,7 @@ export default async function AdminMediasPage() {
 
 // FILE: src/app/(admin)/admin/newsletter/page.tsx
 -----------------------------------------------
+export const dynamic = "force-dynamic";
 import { newsletterDictionary } from "@/dictionaries/data";
 import AdminNewsletterClient from "@/components/admin/AdminNewsletterClient";
 
@@ -1561,6 +1561,7 @@ export default async function AdminNewsletterPage() {
 
 // FILE: src/app/(admin)/admin/temoignages/page.tsx
 -----------------------------------------------
+export const dynamic = "force-dynamic";
 import { testimonialAdminRepository } from "@/repositories/testimonial.repository";
 import AdminTestimonialsClient from "@/components/admin/AdminTestimonialsClient";
 
@@ -5048,7 +5049,6 @@ export default function CmsBlockEditorModal({ pageId, block, onClose, onSave }: 
 
 // END OF FILE: src/components/admin/CmsBlockEditorModal.tsx
 
-<<<<<<< HEAD
 
 // FILE: src/components/layout/nav/MobileMenu.tsx
 -----------------------------------------------
@@ -5693,867 +5693,6 @@ function DropdownPanel({
 }
 
 // END OF FILE: src/components/layout/nav/NavDropdown.tsx
-
-
-// FILE: src/components/layout/ConditionalLayout.tsx
------------------------------------------------
-// src/components/layout/ConditionalLayout.tsx
-// ==============================================================================
-// ConditionalLayout — Distributeur central des labels SALMA
-//
-// Rôle :
-//   - Récupère les dictionnaires `common` et `layout` via cmsSwitcher
-//   - Distribue les labels appropriés à chaque composant enfant
-//   - Affiche Navbar + Footer + Widgets UNIQUEMENT sur les pages visiteur
-//   - Les routes /admin/* ont leur propre layout
-//
-// C'est le SEUL composant layout qui fait useEffect + cmsSwitcher pour
-// les dictionnaires partagés. Tous les enfants reçoivent par props.
-// ==============================================================================
-
-"use client";
-
-import React, { useState, useEffect } from "react";
-import { usePathname } from "next/navigation";
-import { useLanguage } from "@/hooks/useLanguage";
-import { cmsSwitcher } from "@/dictionaries/data/cms-switcher";
-
-// Layout components
-import Navbar from "@/components/Navbar";
-import Footer from "@/components/Footer";
-
-// Widgets
-import WhatsAppButton from "@/components/ui/WhatsAppButton";
-import ChatbotWidget from "@/components/ui/ChatbotWidget";
-import CookieBanner from "@/components/ui/CookieBanner";
-
-// Types
-import type { FooterTexts } from "@/types/pages/footer.types";
-
-// — Types internes pour les dictionnaires bruts ---------------------------------
-
-/* eslint-disable @typescript-eslint/no-explicit-any */
-type DictCommon = Record<string, any>;
-type DictLayout = Record<string, any>;
-/* eslint-enable @typescript-eslint/no-explicit-any */
-
-// — Composant principal ---------------------------------------------------------
-
-/**
- * **ConditionalLayout** — Orchestrateur du layout visiteur SALMA.
- *
- * Charge les dictionnaires `common` et `layout` au montage, puis
- * distribue les labels typés à chaque composant enfant.
- *
- * Les pages `/admin/*` reçoivent un rendu nu (sans Navbar/Footer/Widgets).
- *
- * @example
- * // Dans app/layout.tsx
- * <ConditionalLayout>{children}</ConditionalLayout>
- */
-export default function ConditionalLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
-  const pathname = usePathname();
-  const { locale } = useLanguage();
-  const isAdmin = pathname?.startsWith("/admin");
-
-  const [common, setCommon] = useState<DictCommon | null>(null);
-  const [layout, setLayout] = useState<DictLayout | null>(null);
-
-  // — Chargement des dictionnaires -----------------------------------------------
-
-  useEffect(() => {
-    Promise.all([
-      cmsSwitcher.getScopeContent("common", locale),
-      cmsSwitcher.getScopeContent("layout", locale),
-    ]).then(([commonData, layoutData]) => {
-      if (commonData) setCommon(commonData);
-      if (layoutData) setLayout(layoutData);
-    });
-  }, [locale]);
-
-  // — Pages admin : rendu nu ----------------------------------------------------
-
-  if (isAdmin) {
-    return <>{children}</>;
-  }
-
-  // — Attente des dictionnaires --------------------------------------------------
-
-  // On rend le contenu immédiatement (pour le SEO / first paint),
-  // les widgets apparaissent une fois les dicts chargés.
-  const dictsReady = common !== null && layout !== null;
-
-  return (
-    <>
-      {/* Navbar — garde son propre chargement pour l'instant */}
-      <Navbar />
-
-      <main>{children}</main>
-
-      {/* Footer + Widgets — rendus uniquement quand les dicts sont prêts */}
-      {dictsReady && (
-        <>
-          <Footer
-            content={layout.footer as FooterTexts}
-            footerLabels={common.footer}
-            newsletterLabels={common.newsletter}
-          />
-
-          <WhatsAppButton
-            labels={{
-              helpText: layout.widgets?.whatsapp?.helpText ?? "",
-              prefillMessage: layout.nav_contact?.whatsapp_desc ?? "",
-              ariaLabel: common.whatsappButton?.ariaLabel ?? "",
-            }}
-          />
-
-          <ChatbotWidget labels={common.chatbot} />
-
-          <CookieBanner labels={layout.cookies} />
-        </>
-      )}
-
-      {/* Fallback footer pendant le chargement */}
-      {!dictsReady && (
-        <div className="h-64 bg-[#0B172A] animate-pulse" />
-      )}
-    </>
-  );
-}
-
-// END OF FILE: src/components/layout/ConditionalLayout.tsx
-
-=======
-
-// FILE: src/components/layout/nav/MobileMenu.tsx
------------------------------------------------
-"use client";
-// =============================================================================
-//  MobileMenu.tsx — SALMA · Menu mobile (panneau latéral droit)
-//  Améliorations polish :
-//    • Header avec dégradé navy + branding premium
-//    • CTA "Prendre RDV" gold hero visible immédiatement (sans accordéon)
-//    • Accordéons avec icônes et animations fluides
-//    • Pied de menu avec newsletter intégrée + liens sociaux
-//    • Animation slide-in depuis la droite
-//    • Trap focus et accessibilité (aria)
-// =============================================================================
-
-import Link from "next/link";
-import { useState, useEffect, useRef } from "react";
-import { usePathname } from "next/navigation";
-import { useLanguage } from "@/hooks/useLanguage";
-import type { NavContent, NavServiceItem } from "@/types";
-
-// =============================================================================
-//  Composant principal
-// =============================================================================
-export default function MobileMenu({
-  content,
-  onClose,
-}: {
-  content: NavContent;
-  onClose: () => void;
-}) {
-  const { locale } = useLanguage();
-  const pathname = usePathname();
-  const panelRef = useRef<HTMLDivElement>(null);
-  const [activeAccordion, setActiveAccordion] = useState<string | null>(null);
-
-  // Ferme si la route change
-  useEffect(() => {
-    onClose();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [pathname]);
-
-  // Focus piégé dans le panneau (accessibilité)
-  useEffect(() => {
-    panelRef.current?.focus();
-  }, []);
-
-  // Ferme avec Escape
-  useEffect(() => {
-    const handler = (e: KeyboardEvent) => {
-      if (e.key === "Escape") onClose();
-    };
-    document.addEventListener("keydown", handler);
-    return () => document.removeEventListener("keydown", handler);
-  }, [onClose]);
-
-  const toggleAccordion = (key: string) => {
-    setActiveAccordion((prev) => (prev === key ? null : key));
-  };
-
-  const { nav_bourses, nav_services, nav_contact } = content;
-
-  return (
-    <div
-      className="fixed inset-0 z-[110] lg:hidden"
-      role="dialog"
-      aria-modal="true"
-      aria-label="Menu de navigation"
-    >
-      {/* Backdrop */}
-      <div
-        className="absolute inset-0 bg-salma-primary/30 backdrop-blur-sm animate-[fadeIn_0.2s_ease-out]"
-        onClick={onClose}
-        aria-hidden="true"
-      />
-
-      {/* Panneau latéral */}
-      <div
-        ref={panelRef}
-        tabIndex={-1}
-        className="
-          absolute top-0 right-0
-          w-[88%] max-w-[420px] h-full
-          bg-white shadow-[−20px_0_60px_rgba(27,54,93,0.2)]
-          flex flex-col
-          animate-[slideInRight_0.28s_cubic-bezier(0.32,0.72,0,1)]
-          outline-none
-        "
-      >
-
-        {/* =================================================================
-            HEADER DU PANNEAU
-        ================================================================= */}
-        <div className="relative bg-salma-primary px-6 py-5 flex justify-between items-center overflow-hidden flex-shrink-0">
-          {/* Décoration géométrique subtile */}
-          <div className="absolute -right-8 -top-8 w-24 h-24 rounded-full bg-salma-accent/10" aria-hidden="true" />
-          <div className="absolute right-12 -bottom-4 w-12 h-12 rounded-full bg-salma-gold/10" aria-hidden="true" />
-
-          {/* Branding */}
-          <div className="relative flex flex-col">
-            <span className="text-xl font-serif font-bold text-white leading-none">SALMA</span>
-            <span className="text-[8px] uppercase tracking-[0.35em] text-salma-gold font-bold mt-0.5">
-              Bourses & Mobilité
-            </span>
-          </div>
-
-          {/* Bouton fermeture */}
-          <button
-            onClick={onClose}
-            className="
-              relative w-9 h-9 flex items-center justify-center
-              rounded-xl bg-white/10 hover:bg-white/20
-              text-white transition-colors duration-150
-            "
-            aria-label="Fermer le menu"
-          >
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-            </svg>
-          </button>
-        </div>
-
-        {/* =================================================================
-            CTA HERO — Visible immédiatement, sans scroll
-        ================================================================= */}
-        <div className="px-4 pt-4 flex-shrink-0">
-          <Link
-            href="/contact"
-            onClick={onClose}
-            className="
-              flex items-center justify-center gap-3
-              w-full py-4 rounded-2xl
-              bg-salma-gold text-salma-primary
-              font-bold text-sm tracking-wide
-              shadow-[0_4px_20px_rgba(201,168,76,0.4)]
-              hover:bg-salma-gold-light active:scale-[0.98]
-              transition-all duration-150
-            "
-          >
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-            </svg>
-            {locale === "fr" ? "Prendre rendez-vous" : "Book a consultation"}
-          </Link>
-        </div>
-
-        {/* =================================================================
-            CORPS : ACCORDÉONS DE NAVIGATION
-        ================================================================= */}
-        <div className="flex-1 overflow-y-auto px-4 py-4 space-y-2">
-
-          {/* ── BOURSES ─────────────────────────────────────────────────── */}
-          <AccordionItem
-            id="bourses"
-            label={nav_bourses.title}
-            icon="🎓"
-            isOpen={activeAccordion === "bourses"}
-            onToggle={() => toggleAccordion("bourses")}
-          >
-            <div className="space-y-2 pb-1">
-              <Link
-                href="/bourses?pays=chine"
-                onClick={onClose}
-                className="group flex items-start gap-3 p-4 bg-salma-bg rounded-xl hover:bg-salma-primary/5 transition-colors"
-              >
-                <span className="text-lg">🇨🇳</span>
-                <div>
-                  <p className="text-xs font-bold text-salma-primary">{nav_bourses.china_label}</p>
-                  <p className="text-[10px] text-salma-text-muted mt-0.5 leading-snug">{nav_bourses.china_desc}</p>
-                </div>
-              </Link>
-              <Link
-                href="/bourses?pays=allemagne"
-                onClick={onClose}
-                className="group flex items-start gap-3 p-4 bg-salma-bg rounded-xl hover:bg-salma-primary/5 transition-colors"
-              >
-                <span className="text-lg">🇩🇪</span>
-                <div>
-                  <p className="text-xs font-bold text-salma-primary">{nav_bourses.germany_label}</p>
-                  <p className="text-[10px] text-salma-text-muted mt-0.5 leading-snug">{nav_bourses.germany_desc}</p>
-                </div>
-              </Link>
-              <Link
-                href="/bourses"
-                onClick={onClose}
-                className="block text-center text-[10px] font-bold text-salma-gold py-2 hover:underline"
-              >
-                Voir toutes les bourses →
-              </Link>
-            </div>
-          </AccordionItem>
-
-          {/* ── SERVICES ────────────────────────────────────────────────── */}
-          <AccordionItem
-            id="services"
-            label={nav_services.title}
-            icon="⚙️"
-            isOpen={activeAccordion === "services"}
-            onToggle={() => toggleAccordion("services")}
-          >
-            <div className="grid grid-cols-1 gap-1.5 pb-1">
-              {nav_services.items.map((item: NavServiceItem) => (
-                <Link
-                  key={item.id}
-                  href={item.href}
-                  onClick={onClose}
-                  className="flex items-center gap-3 p-3 bg-salma-bg rounded-xl hover:bg-salma-primary/5 transition-colors"
-                >
-                  <span className="text-lg w-8 text-center flex-shrink-0">{item.icon}</span>
-                  <div>
-                    <p className="text-xs font-bold text-salma-primary">{item.label}</p>
-                    <p className="text-[9px] text-salma-text-muted leading-snug">{item.desc}</p>
-                  </div>
-                </Link>
-              ))}
-            </div>
-          </AccordionItem>
-
-          {/* ── LIENS SIMPLES ───────────────────────────────────────────── */}
-          <nav className="space-y-1" aria-label="Liens rapides">
-            {[
-              { href: "/a-propos", label: locale === "fr" ? "À propos" : "About us", icon: "🏢" },
-              { href: "/contact",  label: locale === "fr" ? "Contact"  : "Contact",  icon: "✉️" },
-              { href: "/confidentialite", label: locale === "fr" ? "Confidentialité" : "Privacy", icon: "🛡️" },
-            ].map(({ href, label, icon }) => (
-              <Link
-                key={href}
-                href={href}
-                onClick={onClose}
-                className="flex items-center gap-3 px-4 py-3.5 rounded-xl border border-salma-border hover:border-salma-gold hover:bg-salma-gold/5 transition-all"
-              >
-                <span className="text-base">{icon}</span>
-                <span className="text-xs font-bold text-salma-primary uppercase tracking-widest">
-                  {label}
-                </span>
-              </Link>
-            ))}
-          </nav>
-
-          {/* ── WHATSAPP ────────────────────────────────────────────────── */}
-          <a
-            href="https://wa.me/237699450984"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="
-              flex items-center gap-3 px-4 py-3.5 rounded-xl
-              bg-green-500 text-white
-              hover:bg-green-600 active:scale-[0.98]
-              transition-all duration-150 shadow-sm
-            "
-          >
-            <span className="text-base">💬</span>
-            <div>
-              <p className="text-xs font-bold">{nav_contact.whatsapp_label}</p>
-              <p className="text-[9px] text-white/70">{nav_contact.whatsapp_desc}</p>
-            </div>
-          </a>
-
-        </div>
-
-        {/* =================================================================
-            FOOTER : NEWSLETTER + COPYRIGHT
-        ================================================================= */}
-        <div className="flex-shrink-0 border-t border-salma-border bg-salma-bg/60 px-5 py-5 space-y-4">
-          {/* Mini newsletter */}
-          <div>
-            <p className="text-[10px] font-bold text-salma-primary mb-1">{nav_contact.newsletter_title}</p>
-            <p className="text-[9px] text-salma-text-muted mb-3 leading-snug">{nav_contact.newsletter_desc}</p>
-            <div className="flex gap-2">
-              <input
-                type="email"
-                placeholder={nav_contact.newsletter_placeholder}
-                className="flex-1 bg-white border border-salma-border rounded-xl px-3 py-2.5 text-xs outline-none focus:border-salma-gold transition-colors"
-              />
-              <button className="bg-salma-gold text-salma-primary px-4 py-2.5 rounded-xl text-[10px] font-bold hover:bg-salma-gold-light transition-colors shadow-sm">
-                {nav_contact.newsletter_btn}
-              </button>
-            </div>
-          </div>
-
-          {/* Liens sociaux */}
-          <div className="flex gap-3 opacity-50">
-            {["f", "in", "ig"].map((s) => (
-              <div
-                key={s}
-                className="w-7 h-7 rounded-full border border-salma-border flex items-center justify-center text-[9px] font-bold text-salma-primary"
-              >
-                {s}
-              </div>
-            ))}
-          </div>
-        </div>
-
-      </div>
-    </div>
-  );
-}
-
-// =============================================================================
-//  Sous-composant : Item d'accordéon réutilisable
-// =============================================================================
-function AccordionItem({
-  id,
-  label,
-  icon,
-  isOpen,
-  onToggle,
-  children,
-}: {
-  id: string;
-  label: string;
-  icon: string;
-  isOpen: boolean;
-  onToggle: () => void;
-  children: React.ReactNode;
-}) {
-  return (
-    <div className="border border-salma-border rounded-2xl overflow-hidden">
-      <button
-        onClick={onToggle}
-        className="
-          w-full flex items-center justify-between gap-3
-          px-4 py-4 bg-white hover:bg-salma-bg
-          transition-colors duration-150
-        "
-        aria-expanded={isOpen}
-        aria-controls={`accordion-${id}`}
-      >
-        <div className="flex items-center gap-3">
-          <span className="text-base">{icon}</span>
-          <span className="text-xs font-bold text-salma-primary uppercase tracking-widest">
-            {label}
-          </span>
-        </div>
-        {/* Chevron animé */}
-        <svg
-          className={`
-            w-4 h-4 text-salma-gold flex-shrink-0
-            transition-transform duration-300
-            ${isOpen ? "rotate-180" : "rotate-0"}
-          `}
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-          aria-hidden="true"
-        >
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M19 9l-7 7-7-7" />
-        </svg>
-      </button>
-
-      {/* Contenu accordéon avec animation */}
-      <div
-        id={`accordion-${id}`}
-        className={`
-          overflow-hidden transition-all duration-300 ease-in-out
-          ${isOpen ? "max-h-[500px] opacity-100" : "max-h-0 opacity-0"}
-        `}
-      >
-        <div className="px-4 pb-3 pt-1 bg-salma-bg/30 border-t border-salma-border/50">
-          {children}
-        </div>
-      </div>
-    </div>
-  );
-}
-
-// END OF FILE: src/components/layout/nav/MobileMenu.tsx
-
-
-// FILE: src/components/layout/nav/NavDropdown.tsx
------------------------------------------------
-"use client";
-// =============================================================================
-//  NavDropdown.tsx — SALMA · Menu déroulant desktop
-//  Pattern : hover → ouvre le dropdown / clic → navigue vers la page principale
-//  Délai de fermeture 150ms pour permettre de glisser vers le panneau
-// =============================================================================
-
-import { useState, useRef, useCallback } from "react";
-import Link from "next/link";
-import { useRouter } from "next/navigation";
-import type { NavBourses, NavServices, NavContact, NavAbout, NavHome } from "@/types";
-
-type NavDropdownData = NavHome | NavBourses | NavServices | NavContact | NavAbout;
-
-// Href principale de chaque dropdown (destination au clic)
-const HREF_MAP: Record<string, string> = {
-  home:     "/",
-  bourses:  "/bourses",
-  services: "/services",
-  about:    "/a-propos",
-  contact:  "/contact",
-};
-
-// =============================================================================
-//  Composant principal
-// =============================================================================
-export default function NavDropdown({
-  title,
-  data,
-  type,
-  isAction = false,
-}: {
-  title: string;
-  data: NavDropdownData;
-  type: string;
-  isAction?: boolean;
-}) {
-  const [isOpen, setIsOpen] = useState(false);
-  const closeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const router = useRouter();
-
-  const handleMouseEnter = useCallback(() => {
-    if (closeTimer.current) clearTimeout(closeTimer.current);
-    setIsOpen(true);
-  }, []);
-
-  const handleMouseLeave = useCallback(() => {
-    closeTimer.current = setTimeout(() => setIsOpen(false), 150);
-  }, []);
-
-  const handleClick = useCallback(() => {
-    // isAction (Contact) n'a pas de page dédiée dans le menu — on ouvre juste le dropdown
-    if (isAction) return;
-    const href = HREF_MAP[type];
-    if (href) {
-      setIsOpen(false);
-      router.push(href);
-    }
-  }, [isAction, type, router]);
-
-  const href = HREF_MAP[type];
-
-  return (
-    <div
-      className="relative h-20 flex items-center"
-      onMouseEnter={handleMouseEnter}
-      onMouseLeave={handleMouseLeave}
-    >
-      {/* ===================================================================
-          BOUTON TRIGGER
-          • Clic  → navigation directe vers la page principale
-          • Hover → ouvre le dropdown (géré par le parent div)
-      =================================================================== */}
-      <button
-        onClick={handleClick}
-        aria-haspopup="true"
-        aria-expanded={isOpen}
-        title={href ? `Aller à ${title}` : title}
-        className={`
-          relative px-4 py-2 flex items-center gap-1.5
-          text-[11px] font-bold uppercase tracking-widest
-          transition-all duration-200
-          outline-none focus-visible:ring-2 focus-visible:ring-salma-gold focus-visible:ring-offset-2 rounded-lg
-          ${isAction
-            ? `
-                border border-salma-border rounded-xl
-                text-salma-primary hover:border-salma-gold hover:text-salma-gold
-                bg-transparent hover:bg-salma-gold/5
-              `
-            : `
-                text-salma-text-muted hover:text-salma-primary
-                after:absolute after:bottom-0 after:left-4 after:right-4 after:h-[2px]
-                after:bg-salma-gold after:rounded-full after:scale-x-0
-                hover:after:scale-x-100 after:transition-transform after:duration-200 after:origin-center
-                cursor-pointer
-              `
-          }
-        `}
-      >
-        {title}
-        {/* Chevron animé */}
-        <svg
-          className={`
-            w-3 h-3 flex-shrink-0 transition-transform duration-200
-            ${isOpen ? "rotate-180" : "rotate-0"}
-            ${isAction ? "text-salma-gold" : "text-salma-border"}
-          `}
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-          aria-hidden="true"
-        >
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M19 9l-7 7-7-7" />
-        </svg>
-      </button>
-
-      {/* ===================================================================
-          PANNEAUX DÉROULANTS
-          Le panneau hérite du handleMouseEnter/Leave du parent pour éviter
-          la fermeture quand la souris glisse du bouton vers le panneau
-      =================================================================== */}
-
-      {/* ── CAS HOME ──────────────────────────────────────────────────── */}
-      {isOpen && type === "home" && (() => {
-        const d = data as NavHome;
-        return (
-          <DropdownPanel align="left">
-            <div className="p-2 space-y-1">
-              {d.sections.map((item) => (
-                <Link key={item.id} href={item.href}
-                  className="group flex items-center gap-3 p-3 rounded-xl hover:bg-salma-bg border border-transparent hover:border-salma-border transition-all duration-150"
-                  onClick={() => setIsOpen(false)}
-                >
-                  <span className="text-lg">{item.icon}</span>
-                  <span className="text-xs font-bold text-salma-primary group-hover:text-salma-accent transition-colors">
-                    {item.label}
-                  </span>
-                </Link>
-              ))}
-            </div>
-          </DropdownPanel>
-        );
-      })()}
-
-      {/* ── CAS BOURSES ───────────────────────────────────────────────── */}
-      {isOpen && type === "bourses" && (() => {
-        const d = data as NavBourses;
-        return (
-          <DropdownPanel align="left" wide>
-            <div className="p-2 space-y-2">
-              <Link
-                href="/bourses?pays=chine"
-                className="group flex items-start gap-4 p-4 rounded-xl hover:bg-salma-bg border border-transparent hover:border-salma-border transition-all duration-150"
-                onClick={() => setIsOpen(false)}
-              >
-                <span className="text-2xl mt-0.5">🇨🇳</span>
-                <div className="flex-1 min-w-0">
-                  <p className="text-xs font-bold text-salma-primary group-hover:text-salma-accent transition-colors">
-                    {d.china_label}
-                  </p>
-                  <p className="text-[10px] text-salma-text-muted leading-snug mt-1">{d.china_desc}</p>
-                  <span className="inline-flex items-center gap-1 mt-2 text-[10px] font-bold text-salma-accent opacity-0 group-hover:opacity-100 transition-opacity">
-                    {d.china_cta} →
-                  </span>
-                </div>
-              </Link>
-
-              <Link
-                href="/bourses?pays=allemagne"
-                className="group flex items-start gap-4 p-4 rounded-xl hover:bg-salma-bg border border-transparent hover:border-salma-border transition-all duration-150"
-                onClick={() => setIsOpen(false)}
-              >
-                <span className="text-2xl mt-0.5">🇩🇪</span>
-                <div className="flex-1 min-w-0">
-                  <p className="text-xs font-bold text-salma-primary group-hover:text-salma-accent transition-colors">
-                    {d.germany_label}
-                  </p>
-                  <p className="text-[10px] text-salma-text-muted leading-snug mt-1">{d.germany_desc}</p>
-                  <span className="inline-flex items-center gap-1 mt-2 text-[10px] font-bold text-salma-accent opacity-0 group-hover:opacity-100 transition-opacity">
-                    {d.germany_cta} →
-                  </span>
-                </div>
-              </Link>
-            </div>
-            <div className="px-4 pb-3 pt-1 border-t border-salma-border/50">
-              <Link
-                href="/bourses"
-                className="text-[10px] font-bold text-salma-gold hover:text-salma-gold-light transition-colors flex items-center gap-1"
-                onClick={() => setIsOpen(false)}
-              >
-                Voir toutes les bourses →
-              </Link>
-            </div>
-          </DropdownPanel>
-        );
-      })()}
-
-      {/* ── CAS SERVICES ──────────────────────────────────────────────── */}
-      {isOpen && type === "services" && (() => {
-        const d = data as NavServices;
-        return (
-          <DropdownPanel align="left" wide>
-            <div className="p-2 grid grid-cols-2 gap-1">
-              {d.items.map((item) => (
-                <Link
-                  key={item.id}
-                  href={item.href}
-                  className="group p-3 rounded-xl hover:bg-salma-bg border border-transparent hover:border-salma-border transition-all duration-150"
-                  onClick={() => setIsOpen(false)}
-                >
-                  <span className="text-xl mb-2 block">{item.icon}</span>
-                  <p className="text-xs font-bold text-salma-primary group-hover:text-salma-accent transition-colors">
-                    {item.label}
-                  </p>
-                  <p className="text-[10px] text-salma-text-muted leading-tight mt-1">{item.desc}</p>
-                </Link>
-              ))}
-            </div>
-          </DropdownPanel>
-        );
-      })()}
-
-      {/* ── CAS À PROPOS ──────────────────────────────────────────────── */}
-      {isOpen && type === "about" && (() => {
-        const d = data as NavAbout;
-        return (
-          <DropdownPanel align="left">
-            <div className="p-2 space-y-1">
-              <Link href="/a-propos"
-                className="group flex items-start gap-3 p-4 rounded-xl hover:bg-salma-bg border border-transparent hover:border-salma-border transition-all"
-                onClick={() => setIsOpen(false)}
-              >
-                <span className="text-xl">🏢</span>
-                <div>
-                  <p className="text-xs font-bold text-salma-primary group-hover:text-salma-accent transition-colors">{d.agency_label}</p>
-                  <p className="text-[10px] text-salma-text-muted mt-1">{d.agency_desc}</p>
-                </div>
-              </Link>
-              <Link href="/a-propos#mission"
-                className="group flex items-start gap-3 p-4 rounded-xl hover:bg-salma-bg border border-transparent hover:border-salma-border transition-all"
-                onClick={() => setIsOpen(false)}
-              >
-                <span className="text-xl">🎯</span>
-                <div>
-                  <p className="text-xs font-bold text-salma-primary group-hover:text-salma-accent transition-colors">{d.mission_label}</p>
-                  <p className="text-[10px] text-salma-text-muted mt-1">{d.mission_desc}</p>
-                </div>
-              </Link>
-              <Link href="/confidentialite"
-                className="group flex items-start gap-3 p-4 rounded-xl hover:bg-salma-bg border border-transparent hover:border-salma-border transition-all"
-                onClick={() => setIsOpen(false)}
-              >
-                <span className="text-xl">🛡️</span>
-                <div>
-                  <p className="text-xs font-bold text-salma-primary group-hover:text-salma-accent transition-colors">{d.privacy_label}</p>
-                  <p className="text-[10px] text-salma-text-muted mt-1">{d.privacy_desc}</p>
-                </div>
-              </Link>
-            </div>
-            <div className="px-4 pb-3 pt-1 border-t border-salma-border/50">
-              <Link href="/a-propos"
-                className="text-[10px] font-bold text-salma-gold hover:text-salma-gold-light transition-colors flex items-center gap-1"
-                onClick={() => setIsOpen(false)}
-              >
-                {d.cta} →
-              </Link>
-            </div>
-          </DropdownPanel>
-        );
-      })()}
-
-      {/* ── CAS CONTACT (isAction) ────────────────────────────────────── */}
-      {isOpen && isAction && (() => {
-        const d = data as NavContact;
-        return (
-          <DropdownPanel align="right">
-            <div className="bg-salma-primary px-5 py-4 rounded-t-2xl">
-              <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-salma-gold">{d.title}</p>
-              <p className="text-xs text-white/60 mt-0.5">Réponse en moins de 24h</p>
-            </div>
-            <div className="p-2 space-y-1">
-              <Link href="/contact"
-                className="group flex items-center gap-4 p-4 hover:bg-salma-primary hover:text-white rounded-xl transition-all duration-150"
-                onClick={() => setIsOpen(false)}
-              >
-                <span className="text-xl">📅</span>
-                <div>
-                  <p className="text-xs font-bold">{d.rdv_label}</p>
-                  <p className="text-[10px] opacity-60 group-hover:opacity-80">{d.rdv_desc}</p>
-                </div>
-              </Link>
-              <a href="https://wa.me/237699450984" target="_blank" rel="noopener noreferrer"
-                className="flex items-center gap-4 p-4 hover:bg-green-500 hover:text-white rounded-xl transition-all duration-150 group"
-                onClick={() => setIsOpen(false)}
-              >
-                <span className="text-xl">💬</span>
-                <div>
-                  <p className="text-xs font-bold text-salma-primary group-hover:text-white">{d.whatsapp_label}</p>
-                  <p className="text-[10px] text-salma-text-muted group-hover:text-white/80">{d.whatsapp_desc}</p>
-                </div>
-              </a>
-            </div>
-            <div className="bg-salma-bg px-4 py-4 border-t border-salma-border rounded-b-2xl">
-              <p className="text-[10px] font-bold text-salma-primary mb-1">{d.newsletter_title}</p>
-              <p className="text-[9px] text-salma-text-muted mb-3 leading-snug">{d.newsletter_desc}</p>
-              <div className="flex gap-2">
-                <input
-                  type="email"
-                  placeholder={d.newsletter_placeholder}
-                  className="flex-1 bg-white border border-salma-border rounded-lg px-3 py-2 text-[10px] outline-none focus:border-salma-gold transition-colors"
-                />
-                <button className="bg-salma-gold text-salma-primary px-3 py-2 rounded-lg text-[10px] font-bold hover:bg-salma-gold-light transition-colors">
-                  {d.newsletter_btn}
-                </button>
-              </div>
-            </div>
-          </DropdownPanel>
-        );
-      })()}
-    </div>
-  );
-}
-
-// =============================================================================
-//  Sous-composant : Panel générique avec animation d'entrée
-// =============================================================================
-function DropdownPanel({
-  children,
-  align = "left",
-  wide = false,
-}: {
-  children: React.ReactNode;
-  align?: "left" | "right";
-  wide?: boolean;
-}) {
-  return (
-    <div
-      className={`
-        absolute top-[80px]
-        ${align === "right" ? "right-0" : "left-0"}
-        ${wide ? "w-[380px]" : "w-[300px]"}
-        bg-white border border-salma-border rounded-2xl
-        shadow-[0_20px_50px_rgba(27,54,93,0.15)]
-        overflow-hidden
-        animate-[dropdownReveal_0.2s_ease-out_forwards]
-        origin-top
-      `}
-    >
-      {children}
-    </div>
-  );
-}
-
-// END OF FILE: src/components/layout/nav/NavDropdown.tsx
->>>>>>> a3c58bd73b58397488b474a30305072da73c049d
 
 
 // FILE: src/components/layout/ConditionalLayout.tsx
@@ -7351,19 +6490,17 @@ export default function LocationSection() {
 -----------------------------------------------
 // src/components/ui/ChatbotWidget.tsx
 // ==============================================================================
-// Widget Chatbot IA — Design System SALMA (Premium)
+// ChatbotWidget — Widget chatbot IA premium SALMA
 //
-// Features :
-//   - Quick Actions (boutons de conversion au démarrage)
-//   - Fallback statique transparent (chatbot.fallback.ts)
-//   - Animations premium (scale/fade ouverture, slide-up messages)
-//   - Bouton WhatsApp quand le bot ne sait pas répondre
-//   - Mode statique complet (NEXT_PUBLIC_STATIC_CONTENT=true)
-//
-// Flux de réponse :
+// Flux de résolution :
 //   1. Tentative API (chatbotRepository.query) — sauf si mode statique
-//   2. Recherche locale (chatbot.fallback.ts) — mots-clés
-//   3. Message "je n'ai pas la réponse" + bouton WhatsApp
+//   2. Recherche locale (chatbot.fallback.ts) — mots-clés + CTA contextuels
+//   3. Message "je n'ai pas la réponse" + CTA conversion par défaut
+//
+// Chaque réponse bot affiche :
+//   - Le texte de réponse
+//   - Des suggestions cliquables (questions liées)
+//   - 3 CTA contextuels (navigation ou conversion)
 //
 // RÈGLE : Zéro texte en dur — labels viennent de la prop `labels`.
 // ==============================================================================
@@ -7374,12 +6511,13 @@ import React, { useState, useEffect, useRef, useCallback } from "react";
 import { useLanguage } from "@/hooks/useLanguage";
 import { chatbotRepository } from "@/repositories/chatbot.repository";
 import { eventsRepository } from "@/repositories/events.repository";
-import { searchFallback } from "@/lib/chatbot.fallback";
+import { searchFallback, resolveFallbackCtas } from "@/lib/chatbot.fallback";
 import type {
   ChatbotWidgetProps,
   ChatbotMessage,
   ChatbotQuickAction,
 } from "@/types/ui/chatbot-widget.types";
+import type { ChatbotCTA, ChatbotSuggestion } from "@/types/api/chatbot.types";
 
 // — Constantes ------------------------------------------------------------------
 
@@ -7389,16 +6527,20 @@ const IS_STATIC = process.env.NEXT_PUBLIC_STATIC_CONTENT === "true";
 // — Sous-composant : Bulle de message ------------------------------------------
 
 /**
- * Bulle de message avec style asymétrique et animation slide-up.
+ * Bulle de message avec style asymétrique, suggestions et CTA.
  */
 function MessageBubble({
   message,
   whatsappUrl,
   whatsappLabel,
+  onSuggestionClick,
+  onCtaClick,
 }: {
   message: ChatbotMessage;
   whatsappUrl: string;
   whatsappLabel: string;
+  onSuggestionClick: (question: string) => void;
+  onCtaClick: (cta: ChatbotCTA) => void;
 }) {
   const isUser = message.role === "user";
 
@@ -7407,26 +6549,61 @@ function MessageBubble({
       className={`flex ${isUser ? "justify-end" : "justify-start"} animate-[slideUp_0.3s_ease-out]`}
     >
       <div className="flex flex-col gap-2 max-w-[85%]">
+        {/* — Bulle texte — */}
         <div
           className={`p-3.5 text-sm leading-relaxed ${
             isUser
-              ? "bg-salma-primary text-white rounded-2xl rounded-tr-sm shadow-md"
-              : "bg-white dark:bg-bg border border-border text-text rounded-2xl rounded-tl-sm shadow-sm"
+              ? "bg-salma-primary text-white rounded-2xl rounded-br-md"
+              : "bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-100 rounded-2xl rounded-bl-md"
           }`}
         >
           {message.text}
         </div>
 
-        {/* Bouton WhatsApp fallback */}
-        {message.showWhatsApp && (
+        {/* — Suggestions cliquables (questions liées) — */}
+        {!isUser && message.suggestions && message.suggestions.length > 0 && (
+          <div className="flex flex-wrap gap-1.5 mt-1">
+            {message.suggestions.map((sug) => (
+              <button
+                key={sug.id}
+                onClick={() => onSuggestionClick(sug.question)}
+                className="px-2.5 py-1.5 text-[11px] font-semibold bg-salma-accent/10 text-salma-accent border border-salma-accent/20 rounded-full hover:bg-salma-accent/20 hover:border-salma-accent/40 transition-all active:scale-95"
+              >
+                {sug.question}
+              </button>
+            ))}
+          </div>
+        )}
+
+        {/* — Barre de 3 CTA contextuels — */}
+        {!isUser && message.ctas && message.ctas.length > 0 && (
+          <div className="flex flex-col gap-1.5 mt-1">
+            {message.ctas.map((cta) => (
+              <button
+                key={cta.id}
+                onClick={() => onCtaClick(cta)}
+                className={`w-full px-3 py-2 text-[11px] font-bold rounded-xl text-left transition-all active:scale-[0.98] ${
+                  cta.type === "conversion"
+                    ? "bg-salma-gold/10 text-salma-gold-dark dark:text-salma-gold border border-salma-gold/20 hover:bg-salma-gold/20 hover:border-salma-gold/40"
+                    : "bg-salma-primary/10 text-salma-primary dark:text-salma-accent border border-salma-primary/20 hover:bg-salma-primary/20 hover:border-salma-primary/40"
+                }`}
+              >
+                {cta.label}
+              </button>
+            ))}
+          </div>
+        )}
+
+        {/* — Ancien fallback WhatsApp (legacy, gardé pour sécurité) — */}
+        {!isUser && message.showWhatsApp && (!message.ctas || message.ctas.length === 0) && (
           <a
             href={whatsappUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center gap-2 self-start px-4 py-2 bg-[#25D366] text-white text-xs font-bold rounded-full hover:brightness-110 transition-all active:scale-95 shadow-md"
+            className="inline-flex items-center gap-2 px-3 py-2 mt-1 text-xs font-bold text-green-700 bg-green-50 border border-green-200 rounded-xl hover:bg-green-100 transition-colors w-fit"
           >
-            <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-              <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L0 24l6.335-1.662c1.72.94 3.659 1.437 5.634 1.437h.005c6.558 0 11.895-5.335 11.898-11.893a11.821 11.821 0 00-3.48-8.413z" />
+            <svg viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4">
+              <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z" />
             </svg>
             {whatsappLabel}
           </a>
@@ -7438,9 +6615,6 @@ function MessageBubble({
 
 // — Sous-composant : Quick Actions ---------------------------------------------
 
-/**
- * Grille de boutons Quick Action affichée après le message de bienvenue.
- */
 function QuickActions({
   actions,
   onSelect,
@@ -7463,16 +6637,27 @@ function QuickActions({
   );
 }
 
+// — Sous-composant : Indicateur de frappe --------------------------------------
+
+function TypingIndicator({ text }: { text: string }) {
+  return (
+    <div className="flex justify-start animate-[slideUp_0.3s_ease-out]">
+      <div className="bg-slate-100 dark:bg-slate-800 rounded-2xl rounded-bl-md p-3.5 flex items-center gap-2">
+        <div className="flex gap-1">
+          <span className="w-1.5 h-1.5 bg-salma-accent rounded-full animate-bounce [animation-delay:0ms]" />
+          <span className="w-1.5 h-1.5 bg-salma-accent rounded-full animate-bounce [animation-delay:150ms]" />
+          <span className="w-1.5 h-1.5 bg-salma-accent rounded-full animate-bounce [animation-delay:300ms]" />
+        </div>
+        <span className="text-xs text-slate-400">{text}</span>
+      </div>
+    </div>
+  );
+}
+
 // — Composant principal ---------------------------------------------------------
 
 /**
  * **ChatbotWidget** — Widget chatbot IA premium SALMA.
- *
- * Widget flottant fixé en bas à droite avec Quick Actions de conversion,
- * fallback statique intelligent et bouton WhatsApp de secours.
- *
- * @remark Tous les textes visibles viennent de la prop `labels`.
- * Le composant garde `useLanguage()` en interne pour la locale API.
  *
  * @example
  * <ChatbotWidget labels={common.chatbot} />
@@ -7491,6 +6676,7 @@ export default function ChatbotWidget({
   const scrollRef = useRef<HTMLDivElement>(null);
 
   const whatsappUrl = `https://wa.me/${whatsappNumber}`;
+  const typedLocale = locale as "fr" | "en";
 
   // — Auto-scroll vers le bas ---------------------------------------------------
 
@@ -7511,10 +6697,6 @@ export default function ChatbotWidget({
 
   // — Logique de résolution de réponse ------------------------------------------
 
-  /**
-   * Résout une réponse pour la question donnée.
-   * Flux : API → Fallback local → Message "pas de réponse" + WhatsApp
-   */
   const resolveAnswer = useCallback(
     async (question: string): Promise<ChatbotMessage> => {
       // Étape 1 : Tentative API (sauf mode statique)
@@ -7522,31 +6704,47 @@ export default function ChatbotWidget({
         try {
           const response = await chatbotRepository.query({
             message: question,
-            langue: locale,
+            langue: typedLocale,
           });
           if (response.reponse) {
-            return { role: "bot", text: response.reponse };
+            return {
+              role: "bot",
+              text: response.reponse,
+              suggestions: response.suggestions || [],
+              ctas: response.ctas && response.ctas.length > 0
+                ? response.ctas
+                : resolveFallbackCtas(undefined, typedLocale),
+            };
           }
         } catch {
           // API indisponible — on passe au fallback
         }
       }
 
-      // Étape 2 : Recherche fallback locale
+      // Étape 2 : Recherche fallback locale (avec CTA contextuels)
       const fallback = searchFallback(question);
       if (fallback) {
-        const answer = locale === "fr" ? fallback.answer_fr : fallback.answer_en;
-        return { role: "bot", text: answer };
+        const answer = typedLocale === "fr" ? fallback.answer_fr : fallback.answer_en;
+        const suggestions: ChatbotSuggestion[] = (
+          typedLocale === "fr" ? fallback.suggestions_fr : fallback.suggestions_en
+        )?.map((q, i) => ({ question: q, id: `fsug-${i}` })) || [];
+
+        return {
+          role: "bot",
+          text: answer,
+          suggestions,
+          ctas: resolveFallbackCtas(fallback.cta_ids, typedLocale),
+        };
       }
 
-      // Étape 3 : Aucune réponse — message + WhatsApp
+      // Étape 3 : Aucune réponse — CTA conversion par défaut
       return {
         role: "bot",
         text: labels.noAnswer,
-        showWhatsApp: true,
+        ctas: resolveFallbackCtas(undefined, typedLocale),
       };
     },
-    [locale, labels.noAnswer]
+    [typedLocale, labels.noAnswer]
   );
 
   // — Envoi d'un message --------------------------------------------------------
@@ -7568,7 +6766,7 @@ export default function ChatbotWidget({
     [input, isLoading, resolveAnswer]
   );
 
-  // — Quick Action click --------------------------------------------------------
+  // — Handlers ------------------------------------------------------------------
 
   const handleQuickAction = useCallback(
     (action: ChatbotQuickAction) => {
@@ -7577,7 +6775,25 @@ export default function ChatbotWidget({
     [handleSend]
   );
 
-  // — Toggle ouverture/fermeture ------------------------------------------------
+  const handleSuggestionClick = useCallback(
+    (question: string) => {
+      handleSend(question);
+    },
+    [handleSend]
+  );
+
+  const handleCtaClick = useCallback((cta: ChatbotCTA) => {
+    if (cta.url.startsWith("http")) {
+      window.open(cta.url, "_blank", "noopener,noreferrer");
+      return;
+    }
+    if (cta.url === "#newsletter") {
+      const el = document.getElementById("newsletter");
+      if (el) el.scrollIntoView({ behavior: "smooth" });
+      return;
+    }
+    window.location.href = cta.url;
+  }, []);
 
   const handleToggle = useCallback(() => {
     setIsOpen((prev) => !prev);
@@ -7590,7 +6806,7 @@ export default function ChatbotWidget({
 
       {/* ── Fenêtre de Chat ──────────────────────────────────────────── */}
       {isOpen && (
-        <div className="mb-4 w-80 sm:w-96 h-[480px] bg-white dark:bg-surface border border-border rounded-2xl shadow-salma-lg flex flex-col overflow-hidden origin-bottom-right animate-[chatOpen_0.3s_ease-out]">
+        <div className="mb-4 w-80 sm:w-96 h-[520px] bg-white dark:bg-surface border border-border rounded-2xl shadow-salma-lg flex flex-col overflow-hidden origin-bottom-right animate-[chatOpen_0.3s_ease-out]">
 
           {/* Header */}
           <div className="bg-salma-primary p-4 text-white flex justify-between items-center flex-shrink-0">
@@ -7603,76 +6819,71 @@ export default function ChatbotWidget({
                   {labels.title}
                 </span>
                 <span className="text-[10px] text-white/60 font-sans">
-                  {isLoading ? labels.thinking : "Online"}
+                  {isLoading ? labels.thinking : "SALMA AI"}
                 </span>
               </div>
             </div>
             <button
               onClick={handleToggle}
-              className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-white/10 transition-colors"
               aria-label={labels.closeAriaLabel}
+              className="p-1 rounded-lg hover:bg-white/10 transition-colors"
             >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className="w-5 h-5">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
               </svg>
             </button>
           </div>
 
-          {/* Messages */}
+          {/* Zone de messages */}
           <div
             ref={scrollRef}
-            className="flex-1 overflow-y-auto p-4 space-y-4 bg-bg/30 dark:bg-bg/50"
+            className="flex-1 overflow-y-auto p-4 space-y-4 scrollbar-thin"
           >
-            {messages.map((m, i) => (
+            {messages.map((msg, i) => (
               <MessageBubble
                 key={i}
-                message={m}
+                message={msg}
                 whatsappUrl={whatsappUrl}
                 whatsappLabel={labels.whatsappFallback}
+                onSuggestionClick={handleSuggestionClick}
+                onCtaClick={handleCtaClick}
               />
             ))}
 
-            {/* Quick Actions (affichées après le message de bienvenue) */}
-            {showQuickActions && messages.length === 1 && (
+            {showQuickActions && messages.length <= 1 && (
               <QuickActions
                 actions={labels.quickActions}
                 onSelect={handleQuickAction}
               />
             )}
 
-            {/* Indicateur de chargement */}
-            {isLoading && (
-              <div className="flex justify-start animate-[slideUp_0.2s_ease-out]">
-                <div className="px-4 py-3 bg-white dark:bg-bg border border-border rounded-2xl rounded-tl-sm shadow-sm">
-                  <div className="flex items-center gap-1.5">
-                    <span className="w-2 h-2 bg-salma-gold rounded-full animate-bounce [animation-delay:0ms]" />
-                    <span className="w-2 h-2 bg-salma-gold rounded-full animate-bounce [animation-delay:150ms]" />
-                    <span className="w-2 h-2 bg-salma-gold rounded-full animate-bounce [animation-delay:300ms]" />
-                  </div>
-                </div>
-              </div>
-            )}
+            {isLoading && <TypingIndicator text={labels.thinking} />}
           </div>
 
-          {/* Input */}
-          <div className="p-3 border-t border-border bg-white dark:bg-surface flex-shrink-0">
+          {/* Barre de saisie */}
+          <div className="p-3 border-t border-border flex-shrink-0">
             <div className="flex gap-2">
               <input
                 type="text"
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
-                onKeyDown={(e) => e.key === "Enter" && handleSend()}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" && !e.shiftKey) {
+                    e.preventDefault();
+                    handleSend();
+                  }
+                }}
                 placeholder={labels.inputPlaceholder}
-                className="flex-1 min-w-0 bg-bg dark:bg-bg border border-border rounded-xl px-4 py-2.5 text-sm outline-none focus:border-salma-gold focus:ring-1 focus:ring-salma-gold/30 transition-all placeholder:text-text-muted"
+                className="flex-1 px-3 py-2.5 text-sm bg-slate-50 dark:bg-slate-800 border border-border rounded-xl focus:outline-none focus:ring-2 focus:ring-salma-accent/30 focus:border-salma-accent transition-all placeholder:text-slate-400"
               />
               <button
                 onClick={() => handleSend()}
                 disabled={!input.trim() || isLoading}
-                className="w-10 h-10 flex items-center justify-center bg-salma-gold text-salma-primary rounded-xl hover:bg-salma-gold-light transition-all active:scale-95 disabled:opacity-40 disabled:pointer-events-none flex-shrink-0"
                 aria-label={labels.sendAriaLabel}
+                className="p-2.5 bg-salma-primary text-white rounded-xl hover:bg-salma-primary/90 disabled:opacity-40 disabled:cursor-not-allowed transition-all active:scale-95"
               >
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19V5m0 0l-7 7m7-7l7 7" />
+                <svg viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4">
+                  <path d="M3.478 2.404a.75.75 0 00-.926.941l2.432 7.905H13.5a.75.75 0 010 1.5H4.984l-2.432 7.905a.75.75 0 00.926.94 60.519 60.519 0 0018.445-8.986.75.75 0 000-1.218A60.517 60.517 0 003.478 2.404z" />
                 </svg>
               </button>
             </div>
@@ -7680,24 +6891,18 @@ export default function ChatbotWidget({
         </div>
       )}
 
-      {/* ── Bouton d'ouverture ───────────────────────────────────────── */}
-      <button
-        onClick={handleToggle}
-        className={`bg-salma-primary text-white p-4 rounded-full shadow-salma-lg hover:scale-110 transition-all duration-300 active:scale-95 border-2 border-salma-gold ${
-          isOpen ? "rotate-0" : ""
-        }`}
-        aria-label={isOpen ? labels.closeAriaLabel : labels.openAriaLabel}
-      >
-        {isOpen ? (
-          <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+      {/* ── Bouton flottant ──────────────────────────────────────────── */}
+      {!isOpen && (
+        <button
+          onClick={handleToggle}
+          aria-label={labels.openAriaLabel}
+          className="group w-14 h-14 bg-salma-primary text-white rounded-full shadow-salma-lg hover:shadow-salma-xl hover:scale-105 transition-all active:scale-95 flex items-center justify-center"
+        >
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5} className="w-6 h-6 group-hover:scale-110 transition-transform">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M8.625 12a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0H8.25m4.125 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0H12m4.125 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0h-.375M21 12c0 4.556-4.03 8.25-9 8.25a9.764 9.764 0 01-2.555-.337A5.972 5.972 0 015.41 20.97a5.969 5.969 0 01-.474-.065 4.48 4.48 0 00.978-2.025c.09-.457-.133-.901-.467-1.226C3.93 16.178 3 14.189 3 12c0-4.556 4.03-8.25 9-8.25s9 3.694 9 8.25z" />
           </svg>
-        ) : (
-          <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
-          </svg>
-        )}
-      </button>
+        </button>
+      )}
     </div>
   );
 }
@@ -11336,7 +10541,10 @@ export const enContact = {
       success_title: "Message sent!",
       success_msg: "We have received your request. An advisor will contact you very soon.",
       send_another: "Send another message",
-      error_msg: "An error occurred. Please try again."
+      error_msg: "An error occurred. Please try again.",
+      error_static_title: "Service temporarily unavailable",
+      error_static_msg: "Our contact form is experiencing a technical issue. Please reach out to us directly via WhatsApp for a quick response.",
+      error_static_whatsapp: "Contact via WhatsApp",
     },
     faq: {
       title: "Frequently Asked Questions",
@@ -11374,7 +10582,10 @@ export const frContact = {
       success_title: "Message envoyé !",
       success_msg: "Nous avons bien reçu votre demande. Un conseiller vous contactera très prochainement.",
       send_another: "Envoyer un autre message",
-      error_msg: "Une erreur est survenue. Veuillez réessayer."
+      error_msg: "Une erreur est survenue. Veuillez réessayer.",
+       error_static_title: "Service temporairement indisponible",
+      error_static_msg: "Notre formulaire rencontre un problème technique. Veuillez nous contacter directement via WhatsApp pour une réponse rapide.",
+      error_static_whatsapp: "Contacter via WhatsApp",
     },
     faq: {
       title: "Questions fréquentes",
@@ -13229,14 +12440,17 @@ async function apiFetch<T>(endpoint: string, options: FetchOptions = {}): Promis
 
 // Fichier : src/lib/api-client.ts
 
-function extractErrorMessage(data: Record<string, any>, status: number): string {
-  if (typeof data?.detail === "string") return data.detail;
-  if (typeof data?.message === "string") return data.message;
+function extractErrorMessage(data: Record<string, unknown>, status: number): string {
+  if (data && typeof data.detail === "string") return data.detail;
+  if (data && typeof data.message === "string") return data.message;
 
   if (status === 400 || status === 422) {
-    const firstKey = Object.keys(data)[0];
-    if (firstKey && Array.isArray(data[firstKey])) {
-      return `${firstKey}: ${data[firstKey][0]}`;
+    const keys = Object.keys(data || {});
+    const firstKey = keys[0];
+    const errorArray = data ? (data as Record<string, unknown>)[firstKey] : null;
+
+    if (firstKey && Array.isArray(errorArray)) {
+      return `${firstKey}: ${errorArray[0]}`;
     }
     return "Données invalides. Vérifiez le formulaire.";
   }
@@ -13284,110 +12498,95 @@ export const api = {
 //   1. NEXT_PUBLIC_STATIC_CONTENT=true (mode statique)
 //   2. L'API Django/Gemini est indisponible (timeout, 500)
 //
+// Enrichi avec CTA contextuels et suggestions par catégorie.
 // Recherche par mots-clés (insensible à la casse et aux accents).
-// Retourne la meilleure correspondance ou null.
 // ==============================================================================
 
 import type { ChatbotFallbackEntry } from "@/types/ui/chatbot-widget.types";
+import type { ChatbotCTA } from "@/types/api/chatbot.types";
+
+// — Catalogue CTA local (miroir du backend) ------------------------------------
+
+const WHATSAPP_URL = "https://wa.me/237699450984";
+
+/**
+ * Catalogue complet des CTA disponibles en mode fallback.
+ * Même structure que le backend pour cohérence.
+ */
+const FALLBACK_CTA_CATALOG: Record<string, { label_fr: string; label_en: string; url: string; type: "conversion" | "navigation" }> = {
+  rdv:               { label_fr: "📅 Prendre rendez-vous",       label_en: "📅 Book an appointment",       url: "/contact",                    type: "conversion" },
+  whatsapp:          { label_fr: "💬 Discuter sur WhatsApp",     label_en: "💬 Chat on WhatsApp",          url: WHATSAPP_URL,                  type: "conversion" },
+  newsletter:        { label_fr: "📩 S'abonner à la newsletter", label_en: "📩 Subscribe to newsletter",   url: "#newsletter",                 type: "conversion" },
+  bourses:           { label_fr: "🎓 Voir les bourses",          label_en: "🎓 Browse scholarships",       url: "/bourses",                    type: "navigation" },
+  bourses_chine:     { label_fr: "🇨🇳 Bourses en Chine",         label_en: "🇨🇳 Scholarships in China",    url: "/bourses?pays=chine",         type: "navigation" },
+  bourses_allemagne: { label_fr: "🇩🇪 Bourses en Allemagne",     label_en: "🇩🇪 Scholarships in Germany",  url: "/bourses?pays=allemagne",     type: "navigation" },
+  services:          { label_fr: "🛠 Nos services",              label_en: "🛠 Our services",              url: "/services",                   type: "navigation" },
+  a_propos:          { label_fr: "ℹ️ À propos de SALMA",         label_en: "ℹ️ About SALMA",              url: "/a-propos",                   type: "navigation" },
+  contact:           { label_fr: "📝 Formulaire de contact",     label_en: "📝 Contact form",              url: "/contact",                    type: "navigation" },
+};
+
+const DEFAULT_CTA_IDS = ["rdv", "whatsapp", "newsletter"];
 
 // — Base de connaissances -------------------------------------------------------
 
-/**
- * Entrées FAQ hardcodées — couvrent les 4 Quick Actions + questions fréquentes.
- * Les mots-clés sont en minuscules, sans accents.
- */
 const FALLBACK_ENTRIES: ChatbotFallbackEntry[] = [
+  // ── Bourses générales ─────────────────────────────────────────
   {
     id: "scholarships-general",
-    keywords: [
-      "bourse", "bourses", "scholarship", "scholarships",
-      "disponible", "available", "liste", "list", "offre",
-    ],
+    keywords: ["bourse", "bourses", "scholarship", "scholarships", "disponible", "available", "liste", "list", "offre"],
     answer_fr:
       "Nous proposons des bourses complètes et partielles pour la Chine (programme CSC) et l'Allemagne (programme DAAD). " +
       "Les bourses couvrent les frais de scolarité, le logement et parfois une allocation mensuelle. " +
-      "Consultez notre catalogue pour découvrir toutes les opportunités actuelles, ou prenez rendez-vous avec un conseiller pour un accompagnement personnalisé.",
+      "Consultez notre catalogue pour découvrir toutes les opportunités actuelles.",
     answer_en:
       "We offer full and partial scholarships for China (CSC program) and Germany (DAAD program). " +
-      "Scholarships cover tuition fees, accommodation, and sometimes a monthly allowance. " +
-      "Check our catalog to discover all current opportunities, or book an appointment with an advisor for personalized guidance.",
+      "Scholarships cover tuition, housing, and sometimes a monthly allowance. " +
+      "Browse our catalog to discover all current opportunities.",
+    cta_ids: ["bourses", "rdv", "whatsapp"],
+    suggestions_fr: ["Comment postuler à une bourse ?", "Quelles bourses en Chine ?"],
+    suggestions_en: ["How to apply for a scholarship?", "Which scholarships in China?"],
   },
+
+  // ── Chine ─────────────────────────────────────────────────────
   {
     id: "china",
-    keywords: [
-      "chine", "china", "csc", "chinois", "chinese",
-      "pekin", "beijing", "shanghai", "wuhan",
-      "medecine", "medicine", "mbbs", "ingenierie",
-    ],
+    keywords: ["chine", "china", "csc", "pekin", "beijing", "shanghai", "wuhan", "chinois", "chinese"],
     answer_fr:
-      "Étudier en Chine avec AG Technologies, c'est bénéficier du programme CSC (China Scholarship Council). " +
-      "Délai moyen d'obtention : 3 semaines. Filières populaires : Médecine (MBBS), Ingénierie, Business, IT. " +
-      "La bourse CSC couvre 100% des frais de scolarité, le logement sur campus et une allocation mensuelle. " +
-      "Nous vous accompagnons de A à Z : dossier, visa, préparation au départ.",
+      "La Chine offre d'excellentes opportunités via le programme CSC (China Scholarship Council). " +
+      "Bourses disponibles du Bachelor au Doctorat, dans des universités classées parmi les meilleures au monde. " +
+      "AG Technologies vous accompagne de A à Z dans votre candidature.",
     answer_en:
-      "Studying in China with AG Technologies means benefiting from the CSC (China Scholarship Council) program. " +
-      "Average processing time: 3 weeks. Popular fields: Medicine (MBBS), Engineering, Business, IT. " +
-      "The CSC scholarship covers 100% tuition, on-campus housing, and a monthly allowance. " +
-      "We support you from A to Z: application, visa, and departure preparation.",
+      "China offers excellent opportunities through the CSC (China Scholarship Council) program. " +
+      "Scholarships available from Bachelor to PhD, at world-ranked universities. " +
+      "AG Technologies supports you from A to Z in your application.",
+    cta_ids: ["bourses_chine", "rdv", "whatsapp"],
+    suggestions_fr: ["Quels documents pour la Chine ?", "Combien de temps pour le visa ?"],
+    suggestions_en: ["What documents for China?", "How long for the visa?"],
   },
+
+  // ── Allemagne ─────────────────────────────────────────────────
   {
     id: "germany",
-    keywords: [
-      "allemagne", "germany", "daad", "allemand", "german",
-      "berlin", "munich", "master", "anglais", "english",
-    ],
+    keywords: ["allemagne", "germany", "daad", "berlin", "munich", "allemand", "german", "deutschland"],
     answer_fr:
-      "L'Allemagne offre des Masters en anglais avec le programme DAAD et des frais de scolarité très réduits. " +
-      "Les universités publiques allemandes sont quasi-gratuites (environ 300€/semestre de frais administratifs). " +
-      "Profils idéaux : scientifiques, ingénieurs, économistes. " +
-      "AG Technologies vous aide avec la candidature, la lettre de motivation et le visa.",
+      "L'Allemagne propose des programmes d'excellence via le DAAD et d'autres organismes. " +
+      "Beaucoup de Masters sont enseignés entièrement en anglais, pas besoin de parler allemand. " +
+      "Nos conseillers peuvent vous orienter vers le programme idéal.",
     answer_en:
-      "Germany offers English-taught Masters through the DAAD program with very low tuition fees. " +
-      "German public universities are nearly free (around €300/semester administrative fees). " +
-      "Ideal profiles: scientists, engineers, economists. " +
-      "AG Technologies helps you with the application, motivation letter, and visa.",
+      "Germany offers excellence programs through DAAD and other organizations. " +
+      "Many Master programs are taught entirely in English, no need to speak German. " +
+      "Our advisors can guide you to the ideal program.",
+    cta_ids: ["bourses_allemagne", "rdv", "whatsapp"],
+    suggestions_fr: ["Puis-je étudier sans parler allemand ?", "Quelles bourses DAAD ?"],
+    suggestions_en: ["Can I study without speaking German?", "Which DAAD scholarships?"],
   },
-  {
-    id: "rdv",
-    keywords: [
-      "rdv", "rendez-vous", "rendezvous", "appointment",
-      "contact", "contacter", "appeler", "call",
-      "conseiller", "advisor", "consultation",
-    ],
-    answer_fr:
-      "Vous pouvez prendre rendez-vous avec un de nos conseillers de plusieurs façons : " +
-      "par téléphone au +237 699 450 984, via WhatsApp, ou en remplissant le formulaire sur notre page Contact. " +
-      "Nos conseillers sont disponibles du lundi au vendredi, de 8h à 18h. " +
-      "La première consultation est gratuite et sans engagement !",
-    answer_en:
-      "You can book an appointment with one of our advisors in several ways: " +
-      "by phone at +237 699 450 984, via WhatsApp, or by filling out the form on our Contact page. " +
-      "Our advisors are available Monday to Friday, 8 AM to 6 PM. " +
-      "The first consultation is free and with no obligation!",
-  },
-  {
-    id: "prix",
-    keywords: [
-      "prix", "price", "cout", "cost", "tarif", "rate",
-      "combien", "how much", "payer", "pay", "frais", "fees",
-    ],
-    answer_fr:
-      "Nos tarifs dépendent du type de service et de la destination choisie. " +
-      "Pour obtenir un devis personnalisé, je vous invite à prendre rendez-vous avec un conseiller. " +
-      "La consultation initiale est gratuite !",
-    answer_en:
-      "Our rates depend on the type of service and chosen destination. " +
-      "To get a personalized quote, I invite you to book an appointment with an advisor. " +
-      "The initial consultation is free!",
-  },
+
+  // ── Visa ──────────────────────────────────────────────────────
   {
     id: "visa",
-    keywords: [
-      "visa", "passeport", "passport", "document",
-      "ambassade", "embassy", "procedure", "demarche",
-    ],
+    keywords: ["visa", "passeport", "passport", "consulat", "ambassade", "embassy", "delai", "duree"],
     answer_fr:
-      "AG Technologies vous accompagne dans toutes les démarches de visa d'études. " +
+      "AG Technologies vous accompagne dans tout le processus de visa étudiant. " +
       "Nous préparons votre dossier complet : lettre d'admission, justificatifs financiers, " +
       "formulaire de demande et préparation à l'entretien consulaire. " +
       "Le taux de réussite de nos dossiers est supérieur à 95%.",
@@ -13396,8 +12595,173 @@ const FALLBACK_ENTRIES: ChatbotFallbackEntry[] = [
       "We prepare your complete file: admission letter, financial documents, " +
       "application form, and consular interview preparation. " +
       "Our file success rate is over 95%.",
+    cta_ids: ["services", "rdv", "whatsapp"],
+    suggestions_fr: ["Quels documents pour le visa ?", "Combien coûte le service visa ?"],
+    suggestions_en: ["What documents for the visa?", "How much does the visa service cost?"],
+  },
+
+  // ── Rendez-vous / Contact ─────────────────────────────────────
+  {
+    id: "rdv",
+    keywords: ["rendez-vous", "rdv", "appointment", "rencontrer", "meet", "contacter", "contact", "parler", "appeler"],
+    answer_fr:
+      "Vous pouvez prendre rendez-vous avec un conseiller SALMA de plusieurs façons : " +
+      "via notre formulaire de contact, par WhatsApp, ou directement à notre bureau à Yaoundé " +
+      "(Montée Anne Rouge, Immeuble Kadji).",
+    answer_en:
+      "You can book an appointment with a SALMA advisor in several ways: " +
+      "via our contact form, by WhatsApp, or directly at our office in Yaoundé " +
+      "(Montée Anne Rouge, Kadji Building).",
+    cta_ids: ["contact", "whatsapp", "rdv"],
+    suggestions_fr: ["Où se trouve votre bureau ?", "Quels services proposez-vous ?"],
+    suggestions_en: ["Where is your office?", "What services do you offer?"],
+  },
+
+  // ── Services ──────────────────────────────────────────────────
+  {
+    id: "services",
+    keywords: ["service", "services", "accompagnement", "aide", "help", "support", "prestation"],
+    answer_fr:
+      "AG Technologies propose plusieurs services : recherche de bourses, montage de dossier, " +
+      "assistance visa, préparation au départ, et suivi post-arrivée. " +
+      "Chaque étudiant bénéficie d'un accompagnement personnalisé.",
+    answer_en:
+      "AG Technologies offers several services: scholarship search, file preparation, " +
+      "visa assistance, departure preparation, and post-arrival support. " +
+      "Each student benefits from personalized guidance.",
+    cta_ids: ["services", "rdv", "newsletter"],
+    suggestions_fr: ["Comment postuler à une bourse ?", "Quel est le taux de réussite ?"],
+    suggestions_en: ["How to apply for a scholarship?", "What is the success rate?"],
+  },
+
+  // ── À propos / SALMA / AGT ───────────────────────────────────
+  {
+    id: "about",
+    keywords: ["salma", "agt", "ag technologies", "agence", "agency", "qui", "who", "propos", "about"],
+    answer_fr:
+      "SALMA est la plateforme digitale d'AG Technologies, une agence camerounaise basée à Yaoundé " +
+      "spécialisée dans l'accompagnement des étudiants africains pour les bourses d'études " +
+      "en Chine et en Allemagne. Notre mission : rendre la mobilité internationale accessible.",
+    answer_en:
+      "SALMA is the digital platform of AG Technologies, a Cameroonian agency based in Yaoundé " +
+      "specializing in supporting African students for scholarships " +
+      "in China and Germany. Our mission: making international mobility accessible.",
+    cta_ids: ["a_propos", "rdv", "whatsapp"],
+    suggestions_fr: ["Quelles bourses proposez-vous ?", "Comment prendre rendez-vous ?"],
+    suggestions_en: ["What scholarships do you offer?", "How to book an appointment?"],
+  },
+
+  // ── Prix / Tarifs (GARDE-FOU) ─────────────────────────────────
+  {
+    id: "pricing",
+    keywords: ["prix", "price", "tarif", "cout", "cost", "combien", "how much", "frais", "fee", "payer", "pay", "argent", "money"],
+    answer_fr:
+      "Nos tarifs varient selon le service demandé. Nous proposons une consultation gratuite " +
+      "pour évaluer votre profil et vous faire une proposition adaptée. " +
+      "Prenez rendez-vous avec un conseiller pour en savoir plus !",
+    answer_en:
+      "Our fees vary depending on the service requested. We offer a free consultation " +
+      "to evaluate your profile and make a tailored proposal. " +
+      "Book an appointment with an advisor to learn more!",
+    cta_ids: ["rdv", "whatsapp", "contact"],
+    suggestions_fr: ["Quels services proposez-vous ?", "La consultation est gratuite ?"],
+    suggestions_en: ["What services do you offer?", "Is the consultation free?"],
+  },
+
+  // ── Newsletter / Annonces ─────────────────────────────────────
+  {
+    id: "newsletter",
+    keywords: ["newsletter", "email", "abonner", "subscribe", "annonce", "announcement", "alerte", "alert", "nouveau"],
+    answer_fr:
+      "Abonnez-vous à notre newsletter pour recevoir en priorité les nouvelles bourses, " +
+      "les dates limites importantes et les conseils de nos experts. " +
+      "C'est gratuit et vous pouvez vous désabonner à tout moment.",
+    answer_en:
+      "Subscribe to our newsletter to be the first to receive new scholarships, " +
+      "important deadlines, and tips from our experts. " +
+      "It's free and you can unsubscribe at any time.",
+    cta_ids: ["newsletter", "bourses", "whatsapp"],
+    suggestions_fr: ["Quelles bourses sont disponibles ?", "Comment postuler ?"],
+    suggestions_en: ["What scholarships are available?", "How to apply?"],
+  },
+
+  // ── Documents / Dossier ───────────────────────────────────────
+  {
+    id: "documents",
+    keywords: ["document", "documents", "dossier", "papier", "releve", "diplome", "lettre", "motivation", "certificat"],
+    answer_fr:
+      "Les documents courants sont : passeport valide, relevés de notes, diplômes, lettre de motivation, " +
+      "plan d'étude, certificat médical, photos d'identité et le formulaire de candidature. " +
+      "Chaque bourse a ses spécificités, contactez-nous pour une liste personnalisée.",
+    answer_en:
+      "Common documents include: valid passport, transcripts, diplomas, motivation letter, " +
+      "study plan, medical certificate, ID photos, and the application form. " +
+      "Each scholarship has its specifics, contact us for a personalized list.",
+    cta_ids: ["rdv", "whatsapp", "bourses"],
+    suggestions_fr: ["Comment postuler à une bourse ?", "Quel délai pour le visa ?"],
+    suggestions_en: ["How to apply for a scholarship?", "How long for the visa?"],
+  },
+
+  // ── Garantie / Remboursement ──────────────────────────────────
+  {
+    id: "guarantee",
+    keywords: ["garantie", "guarantee", "rembourse", "refund", "arnaque", "scam", "confiance", "trust", "fiable", "reliable"],
+    answer_fr:
+      "AG Technologies offre une garantie satisfait ou remboursé. Si nous ne parvenons pas " +
+      "à obtenir votre visa ou votre admission, nous vous remboursons intégralement. " +
+      "Nous sommes une vraie agence avec un bureau physique à Yaoundé.",
+    answer_en:
+      "AG Technologies offers a satisfaction guarantee. If we fail to obtain " +
+      "your visa or admission, we refund you in full. " +
+      "We are a real agency with a physical office in Yaoundé.",
+    cta_ids: ["a_propos", "rdv", "whatsapp"],
+    suggestions_fr: ["Où se trouve votre bureau ?", "Quels services proposez-vous ?"],
+    suggestions_en: ["Where is your office?", "What services do you offer?"],
   },
 ];
+
+// — Résolution CTA locale -------------------------------------------------------
+
+/**
+ * Résout une liste d'IDs CTA en objets ChatbotCTA complets.
+ * Garantit toujours 3 CTA (complète avec les défauts si besoin).
+ */
+export function resolveFallbackCtas(ctaIds: string[] | undefined, locale: "fr" | "en"): ChatbotCTA[] {
+  const ids = ctaIds && ctaIds.length > 0 ? ctaIds : DEFAULT_CTA_IDS;
+  const resolved: ChatbotCTA[] = [];
+  const seen = new Set<string>();
+
+  for (const id of ids) {
+    if (id in FALLBACK_CTA_CATALOG && !seen.has(id)) {
+      const cta = FALLBACK_CTA_CATALOG[id];
+      resolved.push({
+        id,
+        label: locale === "fr" ? cta.label_fr : cta.label_en,
+        url: cta.url,
+        type: cta.type,
+      });
+      seen.add(id);
+    }
+    if (resolved.length >= 3) break;
+  }
+
+  // Compléter avec les défauts
+  for (const fallbackId of DEFAULT_CTA_IDS) {
+    if (resolved.length >= 3) break;
+    if (!seen.has(fallbackId)) {
+      const cta = FALLBACK_CTA_CATALOG[fallbackId];
+      resolved.push({
+        id: fallbackId,
+        label: locale === "fr" ? cta.label_fr : cta.label_en,
+        url: cta.url,
+        type: cta.type,
+      });
+      seen.add(fallbackId);
+    }
+  }
+
+  return resolved.slice(0, 3);
+}
 
 // — Moteur de recherche local ---------------------------------------------------
 
@@ -13412,9 +12776,6 @@ function removeAccents(str: string): string {
  * Recherche la meilleure entrée fallback correspondant à la question.
  * Score = nombre de mots-clés trouvés dans la question.
  * Retourne null si aucun mot-clé ne matche.
- *
- * @param question - Question de l'utilisateur
- * @returns L'entrée avec le meilleur score, ou null
  */
 export function searchFallback(question: string): ChatbotFallbackEntry | null {
   const normalized = removeAccents(question.toLowerCase());
@@ -13500,13 +12861,8 @@ export const authRepository = {
     
     tokenStorage.set(response.access, response.refresh);
     if (typeof document !== "undefined") {
-<<<<<<< HEAD
-  document.cookie = `salma_auth=${response.access}; path=/; max-age=86400; SameSite=Lax`;
-}
-=======
       document.cookie = `salma_auth=${response.access}; path=/; max-age=86400; SameSite=Lax`;
     }
->>>>>>> a3c58bd73b58397488b474a30305072da73c049d
     return response;
   },
 
@@ -13615,7 +12971,7 @@ import type {
 export const chatbotRepository = {
   /** POST /api/chatbot/message — interroger le chatbot (public) */
   query: (payload: ChatbotMessagePayload): Promise<ChatbotMessageResponse> =>
-    apiClient.post("/chatbot/message/", payload), // Ajout du slash final
+    apiClient.post("/chatbot/message", payload), // Ajout du slash final
 
   /** GET /api/admin/faq/ */
   adminGetFaqs: (): Promise<FaqEntry[]> =>
@@ -14223,7 +13579,7 @@ export const newsletterRepository = {
    * S'inscrire à la newsletter
    */
   subscribe: (payload: NewsletterInscriptionPayload): Promise<{ detail: string }> => {
-    return api.post<{ detail: string }>("/newsletter/inscription/", payload);
+    return api.post<{ detail: string }>("/newsletter/inscription", payload);
   },
 
   /**
@@ -14231,7 +13587,7 @@ export const newsletterRepository = {
    * Se désinscrire
    */
   unsubscribe: (payload: NewsletterDesinscriptionPayload): Promise<{ detail: string }> => {
-    return api.post<{ detail: string }>("/newsletter/desinscription/", payload);
+    return api.post<{ detail: string }>("/newsletter/desinscription", payload);
   },
 
   // ==============================================================================
@@ -14757,7 +14113,6 @@ import HeroDecorations from "./HeroDecroration";
 import type { HeroSlideData, NavContent, HeroSlideCMS } from "@/types";
 
 /**
-<<<<<<< HEAD
  * Config de design par slide.
  * bgImage : chemin vers l'image de fond dans /public/images/hero/
  * Si bgImage est défini, le gradient sert de fallback et l'overlay est ajouté.
@@ -14781,15 +14136,6 @@ const SLIDE_DESIGN_CONFIG = [
     deco: "circle-center",
     bgImage: "/images/hero/hero-slide-3.jpg",
   },
-=======
- * Palettes de design pour les fonds de slides.
- * Ces données sont purement visuelles et ne sont pas gérées par le CMS.
- */
-const SLIDE_DESIGN_CONFIG = [
-  { gradient: "from-white via-white to-white", accent: "from-transparent to-transparent", deco: "circle-top-right" },
-  { gradient: "from-[#EDF3FC] via-[#E5EEF9] to-[#DCE9F7]", accent: "from-[#1B365D]/4 to-transparent", deco: "circle-bottom-left" },
-  { gradient: "from-[#CCDDF0] via-[#C2D5EC] to-[#B8CCE8]", accent: "from-[#1B365D]/6 to-transparent", deco: "circle-center" },
->>>>>>> a3c58bd73b58397488b474a30305072da73c049d
 ];
 
 export default function HeroCarousel() {
@@ -14803,24 +14149,13 @@ export default function HeroCarousel() {
   // Chargement des données via le Switcher typé
   useEffect(() => {
     cmsSwitcher.getScopeContent<NavContent>("layout", locale).then((data) => {
-<<<<<<< HEAD
       const rawSlides = data.hero_carousel?.slides ?? [];
 
-=======
-      // On récupère les slides bruts du CMS
-      const rawSlides = data.hero_carousel?.slides ?? [];
-      
-      // On les enrichit avec la config de design (gradient, deco, etc.)
->>>>>>> a3c58bd73b58397488b474a30305072da73c049d
       const enrichedSlides: HeroSlideData[] = rawSlides.map((s: HeroSlideCMS, i: number) => ({
         ...s,
         ...SLIDE_DESIGN_CONFIG[i % SLIDE_DESIGN_CONFIG.length],
       })) as HeroSlideData[];
-<<<<<<< HEAD
 
-=======
-      
->>>>>>> a3c58bd73b58397488b474a30305072da73c049d
       setSlides(enrichedSlides);
     });
   }, [locale]);
@@ -14847,10 +14182,7 @@ export default function HeroCarousel() {
   }
 
   const activeSlide = slides[current];
-<<<<<<< HEAD
   const hasBgImage = !!activeSlide.bgImage;
-=======
->>>>>>> a3c58bd73b58397488b474a30305072da73c049d
 
   return (
     <section
@@ -14859,7 +14191,6 @@ export default function HeroCarousel() {
       onMouseLeave={() => setPaused(false)}
       aria-label="Présentation SALMA"
     >
-<<<<<<< HEAD
       {/* ── Background layer ─────────────────────────────────────────── */}
 
       {/* Gradient de fallback (toujours présent) */}
@@ -14890,18 +14221,6 @@ export default function HeroCarousel() {
       {/* Contenu du slide actif */}
       <div className="relative z-10 flex-1 flex items-center">
         <HeroSlide slide={activeSlide} animating={animating} hasBgImage={hasBgImage} />
-=======
-      {/* Background dynamique */}
-      <div className={`absolute inset-0 bg-gradient-to-br ${activeSlide.gradient} transition-all duration-700`} />
-      <div className={`absolute inset-0 bg-gradient-to-tr ${activeSlide.accent} opacity-60`} />
-      
-      {/* Éléments décoratifs flottants */}
-      <HeroDecorations type={activeSlide.deco} />
-
-      {/* Contenu du slide actif */}
-      <div className="relative z-10 flex-1 flex items-center">
-        <HeroSlide slide={activeSlide} animating={animating} />
->>>>>>> a3c58bd73b58397488b474a30305072da73c049d
       </div>
 
       {/* Barre de navigation et progression */}
@@ -14912,10 +14231,7 @@ export default function HeroCarousel() {
         onPrev={prev}
         onNext={next}
         onGoTo={goTo}
-<<<<<<< HEAD
         hasBgImage={hasBgImage}
-=======
->>>>>>> a3c58bd73b58397488b474a30305072da73c049d
       />
     </section>
   );
@@ -14936,7 +14252,6 @@ interface Props {
   onPrev: () => void;
   onNext: () => void;
   onGoTo: (i: number) => void;
-<<<<<<< HEAD
   /** Si true, les contrôles sont sur fond image sombre → style clair */
   hasBgImage?: boolean;
 }
@@ -14953,29 +14268,16 @@ export default function HeroControls({ total, current, paused, onPrev, onNext, o
   const progressBg = hasBgImage ? "bg-white/20" : "bg-salma-border";
   const counterText = hasBgImage ? "text-white/60" : "text-salma-text-muted";
 
-=======
-}
-
-export default function HeroControls({ total, current, paused, onPrev, onNext, onGoTo }: Props) {
->>>>>>> a3c58bd73b58397488b474a30305072da73c049d
   return (
     <>
       {/* Flèche gauche */}
       <button
         onClick={onPrev}
-<<<<<<< HEAD
         className={`hidden lg:flex absolute left-6 top-1/2 -translate-y-1/2 z-20
           w-11 h-11 rounded-full backdrop-blur-sm
           ${arrowCls} border
           items-center justify-center
           transition-all duration-150`}
-=======
-        className="hidden lg:flex absolute left-6 top-1/2 -translate-y-1/2 z-20
-          w-11 h-11 rounded-full backdrop-blur-sm
-          bg-salma-primary/8 border border-salma-primary/15 text-salma-primary
-          items-center justify-center
-          hover:bg-salma-primary/15 transition-all duration-150"
->>>>>>> a3c58bd73b58397488b474a30305072da73c049d
         aria-label="Slide précédent"
       >
         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -14986,19 +14288,11 @@ export default function HeroControls({ total, current, paused, onPrev, onNext, o
       {/* Flèche droite */}
       <button
         onClick={onNext}
-<<<<<<< HEAD
         className={`hidden lg:flex absolute right-6 top-1/2 -translate-y-1/2 z-20
           w-11 h-11 rounded-full backdrop-blur-sm
           ${arrowCls} border
           items-center justify-center
           transition-all duration-150`}
-=======
-        className="hidden lg:flex absolute right-6 top-1/2 -translate-y-1/2 z-20
-          w-11 h-11 rounded-full backdrop-blur-sm
-          bg-salma-primary/8 border border-salma-primary/15 text-salma-primary
-          items-center justify-center
-          hover:bg-salma-primary/15 transition-all duration-150"
->>>>>>> a3c58bd73b58397488b474a30305072da73c049d
         aria-label="Slide suivant"
       >
         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -15010,11 +14304,7 @@ export default function HeroControls({ total, current, paused, onPrev, onNext, o
       <div className="relative z-20 flex flex-col items-center gap-3 pb-8 pt-2">
         {/* Barre de progression */}
         {!paused && (
-<<<<<<< HEAD
           <div className={`w-40 h-px ${progressBg} rounded-full overflow-hidden`}>
-=======
-          <div className="w-40 h-px bg-salma-border rounded-full overflow-hidden">
->>>>>>> a3c58bd73b58397488b474a30305072da73c049d
             <div
               key={current}
               className="h-full bg-salma-gold rounded-full"
@@ -15035,22 +14325,14 @@ export default function HeroControls({ total, current, paused, onPrev, onNext, o
               className={`transition-all duration-300 rounded-full
                 ${i === current
                   ? "w-7 h-2 bg-salma-gold"
-<<<<<<< HEAD
                   : `w-2 h-2 ${bulletInactive}`
-=======
-                  : "w-2 h-2 bg-salma-primary/20 hover:bg-salma-primary/40"
->>>>>>> a3c58bd73b58397488b474a30305072da73c049d
                 }`}
             />
           ))}
         </div>
 
         {/* X/Y mobile */}
-<<<<<<< HEAD
         <p className={`lg:hidden text-[10px] font-bold uppercase tracking-widest ${counterText}`}>
-=======
-        <p className="lg:hidden text-[10px] font-bold uppercase tracking-widest text-salma-text-muted">
->>>>>>> a3c58bd73b58397488b474a30305072da73c049d
           {current + 1} / {total}
         </p>
       </div>
@@ -15308,7 +14590,6 @@ import type { HeroSlideData } from "@/types";
 interface Props {
   slide: HeroSlideData;
   animating: boolean;
-<<<<<<< HEAD
   /** Si true, le slide est sur fond image sombre → texte blanc */
   hasBgImage?: boolean;
 }
@@ -15324,13 +14605,6 @@ export default function HeroSlide({ slide, animating, hasBgImage = false }: Prop
     ? "bg-white/15 border-white/25 text-white"
     : "bg-salma-primary/8 border-salma-primary/15 text-salma-primary";
 
-=======
-}
-
-export default function HeroSlide({ slide, animating }: Props) {
-  const fade = animating ? "opacity-0 translate-y-3" : "opacity-100 translate-y-0";
-
->>>>>>> a3c58bd73b58397488b474a30305072da73c049d
   return (
     <div className="max-w-7xl mx-auto px-6 lg:px-12 w-full py-20 lg:py-0
       grid grid-cols-1 lg:grid-cols-2 gap-12 items-center"
@@ -15339,24 +14613,15 @@ export default function HeroSlide({ slide, animating }: Props) {
       <div>
         {/* Badge */}
         <div className={`inline-flex items-center gap-2 px-4 py-2 rounded-full
-<<<<<<< HEAD
           ${badgeBg} border
           text-xs font-bold tracking-wide mb-8
-=======
-          bg-salma-primary/8 border border-salma-primary/15
-          text-salma-primary text-xs font-bold tracking-wide mb-8
->>>>>>> a3c58bd73b58397488b474a30305072da73c049d
           transition-all duration-500 ${fade}`}
         >
           {slide.badge}
         </div>
 
         {/* Titre */}
-<<<<<<< HEAD
         <h1 className={`text-4xl lg:text-6xl font-serif font-bold ${textPrimary}
-=======
-        <h1 className={`text-4xl lg:text-6xl font-serif font-bold text-salma-primary
->>>>>>> a3c58bd73b58397488b474a30305072da73c049d
           leading-tight mb-4 whitespace-pre-line
           transition-all duration-500 delay-75 ${fade}`}
         >
@@ -15365,11 +14630,7 @@ export default function HeroSlide({ slide, animating }: Props) {
         </h1>
 
         {/* Sous-titre */}
-<<<<<<< HEAD
         <p className={`${textMuted} text-base lg:text-lg leading-relaxed
-=======
-        <p className={`text-salma-text-muted text-base lg:text-lg leading-relaxed
->>>>>>> a3c58bd73b58397488b474a30305072da73c049d
           max-w-xl mb-8
           transition-all duration-500 delay-100 ${fade}`}
         >
@@ -15387,13 +14648,9 @@ export default function HeroSlide({ slide, animating }: Props) {
               transition-all duration-200 active:scale-[0.97]
               ${cta.variant === "gold"
                 ? "bg-salma-gold text-salma-primary shadow-[0_4px_16px_rgba(201,168,76,0.35)] hover:bg-salma-gold-light"
-<<<<<<< HEAD
                 : hasBgImage
                   ? "bg-white text-salma-primary hover:bg-white/90"
                   : "bg-salma-primary text-white hover:bg-salma-primary-light"
-=======
-                : "bg-salma-primary text-white hover:bg-salma-primary-light"
->>>>>>> a3c58bd73b58397488b474a30305072da73c049d
               }`}
             >
               {cta.label}
@@ -15407,17 +14664,10 @@ export default function HeroSlide({ slide, animating }: Props) {
         >
           {slide.stats.map((stat, i) => (
             <div key={i} className="flex flex-col">
-<<<<<<< HEAD
               <span className={`text-2xl font-serif font-bold ${textGold} leading-none`}>
                 {stat.value}
               </span>
               <span className={`text-[10px] font-bold uppercase tracking-widest ${textMuted} mt-1`}>
-=======
-              <span className="text-2xl font-serif font-bold text-salma-gold leading-none">
-                {stat.value}
-              </span>
-              <span className="text-[10px] font-bold uppercase tracking-widest text-salma-text-muted mt-1">
->>>>>>> a3c58bd73b58397488b474a30305072da73c049d
                 {stat.label}
               </span>
             </div>
@@ -15440,6 +14690,20 @@ export default function HeroSlide({ slide, animating }: Props) {
 
 // FILE: src/sections/visitor/ContactForm.tsx
 -----------------------------------------------
+// src/sections/visitor/ContactForm.tsx
+// ==============================================================================
+// ContactForm — Formulaire de contact SALMA
+//
+// Mode dynamique (NEXT_PUBLIC_STATIC_CONTENT=false) :
+//   1. POST /api/contact → envoie la demande
+//   2. Si accepte_newsletter → POST /api/newsletter/inscription
+//
+// Mode statique (NEXT_PUBLIC_STATIC_CONTENT=true) :
+//   → Pas d'appel API, affiche un message invitant à contacter via WhatsApp
+//
+// RÈGLE : Zéro texte en dur — labels viennent de la prop `labels`.
+// ==============================================================================
+
 "use client";
 
 import { useState } from "react";
@@ -15448,6 +14712,13 @@ import { contactDictionary, newsletterDictionary } from "@/dictionaries/data";
 import { eventsRepository } from "@/repositories/events.repository";
 import SalmaButton from "@/components/ui/SalmaButton";
 import type { ContactFormLabels, CreateContactPayload } from "@/types";
+
+// — Constantes ------------------------------------------------------------------
+
+const IS_STATIC = process.env.NEXT_PUBLIC_STATIC_CONTENT === "true";
+const WHATSAPP_URL = "https://wa.me/237699450984";
+
+// — Composant principal ---------------------------------------------------------
 
 interface Props {
   labels: ContactFormLabels;
@@ -15458,16 +14729,24 @@ export default function ContactForm({ labels: t }: Props) {
   const [formData, setFormData] = useState<CreateContactPayload>({
     nom_complet: "", email: "", telephone: "", whatsapp: "", message: "", accepte_newsletter: false,
   });
-  const [status, setStatus] = useState<"idle" | "submitting" | "success" | "error">("idle");
+  const [status, setStatus] = useState<"idle" | "submitting" | "success" | "error" | "static_error">("idle");
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    // Mode statique → pas d'appel API, message WhatsApp
+    if (IS_STATIC) {
+      setStatus("static_error");
+      return;
+    }
+
     setStatus("submitting");
     try {
+      // Appel 1 : envoyer la demande de contact
       await contactDictionary.submit(formData);
       eventsRepository.trackContactSubmit();
 
-      // Si newsletter cochée → requête subscribe en parallèle
+      // Appel 2 (conditionnel) : inscription newsletter si cochée
       if (formData.accepte_newsletter && formData.email) {
         try {
           await newsletterDictionary.subscribe({
@@ -15486,38 +14765,28 @@ export default function ContactForm({ labels: t }: Props) {
     }
   };
 
-  // Labels newsletter depuis le dictionnaire (spread au premier niveau)
+  // Labels newsletter depuis le dictionnaire
   const nl = dictionary.newsletter;
   const inputCls = "w-full p-3 sm:p-4 rounded-xl sm:rounded-2xl bg-salma-bg dark:bg-salma-bg/50 border border-salma-border outline-none focus:border-salma-gold focus:ring-4 focus:ring-salma-gold/5 transition-all text-sm";
 
   return (
     <section id="contact-form" className="py-8 sm:py-12 bg-white dark:bg-salma-bg">
       <div className="container mx-auto px-4 sm:px-6">
-        {/* rounded plus petit en mobile, grid empilé par défaut */}
-        <div className="max-w-6xl mx-auto bg-white dark:bg-salma-surface border border-salma-border rounded-2xl sm:rounded-[3rem] overflow-hidden shadow-salma-lg grid grid-cols-1 lg:grid-cols-5">
-          
-          {/* ── Colonne Info ────────────────────────────────────────── */}
-          <div className="lg:col-span-2 p-6 sm:p-8 lg:p-12 bg-salma-primary text-white flex flex-col justify-between relative overflow-hidden">
-            <div className="relative z-10">
-              <h2 className="text-2xl sm:text-3xl font-serif font-bold mb-3 sm:mb-4 !text-salma-gold">{t.title}</h2>
-              <p className="text-white/70 text-sm mb-6 sm:mb-12">{t.subtitle}</p>
-              
-              <div className="flex flex-row lg:flex-col gap-4 sm:gap-6 lg:gap-8">
-                <div className="flex gap-3 sm:gap-5 items-start">
-                  <span className="text-xl sm:text-2xl flex-shrink-0">📍</span>
-                  <p className="text-xs sm:text-sm leading-relaxed text-white/80">{dictionary.footer.contact.address}</p>
-                </div>
-                <div className="flex gap-3 sm:gap-5 items-start">
-                  <span className="text-xl sm:text-2xl flex-shrink-0">✉️</span>
-                  <p className="text-xs sm:text-sm text-white/80 break-all">{dictionary.footer.contact.email}</p>
-                </div>
-              </div>
-            </div>
-            <div className="absolute -bottom-20 -left-20 w-64 h-64 bg-salma-gold/10 rounded-full blur-3xl" />
+        <div className="bg-white dark:bg-salma-surface rounded-2xl sm:rounded-[2rem] border border-salma-border shadow-salma-sm p-6 sm:p-10 lg:p-16 grid grid-cols-1 lg:grid-cols-2 gap-8 sm:gap-12 lg:gap-16">
+
+          {/* Colonne gauche : titre + description */}
+          <div className="flex flex-col justify-center">
+            <h2 className="text-2xl sm:text-3xl lg:text-4xl font-serif font-bold text-salma-primary dark:text-white mb-3 sm:mb-4 leading-tight">
+              {t.title}
+            </h2>
+            <p className="text-salma-text-muted text-sm sm:text-base leading-relaxed">
+              {t.subtitle}
+            </p>
           </div>
 
-          {/* ── Colonne Formulaire ──────────────────────────────────── */}
-          <div className="lg:col-span-3 p-6 sm:p-8 lg:p-12">
+          {/* Colonne droite : formulaire */}
+          <div>
+            {/* ── État succès ───────────────────────────────────── */}
             {status === "success" ? (
               <div className="text-center py-8 sm:py-12 animate-[fadeIn_0.5s_ease-out]">
                 <div className="w-16 h-16 sm:w-20 sm:h-20 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto mb-4 sm:mb-6 text-2xl sm:text-3xl">✓</div>
@@ -15527,22 +14796,53 @@ export default function ContactForm({ labels: t }: Props) {
                   {t.send_another}
                 </SalmaButton>
               </div>
+
+            /* ── État erreur mode statique ──────────────────────── */
+            ) : status === "static_error" ? (
+              <div className="text-center py-8 sm:py-12 animate-[fadeIn_0.5s_ease-out]">
+                <div className="w-16 h-16 sm:w-20 sm:h-20 bg-amber-100 text-amber-600 rounded-full flex items-center justify-center mx-auto mb-4 sm:mb-6 text-2xl sm:text-3xl">⚠</div>
+                <h3 className="text-xl sm:text-2xl font-serif font-bold text-salma-primary dark:text-white mb-3 sm:mb-4">
+                  {t.error_static_title}
+                </h3>
+                <p className="text-salma-text-muted mb-6 sm:mb-8 text-sm leading-relaxed">
+                  {t.error_static_msg}
+                </p>
+                <a
+                  href={WHATSAPP_URL}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 px-6 py-3 bg-green-600 text-white font-bold rounded-xl hover:bg-green-700 transition-all active:scale-95"
+                >
+                  <svg viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5">
+                    <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z" />
+                  </svg>
+                  {t.error_static_whatsapp}
+                </a>
+                <button
+                  onClick={() => setStatus("idle")}
+                  className="block mx-auto mt-4 text-xs text-salma-text-muted hover:text-salma-primary transition-colors"
+                >
+                  {t.send_another}
+                </button>
+              </div>
+
+            /* ── Formulaire ────────────────────────────────────── */
             ) : (
               <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-5">
-                {/* En mobile : inputs empilés, en sm+ : 2 colonnes */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-5">
-                  <input required placeholder={t.name} className={inputCls} onChange={e => setFormData({...formData, nom_complet: e.target.value})} />
-                  <input required type="email" placeholder={t.email} className={inputCls} onChange={e => setFormData({...formData, email: e.target.value})} />
+                  <input required placeholder={t.name} className={inputCls} value={formData.nom_complet} onChange={e => setFormData({...formData, nom_complet: e.target.value})} />
+                  <input required type="email" placeholder={t.email} className={inputCls} value={formData.email} onChange={e => setFormData({...formData, email: e.target.value})} />
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-5">
-                  <input placeholder={t.phone} className={inputCls} onChange={e => setFormData({...formData, telephone: e.target.value})} />
-                  <input placeholder={t.whatsapp} className={inputCls} onChange={e => setFormData({...formData, whatsapp: e.target.value})} />
+                  <input placeholder={t.phone} className={inputCls} value={formData.telephone} onChange={e => setFormData({...formData, telephone: e.target.value})} />
+                  <input placeholder={t.whatsapp} className={inputCls} value={formData.whatsapp} onChange={e => setFormData({...formData, whatsapp: e.target.value})} />
                 </div>
-                <textarea required placeholder={t.message} rows={4} className={inputCls} onChange={e => setFormData({...formData, message: e.target.value})} />
-                
+                <textarea required placeholder={t.message} rows={4} className={inputCls} value={formData.message} onChange={e => setFormData({...formData, message: e.target.value})} />
+
+                {/* Erreur API */}
                 {status === "error" && <p className="text-red-500 text-xs font-bold">{t.error_msg}</p>}
 
-                {/* ── Newsletter opt-in ─────────────────────────────── */}
+                {/* Newsletter opt-in */}
                 <label className="flex items-start sm:items-center gap-3 cursor-pointer group py-1">
                   <input
                     type="checkbox"
@@ -15551,11 +14851,17 @@ export default function ContactForm({ labels: t }: Props) {
                     className="w-5 h-5 mt-0.5 sm:mt-0 rounded-md border-2 border-salma-border accent-salma-gold focus:ring-2 focus:ring-salma-gold/30 transition-all cursor-pointer flex-shrink-0"
                   />
                   <span className="text-xs sm:text-sm text-salma-text-muted group-hover:text-salma-primary dark:group-hover:text-white transition-colors leading-snug">
-                    {nl?.subscribe_label ?? "Je souhaite recevoir les offres de bourses par email"}
+                    {nl?.subscribe_label ?? "S'abonner à la newsletter"}
                   </span>
                 </label>
 
-                <SalmaButton type="submit" variant="primary" size="lg" fullWidth isLoading={status === "submitting"}>
+                {/* Bouton submit */}
+                <SalmaButton
+                  type="submit"
+                  variant="primary"
+                  fullWidth
+                  isLoading={status === "submitting"}
+                >
                   {t.submit}
                 </SalmaButton>
               </form>
@@ -16053,14 +15359,10 @@ export default function StatsCounter({ kpi }: Props) {
     </section>
   );
 }
+// END OF FILE: src/sections/visitor/StatsCounter.tsx
 
 // END OF FILE: src/sections/visitor/StatsCounter.tsx
 
-<<<<<<< HEAD
-// END OF FILE: src/sections/visitor/StatsCounter.tsx
-
-=======
->>>>>>> a3c58bd73b58397488b474a30305072da73c049d
 
 // FILE: src/sections/visitor/SuccessStories.tsx
 -----------------------------------------------
@@ -17192,18 +16494,34 @@ export interface ChatbotMessagePayload {
   langue?: "fr" | "en";
 }
 
-/** Suggestion de FAQ liée */
+/** Suggestion de question liée (cliquable) */
 export interface ChatbotSuggestion {
   question: string;
   id: string;
 }
 
-/** Réponse du chatbot */
+/** CTA contextuel retourné par le backend */
+export interface ChatbotCTA {
+  /** Identifiant unique (ex: "rdv", "whatsapp", "bourses_chine") */
+  id: string;
+  /** Label localisé avec emoji (ex: "📅 Prendre rendez-vous") */
+  label: string;
+  /** URL de destination (route interne ou lien externe) */
+  url: string;
+  /** Type : "conversion" (RDV, WhatsApp, Newsletter) ou "navigation" (lien page) */
+  type: "conversion" | "navigation";
+}
+
+/** Réponse complète du chatbot */
 export interface ChatbotMessageResponse {
+  /** Texte de la réponse Gemini */
   reponse: string;
-  source: "faq" | "fallback";
-  faq_id: string | null;
+  /** Source de la réponse */
+  source: "gemini-ai" | "faq" | "fallback";
+  /** Suggestions de questions liées (cliquables) */
   suggestions: ChatbotSuggestion[];
+  /** 3 CTA contextuels (toujours exactement 3) */
+  ctas: ChatbotCTA[];
 }
 
 // --- Réponse paginée admin ---------------------------------------------------
@@ -18243,6 +17561,8 @@ export interface BoursesTexts {
 
 // FILE: src/types/pages/contact.types.ts
 -----------------------------------------------
+// src/types/pages/contact.types.ts
+
 export interface ContactHeroTexts {
   title: string;
   subtitle: string;
@@ -18260,8 +17580,15 @@ export interface ContactFormLabels {
   submit: string;
   success_title: string;
   success_msg: string;
-  send_another: string; 
+  send_another: string;
   error_msg: string;
+
+  /** Mode statique — titre affiché quand l'API est indisponible */
+  error_static_title: string;
+  /** Mode statique — message explicatif */
+  error_static_msg: string;
+  /** Mode statique — label du bouton WhatsApp */
+  error_static_whatsapp: string;
 }
 
 export interface FaqItem {
@@ -18766,6 +18093,8 @@ export interface SalmaButtonProps
 // Types pour le composant ChatbotWidget — Widget chatbot IA SALMA
 // ==============================================================================
 
+import type { ChatbotCTA, ChatbotSuggestion } from "@/types/api/chatbot.types";
+
 /**
  * Message dans la conversation du chatbot.
  */
@@ -18776,16 +18105,21 @@ export interface ChatbotMessage {
   /** Contenu textuel du message */
   text: string;
 
-  /** Afficher un bouton WhatsApp après ce message (fallback conversion) */
+  /** Afficher un bouton WhatsApp après ce message (fallback legacy) */
   showWhatsApp?: boolean;
+
+  /** Suggestions de questions liées (affichées comme boutons cliquables) */
+  suggestions?: ChatbotSuggestion[];
+
+  /** CTA contextuels (toujours 3, affichés sous la réponse) */
+  ctas?: ChatbotCTA[];
 }
 
 /**
  * Quick Action — bouton de suggestion rapide affiché au démarrage.
- * Augmente le taux de conversion en guidant l'utilisateur.
  */
 export interface ChatbotQuickAction {
-  /** Identifiant unique (ex: "scholarships", "china", "germany", "rdv") */
+  /** Identifiant unique */
   id: string;
 
   /** Label affiché sur le bouton (i18n, avec emoji) */
@@ -18806,61 +18140,48 @@ export interface ChatbotFallbackEntry {
   /** Mots-clés de recherche (lowercase, sans accents) */
   keywords: string[];
 
-  /** Réponse à afficher (FR ou EN selon la locale) */
+  /** Réponse FR */
   answer_fr: string;
+
+  /** Réponse EN */
   answer_en: string;
+
+  /**
+   * IDs des CTA contextuels à afficher.
+   * Référence le catalogue FALLBACK_CTA_CATALOG dans chatbot.fallback.ts.
+   * Si absent → CTA de conversion par défaut (rdv, whatsapp, newsletter).
+   */
+  cta_ids?: string[];
+
+  /** Suggestions de questions liées FR (max 2) */
+  suggestions_fr?: string[];
+
+  /** Suggestions de questions liées EN (max 2) */
+  suggestions_en?: string[];
 }
 
 /**
  * Labels i18n requis par ChatbotWidget.
- * Proviennent du dictionnaire `common.chatbot`.
  */
 export interface ChatbotWidgetLabels {
-  /** Nom affiché dans le header */
   title: string;
-
-  /** Message de bienvenue lors de l'ouverture */
   welcomeMessage: string;
-
-  /** Placeholder du champ de saisie */
   inputPlaceholder: string;
-
-  /** Texte affiché pendant que le bot réfléchit */
   thinking: string;
-
-  /** Message d'erreur quand aucune réponse n'est trouvée */
   noAnswer: string;
-
-  /** Label du bouton WhatsApp fallback */
   whatsappFallback: string;
-
-  /** Aria-label du bouton d'ouverture */
   openAriaLabel: string;
-
-  /** Aria-label du bouton de fermeture */
   closeAriaLabel: string;
-
-  /** Aria-label du bouton d'envoi */
   sendAriaLabel: string;
-
-  /** Quick actions affichées au démarrage */
   quickActions: ChatbotQuickAction[];
 }
 
 /**
  * Props du composant ChatbotWidget.
- *
- * @example
- * <ChatbotWidget labels={common.chatbot} />
  */
 export interface ChatbotWidgetProps {
-  /** Labels i18n et quick actions. */
   labels: ChatbotWidgetLabels;
-
-  /** Numéro WhatsApp pour le fallback conversion. @default "237699450984" */
   whatsappNumber?: string;
-
-  /** Classes CSS additionnelles sur le conteneur fixe. */
   className?: string;
 }
 
@@ -19924,20 +19245,20 @@ export default config;
 
 // FILE: prompt_livraison.md
 -----------------------------------------------
-# 🚀 PROMPT DE CONTINUITÉ — PHASE DE LIVRAISON (Projet SALMA)
+# 🚀 PROMPT DE CONTINUITÉ — PHASE DE FINITIONS (Projet SALMA)
 ## AG Technologies · Yaoundé, Cameroun
 ### À donner à toute IA pour reprendre le projet avec le contexte complet
 
 ---
 
-> **INSTRUCTION SYSTÈME** : Tu es un développeur fullstack senior (Next.js 15 / Django DRF) qui travaille sur la dernière ligne droite du projet SALMA. Avant de coder quoi que ce soit, tu dois TOUJOURS commencer par l'**audit complet** de la roadmap ci-dessous, puis m'aider sur la tâche demandée. Ne saute jamais l'audit.
+> **INSTRUCTION SYSTÈME** : Tu es un développeur fullstack senior (Next.js 15 / Django DRF) qui travaille sur les **finitions et la mise en production** du projet SALMA. Avant de coder quoi que ce soit, tu dois TOUJOURS commencer par l'**audit complet** de la roadmap (todo.md), puis m'aider sur la tâche demandée. Ne saute jamais l'audit.
 
 ---
 
 ## 📌 1. CONTEXTE ACTUEL DU PROJET
 
-**SALMA** est une plateforme bilingue (FR/EN) de bourses d'études (Chine/Allemagne). 
-**Statut actuel :** Le backend V1 est déployé. Le frontend a un build stable. L'authentification JWT fonctionne et le layout du Dashboard Admin est accessible. Nous sommes dans la phase de **stabilisation, polish UI, et mise en production**.
+**SALMA** est une plateforme bilingue (FR/EN) de bourses d'études (Chine/Allemagne).
+**Statut actuel :** Le backend V1 est déployé sur VPS Hostinger. Le frontend a un build stable sur Vercel. L'authentification JWT fonctionne. Le Dashboard Admin est accessible. Les composants UI de la vitrine sont à ~80% polish. Nous sommes dans la phase de **finitions : liaisons frontend↔backend, seeding réel, tests E2E, et optimisation**.
 
 ### Stack technique
 | Couche | Techno | Détails |
@@ -19945,9 +19266,10 @@ export default config;
 | **Frontend** | Next.js 15 (App Router) | TypeScript strict, Tailwind CSS v4, i18n FR/EN |
 | **Backend** | Django + DRF | JWT (SimpleJWT), PostgreSQL (prod) |
 | **API** | REST — 107 endpoints | `https://api-x75k2m8-v1.agtgroupholding.com/api/docs/` |
+| **Chatbot** | Gemini API | Réponses contextuelles basées sur la FAQ en BD |
 
 ### Philosophie métier (CRITIQUE)
-- **Conversion avant tout :** Le site ne dévoile pas tout (pas de prix affichés publiquement). Le but est d'inciter à la prise de contact/RDV.
+- **Conversion avant tout :** Le site ne dévoile pas tout (pas de prix publics). But = inciter à la prise de contact/RDV.
 - **Visibilité dynamique :** Chaque champ d'une bourse obéit au `field_visibility` (Record<string, boolean>) contrôlé par l'admin.
 
 ### Charte Graphique (Tailwind v4)
@@ -19958,7 +19280,7 @@ Primaire: `#1B365D` (Navy) | Accent: `#00AEEF` (Azur) | Or: `#C9A84C` (Gold) | F
 ## 📌 2. ARCHITECTURE FRONTEND (Règles d'or)
 
 ```text
-Composant (UI) 
+Composant (UI)
     ↓ ne fetch jamais directement, appelle :
 Dictionnaire de données (`/dictionaries/data/`)
     ↓ orchestre et appelle :
@@ -19972,27 +19294,32 @@ api-client.ts (gère le JWT et les erreurs)
 ---
 
 ## 📌 3. ROADMAP DE LIVRAISON (À AUDITER À CHAQUE SESSION)
-consulte la todo.md
+
+Consulte le fichier **todo.md** — Il contient 4 phases :
+1. **Finitions & Liaisons Backend** (chatbot, contact, newsletter, seeder, CMS switcher, dashboard admin, polish UI)
+2. **Optimisation & Qualité** (audit code, templates, performance, SEO, sécurité, documentation)
+3. **Infrastructure & Services** (email pro support, API Gemini, débogage backend images, CI/CD, backup)
+4. **Capitalisation** (livre blanc, catalogue features, monitoring)
+
 ---
 
 ## 📌 4. PROCÉDURE À SUIVRE À CHAQUE SESSION
 
 1. **LIRE** ce prompt entièrement.
 2. **DEMANDER** les fichiers de contexte à jour si nécessaire.
-3. **AUDITER** la section 3 (Roadmap) et afficher le statut RÉEL (✅, 🔧, ❌).
+3. **AUDITER** la todo.md et afficher le statut RÉEL (✅, 🔧, ❌).
 4. **RÉSUMER** l'avancement global.
 5. **DEMANDER** : "Sur quelle tâche de la roadmap veux-tu qu'on travaille aujourd'hui ?"
 6. **EXÉCUTER** la tâche en respectant l'architecture stricte et le TypeScript.
 
-REGLES:
+---
 
-- l'EXECUTION SE FAIT DE FACON INTERACTIVE ETAPE PAR ETAPE,UNE CHOSE A LA FOIS ET TU DEMANDE TOUJOURS MON AVIS POUR FAIRE QUOI QUE CE SOIT.
-- AVANT DE GENERER DU CODE ON DISCUTE D'ABORD DE CE QUE TU VQS Y FQIRE ET TU NE GENRE QUE A MON SIGNAL.
-- EN CODANT ,ON NE DOIT SURTOUT PAS CASSER LE BUILD,ON UTILISE TYPESCRIPT QUI EST TRES STRICTE ON DOIT DONC TOUJOURS DEFINIR LES TYPES A UTILISER ET SI NECESSAIRE EN CREER DE NOUVEAUX.
-- AUCUN TEXTE EN DUR,TOUJOURS CREER LA CLE DANS LES DICTIONNAIRES,MEME POUR LES ENTIERS
-```
+## 📌 5. RÈGLES NON NÉGOCIABLES
 
-
+- L'EXÉCUTION SE FAIT DE FAÇON INTERACTIVE ÉTAPE PAR ÉTAPE, UNE CHOSE À LA FOIS. TU DEMANDES TOUJOURS MON AVIS AVANT DE FAIRE QUOI QUE CE SOIT.
+- AVANT DE GÉNÉRER DU CODE, ON DISCUTE D'ABORD DE CE QUE TU VAS Y FAIRE. TU NE GÉNÈRES QU'À MON SIGNAL.
+- EN CODANT, ON NE DOIT SURTOUT PAS CASSER LE BUILD. ON UTILISE TYPESCRIPT STRICT : TOUJOURS DÉFINIR LES TYPES ET EN CRÉER DE NOUVEAUX SI NÉCESSAIRE.
+- AUCUN TEXTE EN DUR DANS LES COMPOSANTS. TOUJOURS CRÉER LA CLÉ DANS LES DICTIONNAIRES, MÊME POUR LES ENTIERS.
 
 // END OF FILE: prompt_livraison.md
 
@@ -20338,362 +19665,118 @@ CHANGEMENT MAJEUR: le chemin d'import a changé
 
 // FILE: todo.md
 -----------------------------------------------
-# 🚀 ROADMAP DE STABILISATION — PROJET SALMA
-
-## SPRINT 1 - Excellence Visuelle & Pilotage Métier
-C'est une erreur de ma part, je rectifie immédiatement. Voici la version intégrale et exhaustive du **SPRINT 1**, où chaque composant, chaque page et chaque répertoire de logique est décomposé selon tes critères de validation stricts.
+# 🚀 ROADMAP FINALE — PROJET SALMA
+> Dernière mise à jour : 04 mars 2026
 
 ---
 
-### 🟠 A : Polish Frontend & Excellence Ingénierie (Vitrine)
-*Objectif : Atteindre un niveau de finition "Premium" et une rigueur de code absolue sur l'ensemble du dossier `src`.*
+## PHASE 1 — Finitions Frontend & Liaisons Backend (PRIORITÉ IMMÉDIATE)
 
-- [x] **1.1 Préparation du terrain & Stabilisation du Build**
-  - [x] Généralisation du `cmsSwitcher` et suppression des anciens dictionnaires.
-  - [x] Nettoyage des métadonnées et correction des erreurs de build/ESLint.
-  - [x] Mise en place des Error Boundaries (`not-found`, `error`) typées.
+### 1.1 Widget Chatbot → Liaison Backend
+- [x] Améliorer l'UI du `ChatbotWidget` (UX conversationnelle, loader, gestion erreurs)
+- [x] Brancher le widget sur `POST /api/chatbot/message` via le repository
+- [x] Tester le flux complet : question → Gemini → réponse affichée
 
-- [-] **1.2 Audit & Polish des Composants Atomiques (`src/components/ui/`)**
-  - [x] **`SalmaButton.tsx`**
-    - [x] Design (UI/UX, animations, hover)
-    - [x] Séparation des responsabilités
-    - [x] Respect de l'architecture (Switcher, Types)
-    - [x] Responsive (Mobile-first)
-    - [x] Modularité et réutilisabilité
-    - [x] JSDoc (Documentation pro)
-  - [x] **`SalmaBadge.tsx`**
-    - [x] Design (UI/UX, animations, hover)
-    - [x] Séparation des responsabilités
-    - [x] Respect de l'architecture (Switcher, Types)
-    - [x] Responsive (Mobile-first)
-    - [x] Modularité et réutilisabilité
-    - [x] JSDoc (Documentation pro)
-  - [x] **`SectionTitle.tsx`**
-    - [x] Design (UI/UX, animations, hover)
-    - [x] Séparation des responsabilités
-    - [x] Respect de l'architecture (Switcher, Types)
-    - [x] Responsive (Mobile-first)
-    - [x] Modularité et réutilisabilité
-    - [x] JSDoc (Documentation pro)
-  - [x] **`ScholarshipCard.tsx`**
-    - [x] Design (UI/UX, animations, hover)
-    - [x] Séparation des responsabilités
-    - [x] Respect de l'architecture (Switcher, Types)
-    - [x] Responsive (Mobile-first)
-    - [x] Modularité et réutilisabilité
-    - [x] JSDoc (Documentation pro)
-  - [x] **`NewsletterForm.tsx`**
-    - [x] Design (UI/UX, animations, hover)
-    - [x] Séparation des responsabilités
-    - [x] Respect de l'architecture (Switcher, Types)
-    - [x] Responsive (Mobile-first)
-    - [x] Modularité et réutilisabilité
-    - [x] JSDoc (Documentation pro)
-  - [x] **`ThemeSwitcher.tsx`**
-    - [x] Design (UI/UX, animations, hover)
-    - [x] Séparation des responsabilités
-    - [x] Respect de l'architecture (Switcher, Types)
-    - [x] Responsive (Mobile-first)
-    - [x] Modularité et réutilisabilité
-    - [x] JSDoc (Documentation pro)
-  - [x] **`LanguageSwitcher.tsx`**
-    - [x] Design (UI/UX, animations, hover)
-    - [x] Séparation des responsabilités
-    - [x] Respect de l'architecture (Switcher, Types)
-    - [x] Responsive (Mobile-first)
-    - [x] Modularité et réutilisabilité
-    - [x] JSDoc (Documentation pro)
-  - [x] **`MapPreview.tsx`**
-    - [x] Design (UI/UX, animations, hover)
-    - [x] Séparation des responsabilités
-    - [x] Respect de l'architecture (Switcher, Types)
-    - [x] Responsive (Mobile-first)
-    - [x] Modularité et réutilisabilité
-    - [x] JSDoc (Documentation pro)
+### 1.2 Formulaire de Contact → Liaison Backend
+- [x] Brancher le formulaire Contact sur `POST /api/contacts/` via repository
+- [x] Gérer les retours (succès, erreurs, validation)
+- [x] Tester l'envoi et la réception côté admin
 
-- [-] **1.3 Audit & Polish du Layout et des Widgets Globaux**
-  - [-] **`Navbar.tsx` & `MobileMenu.tsx`**
-    - [ ] Design (UI/UX, animations, hover)
-    - [ ] Séparation des responsabilités
-    - [ ] Respect de l'architecture (Switcher, Types)
-    - [ ] Responsive (Mobile-first)
-    - [ ] Modularité et réutilisabilité
-    - [ ] JSDoc (Documentation pro)
-  - [x] **`Footer.tsx`**
-    - [x] Design (UI/UX, animations, hover)
-    - [x] Séparation des responsabilités
-    - [x] Respect de l'architecture (Switcher, Types)
-    - [x] Responsive (Mobile-first)
-    - [x] Modularité et réutilisabilité
-    - [x] JSDoc (Documentation pro)
-  - [x] **`WhatsAppButton.tsx`**
-    - [x] Design (UI/UX, animations, hover)
-    - [x] Séparation des responsabilités
-    - [x] Respect de l'architecture (Switcher, Types)
-    - [x] Responsive (Mobile-first)
-    - [x] Modularité et réutilisabilité
-    - [x] JSDoc (Documentation pro)
-  - [x] **`ChatbotWidget.tsx`**
-    - [x] Design (UI/UX, animations, hover)
-    - [x] Séparation des responsabilités (Fallback statique complet)
-    - [x] Respect de l'architecture (Switcher, Types)
-    - [x] Responsive (Mobile-first)
-    - [x] Modularité et réutilisabilité
-    - [x] JSDoc (Documentation pro)
-  - [x] **`CookieBanner.tsx`**
-    - [x] Design (UI/UX, animations, hover)
-    - [x] Séparation des responsabilités
-    - [x] Respect de l'architecture (Switcher, Types)
-    - [x] Responsive (Mobile-first)
-    - [x] Modularité et réutilisabilité
-    - [x] JSDoc (Documentation pro)
+### 1.3 Newsletter → Liaison Backend
+- [x] Brancher le `NewsletterForm` sur `POST /api/newsletter/subscribe/` via repository
+- [x] Gérer le feedback utilisateur (toast succès/erreur, doublon email)
+- [x] Tester l'inscription et l'apparition dans le dashboard admin
 
-- [-] **1.4 Audit & Polish des Sections de la Page d'Accueil (`src/sections/visitor/`)**
-  - [-] **`HeroCarousel.tsx`**
-    - [ ] Design (UI/UX, animations, hover)
-    - [ ] Séparation des responsabilités
-    - [ ] Respect de l'architecture (Switcher, Types)
-    - [ ] Responsive (Mobile-first)
-    - [ ] Modularité et réutilisabilité
-    - [ ] JSDoc (Documentation pro)
-  - [ ] **`TrustBar.tsx`**
-    - [ ] Design (UI/UX, animations, hover)
-    - [ ] Séparation des responsabilités
-    - [ ] Respect de l'architecture (Switcher, Types)
-    - [ ] Responsive (Mobile-first)
-    - [ ] Modularité et réutilisabilité
-    - [ ] JSDoc (Documentation pro)
-  - [ ] **`StatsCounter.tsx`**
-    - [ ] Design (UI/UX, animations, hover)
-    - [ ] Séparation des responsabilités
-    - [ ] Respect de l'architecture (Switcher, Types)
-    - [ ] Responsive (Mobile-first)
-    - [ ] Modularité et réutilisabilité
-    - [ ] JSDoc (Documentation pro)
-  - [ ] **`FeaturedScholarships.tsx`**
-    - [ ] Design (UI/UX, animations, hover)
-    - [ ] Séparation des responsabilités
-    - [ ] Respect de l'architecture (Switcher, Types)
-    - [ ] Responsive (Mobile-first)
-    - [ ] Modularité et réutilisabilité
-    - [ ] JSDoc (Documentation pro)
-  - [ ] **`SuccessStories.tsx`**
-    - [ ] Design (UI/UX, animations, hover)
-    - [ ] Séparation des responsabilités
-    - [ ] Respect de l'architecture (Switcher, Types)
-    - [ ] Responsive (Mobile-first)
-    - [ ] Modularité et réutilisabilité
-    - [ ] JSDoc (Documentation pro)
-  - [ ] **`VideoTestimonial.tsx`**
-    - [ ] Design (UI/UX, animations, hover)
-    - [ ] Séparation des responsabilités
-    - [ ] Respect de l'architecture (Switcher, Types)
-    - [ ] Responsive (Mobile-first)
-    - [ ] Modularité et réutilisabilité
-    - [ ] JSDoc (Documentation pro)
-  - [ ] **`LocationSection.tsx`**
-    - [ ] Design (UI/UX, animations, hover)
-    - [ ] Séparation des responsabilités
-    - [ ] Respect de l'architecture (Switcher, Types)
-    - [ ] Responsive (Mobile-first)
-    - [ ] Modularité et réutilisabilité
-    - [ ] JSDoc (Documentation pro)
+### 1.4 Seeder Réel (Données de production)
+- [ ] Créer/mettre à jour la commande `seed_data` avec les vraies données du frontend (bourses, CMS, FAQ, témoignages, services)
+- [ ] Synchroniser les clés CMS backend avec les dictionnaires frontend
+- [ ] Exécuter et valider sur le serveur
 
-- [ ] **1.5 Audit & Polish des Pages de Navigation**
-  - [ ] **`Accueil (page.tsx)`**
-    - [ ] Design (UI/UX, animations, hover)
-    - [ ] Séparation des responsabilités
-    - [ ] Respect de l'architecture (Switcher, Types)
-    - [ ] Responsive (Mobile-first)
-    - [ ] Modularité et réutilisabilité
-    - [ ] JSDoc (Documentation pro)
-  - [-] **`Catalogue (Bourses)`**
-    - [ ] Design (UI/UX, animations, hover)
-    - [ ] Séparation des responsabilités
-    - [ ] Respect de l'architecture (Switcher, Types)
-    - [ ] Responsive (Mobile-first)
-    - [ ] Modularité et réutilisabilité
-    - [ ] JSDoc (Documentation pro)
-  - [x] **`Détail Bourse`**
-    - [x] Design (UI/UX, animations, hover)
-    - [x] Séparation des responsabilités (Respect strict `field_visibility`)
-    - [x] Respect de l'architecture (Switcher, Types)
-    - [x] Responsive (Mobile-first)
-    - [x] Modularité et réutilisabilité
-    - [x] JSDoc (Documentation pro)
-  - [x] **`Services`**
-    - [x] Design (UI/UX, animations, hover)
-    - [x] Séparation des responsabilités
-    - [x] Respect de l'architecture (Switcher, Types)
-    - [x] Responsive (Mobile-first)
-    - [x] Modularité et réutilisabilité
-    - [x] JSDoc (Documentation pro)
-  - [x] **`À Propos`**
-    - [x] Design (UI/UX, animations, hover)
-    - [x] Séparation des responsabilités
-    - [x] Respect de l'architecture (Switcher, Types)
-    - [x] Responsive (Mobile-first)
-    - [x] Modularité et réutilisabilité
-    - [x] JSDoc (Documentation pro)
-  - [x] **`Contact`**
-    - [x] Design (UI/UX, animations, hover)
-    - [x] Séparation des responsabilités
-    - [x] Respect de l'architecture (Switcher, Types)
-    - [x] Responsive (Mobile-first)
-    - [x] Modularité et réutilisabilité
-    - [x] JSDoc (Documentation pro)
-  - [x] **`Politique de Confidentialité`**
-    - [x] Design (UI/UX, animations, hover)
-    - [x] Séparation des responsabilités
-    - [x] Respect de l'architecture (Switcher, Types)
-    - [x] Responsive (Mobile-first)
-    - [x] Modularité et réutilisabilité
-    - [x] JSDoc (Documentation pro)
+### 1.5 Test du CMS Switcher
+- [ ] Tester `NEXT_PUBLIC_STATIC_CONTENT=false` → vérifier que le contenu vient de l'API
+- [ ] Tester le basculement statique/dynamique sur chaque page
+- [ ] Corriger les éventuels écarts de clés entre dictionnaires et API
 
-- [ ] **1.6 Audit de la Logique et de l'Infrastructure (`src/` par répertoire)**
-  - [ ] **`hooks/`**
-    - [ ] Clarté du code
-    - [ ] Commentaires professionnels
-    - [ ] Modularité et réutilisabilité
-  - [ ] **`repositories/`**
-    - [ ] Clarté du code
-    - [ ] Commentaires professionnels
-    - [ ] Modularité et réutilisabilité
-  - [ ] **`lib/`**
-    - [ ] Clarté du code
-    - [ ] Commentaires professionnels
-    - [ ] Modularité et réutilisabilité
-  - [ ] **`contexts/`**
-    - [ ] Clarté du code
-    - [ ] Commentaires professionnels
-    - [ ] Modularité et réutilisabilité
-  - [ ] **`config/`**
-    - [ ] Clarté du code
-    - [ ] Commentaires professionnels
-    - [ ] Modularité et réutilisabilité
-  - [ ] **`dictionaries/`**
-    - [ ] Clarté du code
-    - [ ] Commentaires professionnels
-    - [ ] Modularité et réutilisabilité
-  - [ ] **`types/`**
-    - [ ] Clarté du code
-    - [ ] Commentaires professionnels
-    - [ ] Modularité et réutilisabilité
+### 1.6 Dashboard Admin — Liaisons API (par priorité)
+- [ ] **Newsletter & Annonces** : CRUD abonnés, envoi annonces, marquage statut
+- [ ] **Bourses** : CRUD complet, duplication, gestion `field_visibility`
+- [ ] **Contacts & RDV** : lecture, marquage lu, notes admin
+- [ ] **CMS** : édition pages, blocs, config site, vidéos
+- [ ] **Témoignages** : approbation, modération, affichage site
+- [ ] **Chatbot/FAQ** : gestion base de connaissances
+- [ ] **KPI & Analytics** : récupération snapshots, affichage temps réel
+- [ ] **Médiathèque** : upload, suppression, copie lien
+
+### 1.7 Polish UI Backend
+- [ ] Harmoniser le design du dashboard avec la charte (Navy/Azur/Gold)
+- [ ] Responsive tablette & desktop
+- [ ] États vides, loaders, messages d'erreur cohérents
 
 ---
 
-### 🔵 B : Dashboard Admin & Intégration API (Développeur Frontend 2)
-*Objectif : Rendre le dashboard 100% opérationnel (Liaison API) puis appliquer l'excellence UI/UX.*
+## PHASE 2 — Optimisation, Qualité & Performance
 
-- [ ] **1.3 Intégration Backend & Liaison API (Fonctionnel First)**
-  - [ ] **Module Bourses** (Liaison CRUD & Duplication)
-  - [ ] **Module CMS** (Édition Pages, Blocs, Config, Vidéos)
-  - [ ] **Module Contacts & RDV** (Lecture, Marquage lu, Notes admin)
-  - [ ] **Module Newsletter** (Gestion abonnés & Envoi annonces)
-  - [ ] **Module Témoignages** (Approbation & Modération)
-  - [ ] **Module Chatbot / FAQ** (Gestion de la base de connaissances)
-  - [ ] **Module KPI & Analytics** (Récupération des snapshots & temps réel)
-  - [ ] **Module Médiathèque** (Upload, Suppression, Copie lien)
-  - [ ] **Tests fonctionnels & Débogage** (Validation des flux de données)
+### 2.1 Audit & Nettoyage du Code
+- [ ] Supprimer tous les `console.log`, codes commentés, fichiers morts
+- [ ] Ajouter JSDoc sur les fonctions complexes (front & back)
+- [ ] Vérifier `npm run build` sans warning ni erreur TS
 
-- [ ] **1.4 Audit & Polish (Appliqué à chaque module ci-dessus)**
-  - [ ] Design (UI/UX, animations, hover cohérents avec la vitrine)
-  - [ ] Séparation des responsabilités
-  - [ ] Respect de l'architecture (Repositories, Types)
-  - [ ] Responsive (Tablette & Desktop)
-  - [ ] Modularité et réutilisabilité
-  - [ ] JSDoc (Documentation pro)
+### 2.2 Extraction de Templates
+- [ ] **Template Frontend** : socle Next.js 15 réutilisable (Tailwind v4, i18n, archi dictionaries/repositories)
+- [ ] **Template Backend** : socle Django DRF réutilisable (Custom User, SimpleJWT, apps modulaires)
 
----
+### 2.3 Performance & Lighthouse
+- [ ] Optimiser images (WebP, `next/image`, lazy loading)
+- [ ] Lazy loading composants lourds (vidéos, chatbot)
+- [ ] Viser score Lighthouse 95+
 
-### 🟡 C : Ingénierie Backend & Services Externes (Développeur Backend)
-*Objectif : Automatiser les services tiers, valider la donnée et certifier la qualité du code.*
+### 2.4 SEO & Accessibilité
+- [ ] Balises `metadata` dynamiques sur toutes les pages
+- [ ] `sitemap.xml` et `robots.txt` dynamiques
+- [ ] Balises `hreflang` pour le SEO multilingue FR/EN
+- [ ] Contrastes couleurs et `aria-label`
 
-- [ ] **1.5 Intégration des Services Externes (Priorité Matinale)**
-  - [ ] **Gemini API** (Logique de réponse contextuelle via FAQ)
-  - [ ] **SMTP / Emails** (Flux de notifications automatiques pour l'agence)
-  - [ ] **Anti-Spam** (Intégration Turnstile/reCAPTCHA v3 sur les endpoints)
-  - [ ] **Rate Limiting** (Sécurisation des quotas par IP)
+### 2.5 Sécurité
+- [ ] CORS Django : n'autoriser que le domaine Vercel en prod
+- [ ] Tracking KPI respecte le choix cookies
+- [ ] Anti-spam (Turnstile/reCAPTCHA) sur endpoints publics
+- [ ] Rate limiting par IP
 
-- [ ] **1.6 Tests Unitaires & Débogage Complet (App par App)**
-  - [ ] **App Authentication** (JWT, Permissions, Roles)
-  - [ ] **App Medias** (Stockage, Nettoyage fichiers orphelins)
-  - [ ] **App Scholarships** (Logique métier, Visibilité dynamique)
-  - [ ] **App CMS** (Intégrité des blocs et configurations)
-  - [ ] **App Services** (Gestion des prestations AGT)
-  - [ ] **App Contacts** (Validation des entrées, Liaison bourses)
-  - [ ] **App Newsletter** (Logique d'inscription et file d'attente d'envoi)
-  - [ ] **App Testimonials** (Workflow de modération)
-  - [ ] **App Chatbot** (Recherche vectorielle ou par mots-clés)
-  - [ ] **App KPI** (Agrégation des snapshots quotidiens)
-
-- [ ] **1.7 Audit Qualité & Alignement (Appliqué à chaque App ci-dessus)**
-  - [ ] Logique métier (Fat Models / Thin Views)
-  - [ ] Séparation des responsabilités
-  - [ ] Respect de l'architecture (Serializers, Viewsets)
-  - [ ] Modularité et propreté du code
-  - [ ] Python Docstrings (Documentation pro)
-  - [ ] Alignement des Seeders (Synchronisation finale des clés avec le Frontend)
+### 2.6 Documentation
+- [ ] Cahier des charges (version finale)
+- [ ] Rapport de fin de projet
+- [ ] Guide d'utilisation Admin (illustré)
+- [ ] Guide de déploiement (Vercel + VPS Hostinger)
 
 ---
 
+## PHASE 3 — Infrastructure & Services Externes
 
-## SPRINT 2 -Performance, Fiabilité & Validation Client
-## 🟢 A : Tests End-to-End (Dynamisme & Temps Réel)
-*Objectif : Se mettre dans la peau du client (Admin) et du prospect (Visiteur) pour traquer les bugs.*
+### 3.1 Email Professionnel Support
+- [ ] Créer un email pro pour le support (ex: support@salma-studies.com)
+- [ ] Configurer SMTP sur le backend Django pour les notifications
 
-- [ ] **Test CMS :** Modifier un texte/image dans l'admin ➔ Vérifier la mise à jour sur la vitrine (tester la revalidation ISR).
-- [ ] **Test Bourses :**
-  - [ ] Créer une bourse ➔ Vérifier son apparition dans le catalogue.
-  - [ ] Masquer un champ (ex: `exigence_langue`) ➔ Vérifier sa disparition sur la page détail.
-- [ ] **Test Entonnoir de conversion :**
-  - [ ] Visiter une bourse ➔ Poser une question au Chatbot ➔ Remplir le formulaire de contact.
-  - [ ] Vérifier que le KPI a bien tracké la visite et la conversion.
-  - [ ] Vérifier la réception de l'email côté agence et la notification dans l'admin.
+### 3.2 API Gemini
+- [ ] Acheter un abonnement / token API Gemini
+- [ ] Configurer la clé API sur le serveur VPS (variable d'environnement)
+- [ ] Tester le chatbot en production
 
-## 🟣 B : Optimisation, SEO & Code Review (Production)
-*Objectif : Atteindre un score Lighthouse de 95+, un code propre et un référencement optimal.*
+### 3.3 Débogage Backend
+- [ ] Gestion des images (upload, redimensionnement, nettoyage orphelins)
+- [ ] Vérifier tous les endpoints critiques en prod
+- [ ] Corriger les bugs remontés lors des tests E2E
 
-- [ ] **Performance & Lighthouse :**
-  - [ ] Optimiser toutes les images (formats WebP, tailles adaptées via `next/image`).
-  - [ ] Vérifier le Lazy Loading des composants lourds (vidéos, chatbot).
-- [ ] **SEO & Accessibilité :**
-  - [ ] Ajouter les balises `metadata` dynamiques (Title, Description, OpenGraph) sur toutes les pages (surtout `/bourses/[id]`).
-  - [ ] Générer un `sitemap.xml` et un `robots.txt` dynamiques.
-  - [ ] Vérifier les contrastes de couleurs et les balises `aria-label` pour l'accessibilité.
-- [ ] **SEO Multilingue :** S'assurer que les balises `<link rel="alternate" hreflang="x">` sont générées dynamiquement pour que Google indexe le FR et le EN.
-- [ ] **Monitoring & Logs (Optionnel mais recommandé) :**
-  - [ ] Brancher un outil comme Sentry ou GlitchTip pour remonter les erreurs JS (front) et Python (back) en temps réel sur un canal Slack/Discord.
-- [ ] **Code Review & Nettoyage :**
-  - [ ] Supprimer tous les `console.log`, codes commentés inutiles et fichiers morts.
-  - [ ] Ajouter des commentaires JSDoc sur les fonctions complexes.
-  - [ ] Vérifier qu'il n'y a aucune erreur TypeScript (`npm run build` doit passer sans aucun warning).
-- [ ] **Sécurité :**
-  - [ ] Vérifier la configuration CORS sur Django (n'autoriser que le domaine Vercel en prod).
-  - [ ] S'assurer que le tracking KPI respecte le choix de la bannière de cookies.
+### 3.4 CI/CD & Backup
+- [ ] GitHub Actions (lint + déploiement auto)
+- [ ] Cron job backup PostgreSQL quotidien sur le VPS
 
 ---
 
-## SPRINT 3-Livraison Stratégique & Capitalisation Technique
-## 🎓 A: Capitalisation, Documentation & Standardisation
-*Objectif : Livrer un produit documenté au client, extraire des bases réutilisables (boilerplates) et figer les standards techniques pour faire monter l'équipe en compétence sur les futurs projets.*
+## PHASE 4 — Capitalisation (Post-livraison)
 
-- [ ] **Documentation Client (Livrables finaux) :**
-  - [ ] Mettre à jour le **Cahier des charges** (Version Finale) pour refléter exactement ce qui a été produit.
-  - [ ] Rédiger le **Rapport de fin de projet** (Bilan, fonctionnalités livrées, performances atteintes).
-  - [ ] Créer le **Guide d'utilisation Admin** (Manuel illustré pour le client : comment ajouter une bourse, gérer le CMS, lire les KPI).
-- [ ] **Documentation DevOps & Déploiement :**
-  - [ ] Rédiger le **Guide de déploiement complet** (Setup Vercel, configuration VPS Hostinger, variables d'environnement, commandes de mise à jour et maintenance).
-  - [ ] **CI/CD (Intégration Continue) :** Mettre en place un workflow GitHub Actions pour automatiser le linting (`npm run lint`) et le déploiement.
-  - [ ] **Stratégie de Backup :** Configurer un Cron Job sur le VPS Hostinger pour dumper la base de données PostgreSQL chaque nuit et l'envoyer sur un stockage externe (ex: AWS S3 ou un autre serveur).
-- [ ] **Création de Templates (Boilerplates internes AGT) :**
-  - [ ] **Template Frontend :** Extraire un socle Next.js 15 propre (Tailwind v4, i18n, architecture `dictionaries/repositories`, `api-client.ts` avec intercepteurs JWT).
-  - [ ] **Template Backend :** Extraire un socle Django DRF (Custom User Model, SimpleJWT, architecture modulaire par `apps/`, configuration CORS/Sécurité de prod).
-- [ ] **Livre Blanc de l'Équipe (Design Patterns & Standards) :**
-  - [ ] **Frontend Patterns :** Documenter l'approche *Server Components vs Client Components*, la séparation des responsabilités (UI -> Dictionnaire -> Repository), et la gestion du state.
-  - [ ] **Backend Patterns :** Documenter l'architecture modulaire, les bonnes pratiques DRF (Fat Models / Thin Views), et la gestion des permissions.
-  - [ ] **VPS & Sécurité :** Standardiser le setup serveur (Nginx, Gunicorn, SSL, pare-feu, gestion des secrets).
-  - [ ] **Catalogue de Features :** Lister les modules "prêts à vendre" pour les futures spécifications (CMS Headless, Chatbot IA Gemini, Tracking KPI, Système de Visibilité dynamique).
+- [ ] Livre Blanc équipe (Frontend Patterns, Backend Patterns, VPS & Sécurité)
+- [ ] Catalogue de features "prêts à vendre"
+- [ ] Monitoring (Sentry/GlitchTip — optionnel)
 
 // END OF FILE: todo.md
 

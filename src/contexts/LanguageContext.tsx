@@ -17,8 +17,8 @@ export const LanguageContext = createContext<LanguageContextType | undefined>(
 
 export function LanguageProvider({ children }: { children: ReactNode }) {
   // On initialise avec des valeurs par défaut pour le SSR (Serveur)
-  const [locale, setLocaleState] = useState<Locale>("fr"); 
-  const [dictionary, setDictionary] = useState<DictionaryType>(getDictionary("fr"));
+  const [locale, setLocaleState] = useState<Locale>("en"); 
+  const [dictionary, setDictionary] = useState<DictionaryType>(getDictionary("en"));
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {

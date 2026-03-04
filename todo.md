@@ -21,13 +21,13 @@
 - [x] Tester l'inscription et l'apparition dans le dashboard admin
 
 ### 1.4 Seeder Réel (Données de production)
-- [ ] Créer/mettre à jour la commande `seed_data` avec les vraies données du frontend (bourses, CMS, FAQ, témoignages, services)
-- [ ] Synchroniser les clés CMS backend avec les dictionnaires frontend
-- [ ] Exécuter et valider sur le serveur
+- [x] Créer/mettre à jour la commande `seed_data` avec les vraies données du frontend (bourses, CMS, FAQ, témoignages, services)
+- [x] Synchroniser les clés CMS backend avec les dictionnaires frontend
+- [x] Exécuter et valider sur le serveur
 
 ### 1.5 Test du CMS Switcher
-- [ ] Tester `NEXT_PUBLIC_STATIC_CONTENT=false` → vérifier que le contenu vient de l'API
-- [ ] Tester le basculement statique/dynamique sur chaque page
+- [x] Tester `NEXT_PUBLIC_STATIC_CONTENT=false` → vérifier que le contenu vient de l'API
+- [x] Tester le basculement statique/dynamique sur chaque page
 - [ ] Corriger les éventuels écarts de clés entre dictionnaires et API
 
 ### 1.6 Dashboard Admin — Liaisons API (par priorité)
