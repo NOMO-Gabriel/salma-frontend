@@ -22,15 +22,22 @@ export const authRepository = {
    * Connexion → retourne les tokens + profil
    */
   login: async (payload: LoginPayload): Promise<LoginResponse> => {
-    const response = await api.post<LoginResponse>(`${BASE}/login`, payload);
-    
-    // 1. Stockage Client (localStorage) pour les futurs appels API
-    tokenStorage.set(response.access, response.refresh);
-
-    // 2. Stockage Cookie pour le Middleware Next.js (Protection des routes serveur)
+    tokenStorage.clear();
     if (typeof document !== "undefined") {
-  document.cookie = `salma_auth=${response.access}; path=/; max-age=86400; SameSite=Lax`;
-}
+      document.cookie = "salma_auth=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC;";
+    }
+
+    const cleanPayload = {
+      ...payload,
+      email: payload.email.trim().toLowerCase()
+    };
+
+    const response = await api.post<LoginResponse>(`${BASE}/login`, cleanPayload);
+    
+    tokenStorage.set(response.access, response.refresh);
+    if (typeof document !== "undefined") {
+      document.cookie = `salma_auth=${response.access}; path=/; max-age=86400; SameSite=Lax`;
+    }
     return response;
   },
 

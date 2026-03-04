@@ -1,3 +1,4 @@
+export const dynamic = "force-dynamic";
 import { testimonialAdminRepository } from "@/repositories/testimonial.repository";
 import AdminTestimonialsClient from "@/components/admin/AdminTestimonialsClient";
 

@@ -1,3 +1,4 @@
+export const dynamic = "force-dynamic";
 import { contactAdminRepository } from "@/repositories/contact.repository";
 import AdminContactsClient from "@/components/admin/AdminContactsClient";
 

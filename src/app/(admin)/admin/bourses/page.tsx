@@ -3,6 +3,7 @@
 //  Page Gestion Bourses — tableau CRUD complet
 // ==============================================================================
 
+export const dynamic = "force-dynamic";
 import { Suspense } from "react";
 import AdminScholarshipsClient from "@/components/admin/AdminScholarshipsClient";
 import { scholarshipAdminRepository } from "@/repositories/scholarship.repository";

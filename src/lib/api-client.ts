@@ -161,13 +161,26 @@ async function apiFetch<T>(endpoint: string, options: FetchOptions = {}): Promis
   }
 }
 
+// Fichier : src/lib/api-client.ts
+
 function extractErrorMessage(data: Record<string, unknown>, status: number): string {
-  if (typeof data?.detail === "string") return data.detail;
-  if (typeof data?.message === "string") return data.message;
-  if (status === 401) return "Non authentifié. Veuillez vous connecter.";
-  if (status === 403) return "Accès refusé. Vous n'avez pas les permissions nécessaires.";
+  if (data && typeof data.detail === "string") return data.detail;
+  if (data && typeof data.message === "string") return data.message;
+
+  if (status === 400 || status === 422) {
+    const keys = Object.keys(data || {});
+    const firstKey = keys[0];
+    const errorArray = data ? (data as Record<string, unknown>)[firstKey] : null;
+
+    if (firstKey && Array.isArray(errorArray)) {
+      return `${firstKey}: ${errorArray[0]}`;
+    }
+    return "Données invalides. Vérifiez le formulaire.";
+  }
+
+  if (status === 401) return "Identifiants incorrects ou session expirée.";
+  if (status === 403) return "Accès refusé. Vous n'avez pas les permissions.";
   if (status === 404) return "Ressource introuvable.";
-  if (status === 422 || status === 400) return "Données invalides. Vérifiez le formulaire.";
   if (status >= 500) return "Erreur serveur. Contactez l'administrateur.";
   return `Erreur inattendue (${status})`;
 }

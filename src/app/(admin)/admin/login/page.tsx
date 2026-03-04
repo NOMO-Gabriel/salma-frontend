@@ -28,11 +28,17 @@ export default function AdminLoginPage() {
     setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  // Dans src/app/(admin)/admin/login/page.tsx
+
+const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!form.email || !form.password) return;
+    const email = form.email.trim();
+    const password = form.password;
+
+    if (!email || !password) return;
+
     const redirect = searchParams.get("redirect") || "/admin/dashboard";
-    await login(form, redirect).catch(() => {});
+    await login({ email, password }, redirect).catch(() => {});
   };
 
   return (
