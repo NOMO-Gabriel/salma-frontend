@@ -23,7 +23,7 @@ import type { ContactFormLabels, CreateContactPayload } from "@/types";
 
 // — Constantes ------------------------------------------------------------------
 
-const IS_STATIC = process.env.NEXT_PUBLIC_STATIC_CONTENT === "true";
+const ENABLE_DYNAMIC = process.env.NEXT_PUBLIC_ENABLE_DYNAMIC_ACTIONS === "true";
 const WHATSAPP_URL = "https://wa.me/237699450984";
 
 // — Composant principal ---------------------------------------------------------
@@ -43,7 +43,7 @@ export default function ContactForm({ labels: t }: Props) {
     e.preventDefault();
 
     // Mode statique → pas d'appel API, message WhatsApp
-    if (IS_STATIC) {
+    if (!ENABLE_DYNAMIC) {
       setStatus("static_error");
       return;
     }

@@ -32,7 +32,8 @@ import type { ChatbotCTA, ChatbotSuggestion } from "@/types/api/chatbot.types";
 // — Constantes ------------------------------------------------------------------
 
 const DEFAULT_WHATSAPP = "237699450984";
-const IS_STATIC = process.env.NEXT_PUBLIC_STATIC_CONTENT === "true";
+const ENABLE_DYNAMIC = process.env.NEXT_PUBLIC_ENABLE_DYNAMIC_ACTIONS === "true";
+
 
 // — Sous-composant : Bulle de message ------------------------------------------
 
@@ -210,7 +211,7 @@ export default function ChatbotWidget({
   const resolveAnswer = useCallback(
     async (question: string): Promise<ChatbotMessage> => {
       // Étape 1 : Tentative API (sauf mode statique)
-      if (!IS_STATIC) {
+      if (ENABLE_DYNAMIC) {
         try {
           const response = await chatbotRepository.query({
             message: question,

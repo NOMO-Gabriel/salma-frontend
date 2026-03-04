@@ -24,6 +24,7 @@ export interface FooterTexts {
     address: string;
     phones: string;
     email: string;
+    hours: string;
   };
   rights: string;
 }

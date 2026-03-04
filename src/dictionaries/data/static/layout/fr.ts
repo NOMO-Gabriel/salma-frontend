@@ -31,6 +31,7 @@ export const frLayout = {
       address: "Montée Anne rouge, Immeuble Kadji, Yaoundé",
       phones: "+237 6 99 45 09 84 / 6 51 74 03 28",
       email: "secretariatagtechnologies@gmail.com",
+      hours: "Lun – Sam · 8h – 18h",
     },
     rights: "© 2026 SALMA by AG Technologies. Tous droits réservés.",
   },

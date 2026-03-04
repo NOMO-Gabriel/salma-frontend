@@ -2,10 +2,9 @@
 // =============================================================================
 //  Topbar.tsx — SALMA · Barre d'information pré-header
 //
-//  ✅ Contenu via cmsSwitcher (frLayout.footer.contact + frLayout.topbar)
+//  ✅ Contenu via cmsSwitcher (frLayout.footer.contact)
 //  ✅ Disparaît au scroll bas, réapparaît au scroll haut
-//  ✅ Desktop : adresse | téléphone · email · horaires | réseaux
-//  ✅ Mobile  : téléphone cliquable + WhatsApp pill
+//  ✅ Zéro texte en dur (horaires inclus)
 // =============================================================================
 
 import { useEffect, useRef, useState } from "react";
@@ -13,7 +12,7 @@ import { useLanguage } from "@/hooks/useLanguage";
 import { cmsSwitcher } from "@/dictionaries/data/cms-switcher";
 
 // =============================================================================
-//  Types
+//  Types (Synchronisés avec le dictionnaire layout)
 // =============================================================================
 interface TopbarContent {
   footer: {
@@ -21,10 +20,8 @@ interface TopbarContent {
       address: string;
       phones: string;
       email: string;
+      hours: string;
     };
-  };
-  topbar?: {
-    hours?: string;
   };
 }
 
@@ -91,29 +88,24 @@ const SOCIAL_LINKS = [
   { label: "Instagram", href: "https://instagram.com", letter: "ig" },
 ];
 
-// =============================================================================
-//  Composant principal
-// =============================================================================
 export default function Topbar() {
   const { locale } = useLanguage();
   const hidden = useScrollDirection();
   const [topbarContent, setTopbarContent] = useState<TopbarContent | null>(null);
 
-  // Charge le contenu depuis le cmsSwitcher (scope "layout")
   useEffect(() => {
     cmsSwitcher
-      .getScopeContent("layout", locale)
-      .then((data) => setTopbarContent(data as TopbarContent));
+      .getScopeContent<TopbarContent>("layout", locale)
+      .then((data) => setTopbarContent(data));
   }, [locale]);
 
-  // Valeurs de fallback si le contenu n'est pas encore chargé
-  const address  = topbarContent?.footer?.contact?.address ?? "";
-  const phones   = topbarContent?.footer?.contact?.phones  ?? "";
-  const email    = topbarContent?.footer?.contact?.email   ?? "";
-  // Les horaires sont optionnels — on les met dans topbar.hours si besoin
-  const hours    = locale === "fr" ? "Lun – Sam · 8h – 18h" : "Mon – Sat · 8am – 6pm";
+  // Fallbacks sécurisés
+  const contact = topbarContent?.footer?.contact;
+  const address  = contact?.address ?? "";
+  const phones   = contact?.phones  ?? "";
+  const email    = contact?.email   ?? "";
+  const hours    = contact?.hours   ?? "";
 
-  // Extrait le premier numéro de téléphone pour le lien tel:
   const firstPhone = phones.split("/")[0].trim().replace(/\s/g, "");
 
   return (
@@ -132,7 +124,6 @@ export default function Topbar() {
         {/* ── DESKTOP ─────────────────────────────────────────────────────── */}
         <div className="hidden lg:flex items-center justify-between h-9 gap-4">
 
-          {/* Gauche : adresse */}
           {address && (
             <div className="flex items-center gap-1.5 flex-shrink-0">
               <span className="text-salma-gold">{Icon.location}</span>
@@ -140,7 +131,6 @@ export default function Topbar() {
             </div>
           )}
 
-          {/* Centre : téléphone · email · horaires */}
           <div className="flex items-center gap-5">
             {phones && (
               <a
@@ -168,15 +158,17 @@ export default function Topbar() {
               </a>
             )}
 
-            <span className="w-px h-3 bg-salma-border" aria-hidden="true" />
-
-            <div className="flex items-center gap-1.5 text-salma-text-muted">
-              {Icon.clock}
-              <span className="text-[10px] font-medium tracking-wide">{hours}</span>
-            </div>
+            {hours && (
+              <>
+                <span className="w-px h-3 bg-salma-border" aria-hidden="true" />
+                <div className="flex items-center gap-1.5 text-salma-text-muted">
+                  {Icon.clock}
+                  <span className="text-[10px] font-medium tracking-wide">{hours}</span>
+                </div>
+              </>
+            )}
           </div>
 
-          {/* Droite : réseaux sociaux */}
           <div className="flex items-center gap-2 flex-shrink-0">
             {SOCIAL_LINKS.map(({ label, href, letter }) => (
               <a
