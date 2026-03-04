@@ -1,7 +1,7 @@
 ### 🛠 PHASE 0 : Composants Globaux (Layout)
 *Ces éléments apparaissent sur toutes les pages. Ils utilisent généralement le scope `layout` ou `common`.*
 
-- [ ] **Topbar** (Infos de contact, réseaux)
+- [x] **Topbar** (Infos de contact, réseaux)
 - [ ] **Navbar** (Libellés des menus, dropdowns)
 - [ ] **Footer** (Slogan, liens, coordonnées, copyright)
 - [ ] **NewsletterForm** (Placeholders, textes de succès/erreur)
