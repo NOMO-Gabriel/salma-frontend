@@ -11,7 +11,7 @@ import type {
 export const chatbotRepository = {
   /** POST /api/chatbot/message — interroger le chatbot (public) */
   query: (payload: ChatbotMessagePayload): Promise<ChatbotMessageResponse> =>
-    apiClient.post("/chatbot/message/", payload), // Ajout du slash final
+    apiClient.post("/chatbot/message", payload), // Ajout du slash final
 
   /** GET /api/admin/faq/ */
   adminGetFaqs: (): Promise<FaqEntry[]> =>

@@ -29,7 +29,7 @@ export const newsletterRepository = {
    * S'inscrire à la newsletter
    */
   subscribe: (payload: NewsletterInscriptionPayload): Promise<{ detail: string }> => {
-    return api.post<{ detail: string }>("/newsletter/inscription/", payload);
+    return api.post<{ detail: string }>("/newsletter/inscription", payload);
   },
 
   /**
@@ -37,7 +37,7 @@ export const newsletterRepository = {
    * Se désinscrire
    */
   unsubscribe: (payload: NewsletterDesinscriptionPayload): Promise<{ detail: string }> => {
-    return api.post<{ detail: string }>("/newsletter/desinscription/", payload);
+    return api.post<{ detail: string }>("/newsletter/desinscription", payload);
   },
 
   // ==============================================================================

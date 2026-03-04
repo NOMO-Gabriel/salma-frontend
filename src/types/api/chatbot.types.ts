@@ -37,18 +37,34 @@ export interface ChatbotMessagePayload {
   langue?: "fr" | "en";
 }
 
-/** Suggestion de FAQ liée */
+/** Suggestion de question liée (cliquable) */
 export interface ChatbotSuggestion {
   question: string;
   id: string;
 }
 
-/** Réponse du chatbot */
+/** CTA contextuel retourné par le backend */
+export interface ChatbotCTA {
+  /** Identifiant unique (ex: "rdv", "whatsapp", "bourses_chine") */
+  id: string;
+  /** Label localisé avec emoji (ex: "📅 Prendre rendez-vous") */
+  label: string;
+  /** URL de destination (route interne ou lien externe) */
+  url: string;
+  /** Type : "conversion" (RDV, WhatsApp, Newsletter) ou "navigation" (lien page) */
+  type: "conversion" | "navigation";
+}
+
+/** Réponse complète du chatbot */
 export interface ChatbotMessageResponse {
+  /** Texte de la réponse Gemini */
   reponse: string;
-  source: "faq" | "fallback";
-  faq_id: string | null;
+  /** Source de la réponse */
+  source: "gemini-ai" | "faq" | "fallback";
+  /** Suggestions de questions liées (cliquables) */
   suggestions: ChatbotSuggestion[];
+  /** 3 CTA contextuels (toujours exactement 3) */
+  ctas: ChatbotCTA[];
 }
 
 // --- Réponse paginée admin ---------------------------------------------------

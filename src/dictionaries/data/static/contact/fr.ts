@@ -17,7 +17,10 @@ export const frContact = {
       success_title: "Message envoyé !",
       success_msg: "Nous avons bien reçu votre demande. Un conseiller vous contactera très prochainement.",
       send_another: "Envoyer un autre message",
-      error_msg: "Une erreur est survenue. Veuillez réessayer."
+      error_msg: "Une erreur est survenue. Veuillez réessayer.",
+       error_static_title: "Service temporairement indisponible",
+      error_static_msg: "Notre formulaire rencontre un problème technique. Veuillez nous contacter directement via WhatsApp pour une réponse rapide.",
+      error_static_whatsapp: "Contacter via WhatsApp",
     },
     faq: {
       title: "Questions fréquentes",

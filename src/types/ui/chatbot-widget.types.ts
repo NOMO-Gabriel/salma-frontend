@@ -3,6 +3,8 @@
 // Types pour le composant ChatbotWidget — Widget chatbot IA SALMA
 // ==============================================================================
 
+import type { ChatbotCTA, ChatbotSuggestion } from "@/types/api/chatbot.types";
+
 /**
  * Message dans la conversation du chatbot.
  */
@@ -13,16 +15,21 @@ export interface ChatbotMessage {
   /** Contenu textuel du message */
   text: string;
 
-  /** Afficher un bouton WhatsApp après ce message (fallback conversion) */
+  /** Afficher un bouton WhatsApp après ce message (fallback legacy) */
   showWhatsApp?: boolean;
+
+  /** Suggestions de questions liées (affichées comme boutons cliquables) */
+  suggestions?: ChatbotSuggestion[];
+
+  /** CTA contextuels (toujours 3, affichés sous la réponse) */
+  ctas?: ChatbotCTA[];
 }
 
 /**
  * Quick Action — bouton de suggestion rapide affiché au démarrage.
- * Augmente le taux de conversion en guidant l'utilisateur.
  */
 export interface ChatbotQuickAction {
-  /** Identifiant unique (ex: "scholarships", "china", "germany", "rdv") */
+  /** Identifiant unique */
   id: string;
 
   /** Label affiché sur le bouton (i18n, avec emoji) */
@@ -43,60 +50,47 @@ export interface ChatbotFallbackEntry {
   /** Mots-clés de recherche (lowercase, sans accents) */
   keywords: string[];
 
-  /** Réponse à afficher (FR ou EN selon la locale) */
+  /** Réponse FR */
   answer_fr: string;
+
+  /** Réponse EN */
   answer_en: string;
+
+  /**
+   * IDs des CTA contextuels à afficher.
+   * Référence le catalogue FALLBACK_CTA_CATALOG dans chatbot.fallback.ts.
+   * Si absent → CTA de conversion par défaut (rdv, whatsapp, newsletter).
+   */
+  cta_ids?: string[];
+
+  /** Suggestions de questions liées FR (max 2) */
+  suggestions_fr?: string[];
+
+  /** Suggestions de questions liées EN (max 2) */
+  suggestions_en?: string[];
 }
 
 /**
  * Labels i18n requis par ChatbotWidget.
- * Proviennent du dictionnaire `common.chatbot`.
  */
 export interface ChatbotWidgetLabels {
-  /** Nom affiché dans le header */
   title: string;
-
-  /** Message de bienvenue lors de l'ouverture */
   welcomeMessage: string;
-
-  /** Placeholder du champ de saisie */
   inputPlaceholder: string;
-
-  /** Texte affiché pendant que le bot réfléchit */
   thinking: string;
-
-  /** Message d'erreur quand aucune réponse n'est trouvée */
   noAnswer: string;
-
-  /** Label du bouton WhatsApp fallback */
   whatsappFallback: string;
-
-  /** Aria-label du bouton d'ouverture */
   openAriaLabel: string;
-
-  /** Aria-label du bouton de fermeture */
   closeAriaLabel: string;
-
-  /** Aria-label du bouton d'envoi */
   sendAriaLabel: string;
-
-  /** Quick actions affichées au démarrage */
   quickActions: ChatbotQuickAction[];
 }
 
 /**
  * Props du composant ChatbotWidget.
- *
- * @example
- * <ChatbotWidget labels={common.chatbot} />
  */
 export interface ChatbotWidgetProps {
-  /** Labels i18n et quick actions. */
   labels: ChatbotWidgetLabels;
-
-  /** Numéro WhatsApp pour le fallback conversion. @default "237699450984" */
   whatsappNumber?: string;
-
-  /** Classes CSS additionnelles sur le conteneur fixe. */
   className?: string;
 }

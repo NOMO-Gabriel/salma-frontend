@@ -17,7 +17,10 @@ export const enContact = {
       success_title: "Message sent!",
       success_msg: "We have received your request. An advisor will contact you very soon.",
       send_another: "Send another message",
-      error_msg: "An error occurred. Please try again."
+      error_msg: "An error occurred. Please try again.",
+      error_static_title: "Service temporarily unavailable",
+      error_static_msg: "Our contact form is experiencing a technical issue. Please reach out to us directly via WhatsApp for a quick response.",
+      error_static_whatsapp: "Contact via WhatsApp",
     },
     faq: {
       title: "Frequently Asked Questions",

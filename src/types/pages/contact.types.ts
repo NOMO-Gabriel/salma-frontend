@@ -1,3 +1,5 @@
+// src/types/pages/contact.types.ts
+
 export interface ContactHeroTexts {
   title: string;
   subtitle: string;
@@ -15,8 +17,15 @@ export interface ContactFormLabels {
   submit: string;
   success_title: string;
   success_msg: string;
-  send_another: string; 
+  send_another: string;
   error_msg: string;
+
+  /** Mode statique — titre affiché quand l'API est indisponible */
+  error_static_title: string;
+  /** Mode statique — message explicatif */
+  error_static_msg: string;
+  /** Mode statique — label du bouton WhatsApp */
+  error_static_whatsapp: string;
 }
 
 export interface FaqItem {
