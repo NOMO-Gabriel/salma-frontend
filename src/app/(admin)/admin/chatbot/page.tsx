@@ -1,4 +1,5 @@
 // src/app/(admin)/admin/chatbot/page.tsx
+export const dynamic = "force-dynamic";
 import { chatbotRepository } from "@/repositories/chatbot.repository";
 import AdminChatbotClient from "@/components/admin/AdminChatbotClient";
 

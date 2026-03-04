@@ -1,4 +1,4 @@
-// src/app/(admin)/admin/contacts/page.tsx
+export const dynamic = "force-dynamic";
 import AdminContactsClient from "@/components/admin/AdminContactsClient";
 
 /**

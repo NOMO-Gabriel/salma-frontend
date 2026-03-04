@@ -1,3 +1,4 @@
+export const dynamic = "force-dynamic";
 import { newsletterDictionary } from "@/dictionaries/data";
 import AdminNewsletterClient from "@/components/admin/AdminNewsletterClient";
 

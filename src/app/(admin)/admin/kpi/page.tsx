@@ -1,3 +1,4 @@
+export const dynamic = "force-dynamic";
 import { kpiRepository } from "@/repositories/kpi.repository";
 import AdminKpiClient from "@/components/admin/AdminKpiClient";
 

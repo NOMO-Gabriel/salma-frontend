@@ -1,3 +1,4 @@
+export const dynamic = "force-dynamic";
 import { mediaRepository } from "@/repositories/media.repository";
 import AdminMediaClient from "@/components/admin/AdminMediaClient";
 

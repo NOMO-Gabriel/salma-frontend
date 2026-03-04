@@ -1,6 +1,11 @@
 ﻿Next.js Project Context
+<<<<<<< HEAD
 Generated On: 2026-03-04 07:31:51
 Root: C:\Users\hp\Documents\stage gabriel\SALMA\salma-frontend
+=======
+Generated On: 2026-03-04 09:40:24
+Root: E:\AG_Technologie\Salma\salma-frontend
+>>>>>>> a3c58bd73b58397488b474a30305072da73c049d
 ===============================================
 
 // FILE: docs/data/bourses.md
@@ -1349,11 +1354,25 @@ export default function AdminLoginPage() {
     setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
   };
 
+<<<<<<< HEAD
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!form.email || !form.password) return;
     const redirect = searchParams.get("redirect") || "/admin/dashboard";
     await login(form, redirect).catch(() => {});
+=======
+  // Dans src/app/(admin)/admin/login/page.tsx
+
+const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const email = form.email.trim();
+    const password = form.password;
+
+    if (!email || !password) return;
+
+    const redirect = searchParams.get("redirect") || "/admin/dashboard";
+    await login({ email, password }, redirect).catch(() => {});
+>>>>>>> a3c58bd73b58397488b474a30305072da73c049d
   };
 
   return (
@@ -5029,6 +5048,7 @@ export default function CmsBlockEditorModal({ pageId, block, onClose, onSave }: 
 
 // END OF FILE: src/components/admin/CmsBlockEditorModal.tsx
 
+<<<<<<< HEAD
 
 // FILE: src/components/layout/nav/MobileMenu.tsx
 -----------------------------------------------
@@ -5673,6 +5693,867 @@ function DropdownPanel({
 }
 
 // END OF FILE: src/components/layout/nav/NavDropdown.tsx
+
+
+// FILE: src/components/layout/ConditionalLayout.tsx
+-----------------------------------------------
+// src/components/layout/ConditionalLayout.tsx
+// ==============================================================================
+// ConditionalLayout — Distributeur central des labels SALMA
+//
+// Rôle :
+//   - Récupère les dictionnaires `common` et `layout` via cmsSwitcher
+//   - Distribue les labels appropriés à chaque composant enfant
+//   - Affiche Navbar + Footer + Widgets UNIQUEMENT sur les pages visiteur
+//   - Les routes /admin/* ont leur propre layout
+//
+// C'est le SEUL composant layout qui fait useEffect + cmsSwitcher pour
+// les dictionnaires partagés. Tous les enfants reçoivent par props.
+// ==============================================================================
+
+"use client";
+
+import React, { useState, useEffect } from "react";
+import { usePathname } from "next/navigation";
+import { useLanguage } from "@/hooks/useLanguage";
+import { cmsSwitcher } from "@/dictionaries/data/cms-switcher";
+
+// Layout components
+import Navbar from "@/components/Navbar";
+import Footer from "@/components/Footer";
+
+// Widgets
+import WhatsAppButton from "@/components/ui/WhatsAppButton";
+import ChatbotWidget from "@/components/ui/ChatbotWidget";
+import CookieBanner from "@/components/ui/CookieBanner";
+
+// Types
+import type { FooterTexts } from "@/types/pages/footer.types";
+
+// — Types internes pour les dictionnaires bruts ---------------------------------
+
+/* eslint-disable @typescript-eslint/no-explicit-any */
+type DictCommon = Record<string, any>;
+type DictLayout = Record<string, any>;
+/* eslint-enable @typescript-eslint/no-explicit-any */
+
+// — Composant principal ---------------------------------------------------------
+
+/**
+ * **ConditionalLayout** — Orchestrateur du layout visiteur SALMA.
+ *
+ * Charge les dictionnaires `common` et `layout` au montage, puis
+ * distribue les labels typés à chaque composant enfant.
+ *
+ * Les pages `/admin/*` reçoivent un rendu nu (sans Navbar/Footer/Widgets).
+ *
+ * @example
+ * // Dans app/layout.tsx
+ * <ConditionalLayout>{children}</ConditionalLayout>
+ */
+export default function ConditionalLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  const pathname = usePathname();
+  const { locale } = useLanguage();
+  const isAdmin = pathname?.startsWith("/admin");
+
+  const [common, setCommon] = useState<DictCommon | null>(null);
+  const [layout, setLayout] = useState<DictLayout | null>(null);
+
+  // — Chargement des dictionnaires -----------------------------------------------
+
+  useEffect(() => {
+    Promise.all([
+      cmsSwitcher.getScopeContent("common", locale),
+      cmsSwitcher.getScopeContent("layout", locale),
+    ]).then(([commonData, layoutData]) => {
+      if (commonData) setCommon(commonData);
+      if (layoutData) setLayout(layoutData);
+    });
+  }, [locale]);
+
+  // — Pages admin : rendu nu ----------------------------------------------------
+
+  if (isAdmin) {
+    return <>{children}</>;
+  }
+
+  // — Attente des dictionnaires --------------------------------------------------
+
+  // On rend le contenu immédiatement (pour le SEO / first paint),
+  // les widgets apparaissent une fois les dicts chargés.
+  const dictsReady = common !== null && layout !== null;
+
+  return (
+    <>
+      {/* Navbar — garde son propre chargement pour l'instant */}
+      <Navbar />
+
+      <main>{children}</main>
+
+      {/* Footer + Widgets — rendus uniquement quand les dicts sont prêts */}
+      {dictsReady && (
+        <>
+          <Footer
+            content={layout.footer as FooterTexts}
+            footerLabels={common.footer}
+            newsletterLabels={common.newsletter}
+          />
+
+          <WhatsAppButton
+            labels={{
+              helpText: layout.widgets?.whatsapp?.helpText ?? "",
+              prefillMessage: layout.nav_contact?.whatsapp_desc ?? "",
+              ariaLabel: common.whatsappButton?.ariaLabel ?? "",
+            }}
+          />
+
+          <ChatbotWidget labels={common.chatbot} />
+
+          <CookieBanner labels={layout.cookies} />
+        </>
+      )}
+
+      {/* Fallback footer pendant le chargement */}
+      {!dictsReady && (
+        <div className="h-64 bg-[#0B172A] animate-pulse" />
+      )}
+    </>
+  );
+}
+
+// END OF FILE: src/components/layout/ConditionalLayout.tsx
+
+=======
+
+// FILE: src/components/layout/nav/MobileMenu.tsx
+-----------------------------------------------
+"use client";
+// =============================================================================
+//  MobileMenu.tsx — SALMA · Menu mobile (panneau latéral droit)
+//  Améliorations polish :
+//    • Header avec dégradé navy + branding premium
+//    • CTA "Prendre RDV" gold hero visible immédiatement (sans accordéon)
+//    • Accordéons avec icônes et animations fluides
+//    • Pied de menu avec newsletter intégrée + liens sociaux
+//    • Animation slide-in depuis la droite
+//    • Trap focus et accessibilité (aria)
+// =============================================================================
+
+import Link from "next/link";
+import { useState, useEffect, useRef } from "react";
+import { usePathname } from "next/navigation";
+import { useLanguage } from "@/hooks/useLanguage";
+import type { NavContent, NavServiceItem } from "@/types";
+
+// =============================================================================
+//  Composant principal
+// =============================================================================
+export default function MobileMenu({
+  content,
+  onClose,
+}: {
+  content: NavContent;
+  onClose: () => void;
+}) {
+  const { locale } = useLanguage();
+  const pathname = usePathname();
+  const panelRef = useRef<HTMLDivElement>(null);
+  const [activeAccordion, setActiveAccordion] = useState<string | null>(null);
+
+  // Ferme si la route change
+  useEffect(() => {
+    onClose();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pathname]);
+
+  // Focus piégé dans le panneau (accessibilité)
+  useEffect(() => {
+    panelRef.current?.focus();
+  }, []);
+
+  // Ferme avec Escape
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => {
+      if (e.key === "Escape") onClose();
+    };
+    document.addEventListener("keydown", handler);
+    return () => document.removeEventListener("keydown", handler);
+  }, [onClose]);
+
+  const toggleAccordion = (key: string) => {
+    setActiveAccordion((prev) => (prev === key ? null : key));
+  };
+
+  const { nav_bourses, nav_services, nav_contact } = content;
+
+  return (
+    <div
+      className="fixed inset-0 z-[110] lg:hidden"
+      role="dialog"
+      aria-modal="true"
+      aria-label="Menu de navigation"
+    >
+      {/* Backdrop */}
+      <div
+        className="absolute inset-0 bg-salma-primary/30 backdrop-blur-sm animate-[fadeIn_0.2s_ease-out]"
+        onClick={onClose}
+        aria-hidden="true"
+      />
+
+      {/* Panneau latéral */}
+      <div
+        ref={panelRef}
+        tabIndex={-1}
+        className="
+          absolute top-0 right-0
+          w-[88%] max-w-[420px] h-full
+          bg-white shadow-[−20px_0_60px_rgba(27,54,93,0.2)]
+          flex flex-col
+          animate-[slideInRight_0.28s_cubic-bezier(0.32,0.72,0,1)]
+          outline-none
+        "
+      >
+
+        {/* =================================================================
+            HEADER DU PANNEAU
+        ================================================================= */}
+        <div className="relative bg-salma-primary px-6 py-5 flex justify-between items-center overflow-hidden flex-shrink-0">
+          {/* Décoration géométrique subtile */}
+          <div className="absolute -right-8 -top-8 w-24 h-24 rounded-full bg-salma-accent/10" aria-hidden="true" />
+          <div className="absolute right-12 -bottom-4 w-12 h-12 rounded-full bg-salma-gold/10" aria-hidden="true" />
+
+          {/* Branding */}
+          <div className="relative flex flex-col">
+            <span className="text-xl font-serif font-bold text-white leading-none">SALMA</span>
+            <span className="text-[8px] uppercase tracking-[0.35em] text-salma-gold font-bold mt-0.5">
+              Bourses & Mobilité
+            </span>
+          </div>
+
+          {/* Bouton fermeture */}
+          <button
+            onClick={onClose}
+            className="
+              relative w-9 h-9 flex items-center justify-center
+              rounded-xl bg-white/10 hover:bg-white/20
+              text-white transition-colors duration-150
+            "
+            aria-label="Fermer le menu"
+          >
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+
+        {/* =================================================================
+            CTA HERO — Visible immédiatement, sans scroll
+        ================================================================= */}
+        <div className="px-4 pt-4 flex-shrink-0">
+          <Link
+            href="/contact"
+            onClick={onClose}
+            className="
+              flex items-center justify-center gap-3
+              w-full py-4 rounded-2xl
+              bg-salma-gold text-salma-primary
+              font-bold text-sm tracking-wide
+              shadow-[0_4px_20px_rgba(201,168,76,0.4)]
+              hover:bg-salma-gold-light active:scale-[0.98]
+              transition-all duration-150
+            "
+          >
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+            </svg>
+            {locale === "fr" ? "Prendre rendez-vous" : "Book a consultation"}
+          </Link>
+        </div>
+
+        {/* =================================================================
+            CORPS : ACCORDÉONS DE NAVIGATION
+        ================================================================= */}
+        <div className="flex-1 overflow-y-auto px-4 py-4 space-y-2">
+
+          {/* ── BOURSES ─────────────────────────────────────────────────── */}
+          <AccordionItem
+            id="bourses"
+            label={nav_bourses.title}
+            icon="🎓"
+            isOpen={activeAccordion === "bourses"}
+            onToggle={() => toggleAccordion("bourses")}
+          >
+            <div className="space-y-2 pb-1">
+              <Link
+                href="/bourses?pays=chine"
+                onClick={onClose}
+                className="group flex items-start gap-3 p-4 bg-salma-bg rounded-xl hover:bg-salma-primary/5 transition-colors"
+              >
+                <span className="text-lg">🇨🇳</span>
+                <div>
+                  <p className="text-xs font-bold text-salma-primary">{nav_bourses.china_label}</p>
+                  <p className="text-[10px] text-salma-text-muted mt-0.5 leading-snug">{nav_bourses.china_desc}</p>
+                </div>
+              </Link>
+              <Link
+                href="/bourses?pays=allemagne"
+                onClick={onClose}
+                className="group flex items-start gap-3 p-4 bg-salma-bg rounded-xl hover:bg-salma-primary/5 transition-colors"
+              >
+                <span className="text-lg">🇩🇪</span>
+                <div>
+                  <p className="text-xs font-bold text-salma-primary">{nav_bourses.germany_label}</p>
+                  <p className="text-[10px] text-salma-text-muted mt-0.5 leading-snug">{nav_bourses.germany_desc}</p>
+                </div>
+              </Link>
+              <Link
+                href="/bourses"
+                onClick={onClose}
+                className="block text-center text-[10px] font-bold text-salma-gold py-2 hover:underline"
+              >
+                Voir toutes les bourses →
+              </Link>
+            </div>
+          </AccordionItem>
+
+          {/* ── SERVICES ────────────────────────────────────────────────── */}
+          <AccordionItem
+            id="services"
+            label={nav_services.title}
+            icon="⚙️"
+            isOpen={activeAccordion === "services"}
+            onToggle={() => toggleAccordion("services")}
+          >
+            <div className="grid grid-cols-1 gap-1.5 pb-1">
+              {nav_services.items.map((item: NavServiceItem) => (
+                <Link
+                  key={item.id}
+                  href={item.href}
+                  onClick={onClose}
+                  className="flex items-center gap-3 p-3 bg-salma-bg rounded-xl hover:bg-salma-primary/5 transition-colors"
+                >
+                  <span className="text-lg w-8 text-center flex-shrink-0">{item.icon}</span>
+                  <div>
+                    <p className="text-xs font-bold text-salma-primary">{item.label}</p>
+                    <p className="text-[9px] text-salma-text-muted leading-snug">{item.desc}</p>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          </AccordionItem>
+
+          {/* ── LIENS SIMPLES ───────────────────────────────────────────── */}
+          <nav className="space-y-1" aria-label="Liens rapides">
+            {[
+              { href: "/a-propos", label: locale === "fr" ? "À propos" : "About us", icon: "🏢" },
+              { href: "/contact",  label: locale === "fr" ? "Contact"  : "Contact",  icon: "✉️" },
+              { href: "/confidentialite", label: locale === "fr" ? "Confidentialité" : "Privacy", icon: "🛡️" },
+            ].map(({ href, label, icon }) => (
+              <Link
+                key={href}
+                href={href}
+                onClick={onClose}
+                className="flex items-center gap-3 px-4 py-3.5 rounded-xl border border-salma-border hover:border-salma-gold hover:bg-salma-gold/5 transition-all"
+              >
+                <span className="text-base">{icon}</span>
+                <span className="text-xs font-bold text-salma-primary uppercase tracking-widest">
+                  {label}
+                </span>
+              </Link>
+            ))}
+          </nav>
+
+          {/* ── WHATSAPP ────────────────────────────────────────────────── */}
+          <a
+            href="https://wa.me/237699450984"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="
+              flex items-center gap-3 px-4 py-3.5 rounded-xl
+              bg-green-500 text-white
+              hover:bg-green-600 active:scale-[0.98]
+              transition-all duration-150 shadow-sm
+            "
+          >
+            <span className="text-base">💬</span>
+            <div>
+              <p className="text-xs font-bold">{nav_contact.whatsapp_label}</p>
+              <p className="text-[9px] text-white/70">{nav_contact.whatsapp_desc}</p>
+            </div>
+          </a>
+
+        </div>
+
+        {/* =================================================================
+            FOOTER : NEWSLETTER + COPYRIGHT
+        ================================================================= */}
+        <div className="flex-shrink-0 border-t border-salma-border bg-salma-bg/60 px-5 py-5 space-y-4">
+          {/* Mini newsletter */}
+          <div>
+            <p className="text-[10px] font-bold text-salma-primary mb-1">{nav_contact.newsletter_title}</p>
+            <p className="text-[9px] text-salma-text-muted mb-3 leading-snug">{nav_contact.newsletter_desc}</p>
+            <div className="flex gap-2">
+              <input
+                type="email"
+                placeholder={nav_contact.newsletter_placeholder}
+                className="flex-1 bg-white border border-salma-border rounded-xl px-3 py-2.5 text-xs outline-none focus:border-salma-gold transition-colors"
+              />
+              <button className="bg-salma-gold text-salma-primary px-4 py-2.5 rounded-xl text-[10px] font-bold hover:bg-salma-gold-light transition-colors shadow-sm">
+                {nav_contact.newsletter_btn}
+              </button>
+            </div>
+          </div>
+
+          {/* Liens sociaux */}
+          <div className="flex gap-3 opacity-50">
+            {["f", "in", "ig"].map((s) => (
+              <div
+                key={s}
+                className="w-7 h-7 rounded-full border border-salma-border flex items-center justify-center text-[9px] font-bold text-salma-primary"
+              >
+                {s}
+              </div>
+            ))}
+          </div>
+        </div>
+
+      </div>
+    </div>
+  );
+}
+
+// =============================================================================
+//  Sous-composant : Item d'accordéon réutilisable
+// =============================================================================
+function AccordionItem({
+  id,
+  label,
+  icon,
+  isOpen,
+  onToggle,
+  children,
+}: {
+  id: string;
+  label: string;
+  icon: string;
+  isOpen: boolean;
+  onToggle: () => void;
+  children: React.ReactNode;
+}) {
+  return (
+    <div className="border border-salma-border rounded-2xl overflow-hidden">
+      <button
+        onClick={onToggle}
+        className="
+          w-full flex items-center justify-between gap-3
+          px-4 py-4 bg-white hover:bg-salma-bg
+          transition-colors duration-150
+        "
+        aria-expanded={isOpen}
+        aria-controls={`accordion-${id}`}
+      >
+        <div className="flex items-center gap-3">
+          <span className="text-base">{icon}</span>
+          <span className="text-xs font-bold text-salma-primary uppercase tracking-widest">
+            {label}
+          </span>
+        </div>
+        {/* Chevron animé */}
+        <svg
+          className={`
+            w-4 h-4 text-salma-gold flex-shrink-0
+            transition-transform duration-300
+            ${isOpen ? "rotate-180" : "rotate-0"}
+          `}
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+          aria-hidden="true"
+        >
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M19 9l-7 7-7-7" />
+        </svg>
+      </button>
+
+      {/* Contenu accordéon avec animation */}
+      <div
+        id={`accordion-${id}`}
+        className={`
+          overflow-hidden transition-all duration-300 ease-in-out
+          ${isOpen ? "max-h-[500px] opacity-100" : "max-h-0 opacity-0"}
+        `}
+      >
+        <div className="px-4 pb-3 pt-1 bg-salma-bg/30 border-t border-salma-border/50">
+          {children}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// END OF FILE: src/components/layout/nav/MobileMenu.tsx
+
+
+// FILE: src/components/layout/nav/NavDropdown.tsx
+-----------------------------------------------
+"use client";
+// =============================================================================
+//  NavDropdown.tsx — SALMA · Menu déroulant desktop
+//  Pattern : hover → ouvre le dropdown / clic → navigue vers la page principale
+//  Délai de fermeture 150ms pour permettre de glisser vers le panneau
+// =============================================================================
+
+import { useState, useRef, useCallback } from "react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import type { NavBourses, NavServices, NavContact, NavAbout, NavHome } from "@/types";
+
+type NavDropdownData = NavHome | NavBourses | NavServices | NavContact | NavAbout;
+
+// Href principale de chaque dropdown (destination au clic)
+const HREF_MAP: Record<string, string> = {
+  home:     "/",
+  bourses:  "/bourses",
+  services: "/services",
+  about:    "/a-propos",
+  contact:  "/contact",
+};
+
+// =============================================================================
+//  Composant principal
+// =============================================================================
+export default function NavDropdown({
+  title,
+  data,
+  type,
+  isAction = false,
+}: {
+  title: string;
+  data: NavDropdownData;
+  type: string;
+  isAction?: boolean;
+}) {
+  const [isOpen, setIsOpen] = useState(false);
+  const closeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const router = useRouter();
+
+  const handleMouseEnter = useCallback(() => {
+    if (closeTimer.current) clearTimeout(closeTimer.current);
+    setIsOpen(true);
+  }, []);
+
+  const handleMouseLeave = useCallback(() => {
+    closeTimer.current = setTimeout(() => setIsOpen(false), 150);
+  }, []);
+
+  const handleClick = useCallback(() => {
+    // isAction (Contact) n'a pas de page dédiée dans le menu — on ouvre juste le dropdown
+    if (isAction) return;
+    const href = HREF_MAP[type];
+    if (href) {
+      setIsOpen(false);
+      router.push(href);
+    }
+  }, [isAction, type, router]);
+
+  const href = HREF_MAP[type];
+
+  return (
+    <div
+      className="relative h-20 flex items-center"
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
+    >
+      {/* ===================================================================
+          BOUTON TRIGGER
+          • Clic  → navigation directe vers la page principale
+          • Hover → ouvre le dropdown (géré par le parent div)
+      =================================================================== */}
+      <button
+        onClick={handleClick}
+        aria-haspopup="true"
+        aria-expanded={isOpen}
+        title={href ? `Aller à ${title}` : title}
+        className={`
+          relative px-4 py-2 flex items-center gap-1.5
+          text-[11px] font-bold uppercase tracking-widest
+          transition-all duration-200
+          outline-none focus-visible:ring-2 focus-visible:ring-salma-gold focus-visible:ring-offset-2 rounded-lg
+          ${isAction
+            ? `
+                border border-salma-border rounded-xl
+                text-salma-primary hover:border-salma-gold hover:text-salma-gold
+                bg-transparent hover:bg-salma-gold/5
+              `
+            : `
+                text-salma-text-muted hover:text-salma-primary
+                after:absolute after:bottom-0 after:left-4 after:right-4 after:h-[2px]
+                after:bg-salma-gold after:rounded-full after:scale-x-0
+                hover:after:scale-x-100 after:transition-transform after:duration-200 after:origin-center
+                cursor-pointer
+              `
+          }
+        `}
+      >
+        {title}
+        {/* Chevron animé */}
+        <svg
+          className={`
+            w-3 h-3 flex-shrink-0 transition-transform duration-200
+            ${isOpen ? "rotate-180" : "rotate-0"}
+            ${isAction ? "text-salma-gold" : "text-salma-border"}
+          `}
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+          aria-hidden="true"
+        >
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M19 9l-7 7-7-7" />
+        </svg>
+      </button>
+
+      {/* ===================================================================
+          PANNEAUX DÉROULANTS
+          Le panneau hérite du handleMouseEnter/Leave du parent pour éviter
+          la fermeture quand la souris glisse du bouton vers le panneau
+      =================================================================== */}
+
+      {/* ── CAS HOME ──────────────────────────────────────────────────── */}
+      {isOpen && type === "home" && (() => {
+        const d = data as NavHome;
+        return (
+          <DropdownPanel align="left">
+            <div className="p-2 space-y-1">
+              {d.sections.map((item) => (
+                <Link key={item.id} href={item.href}
+                  className="group flex items-center gap-3 p-3 rounded-xl hover:bg-salma-bg border border-transparent hover:border-salma-border transition-all duration-150"
+                  onClick={() => setIsOpen(false)}
+                >
+                  <span className="text-lg">{item.icon}</span>
+                  <span className="text-xs font-bold text-salma-primary group-hover:text-salma-accent transition-colors">
+                    {item.label}
+                  </span>
+                </Link>
+              ))}
+            </div>
+          </DropdownPanel>
+        );
+      })()}
+
+      {/* ── CAS BOURSES ───────────────────────────────────────────────── */}
+      {isOpen && type === "bourses" && (() => {
+        const d = data as NavBourses;
+        return (
+          <DropdownPanel align="left" wide>
+            <div className="p-2 space-y-2">
+              <Link
+                href="/bourses?pays=chine"
+                className="group flex items-start gap-4 p-4 rounded-xl hover:bg-salma-bg border border-transparent hover:border-salma-border transition-all duration-150"
+                onClick={() => setIsOpen(false)}
+              >
+                <span className="text-2xl mt-0.5">🇨🇳</span>
+                <div className="flex-1 min-w-0">
+                  <p className="text-xs font-bold text-salma-primary group-hover:text-salma-accent transition-colors">
+                    {d.china_label}
+                  </p>
+                  <p className="text-[10px] text-salma-text-muted leading-snug mt-1">{d.china_desc}</p>
+                  <span className="inline-flex items-center gap-1 mt-2 text-[10px] font-bold text-salma-accent opacity-0 group-hover:opacity-100 transition-opacity">
+                    {d.china_cta} →
+                  </span>
+                </div>
+              </Link>
+
+              <Link
+                href="/bourses?pays=allemagne"
+                className="group flex items-start gap-4 p-4 rounded-xl hover:bg-salma-bg border border-transparent hover:border-salma-border transition-all duration-150"
+                onClick={() => setIsOpen(false)}
+              >
+                <span className="text-2xl mt-0.5">🇩🇪</span>
+                <div className="flex-1 min-w-0">
+                  <p className="text-xs font-bold text-salma-primary group-hover:text-salma-accent transition-colors">
+                    {d.germany_label}
+                  </p>
+                  <p className="text-[10px] text-salma-text-muted leading-snug mt-1">{d.germany_desc}</p>
+                  <span className="inline-flex items-center gap-1 mt-2 text-[10px] font-bold text-salma-accent opacity-0 group-hover:opacity-100 transition-opacity">
+                    {d.germany_cta} →
+                  </span>
+                </div>
+              </Link>
+            </div>
+            <div className="px-4 pb-3 pt-1 border-t border-salma-border/50">
+              <Link
+                href="/bourses"
+                className="text-[10px] font-bold text-salma-gold hover:text-salma-gold-light transition-colors flex items-center gap-1"
+                onClick={() => setIsOpen(false)}
+              >
+                Voir toutes les bourses →
+              </Link>
+            </div>
+          </DropdownPanel>
+        );
+      })()}
+
+      {/* ── CAS SERVICES ──────────────────────────────────────────────── */}
+      {isOpen && type === "services" && (() => {
+        const d = data as NavServices;
+        return (
+          <DropdownPanel align="left" wide>
+            <div className="p-2 grid grid-cols-2 gap-1">
+              {d.items.map((item) => (
+                <Link
+                  key={item.id}
+                  href={item.href}
+                  className="group p-3 rounded-xl hover:bg-salma-bg border border-transparent hover:border-salma-border transition-all duration-150"
+                  onClick={() => setIsOpen(false)}
+                >
+                  <span className="text-xl mb-2 block">{item.icon}</span>
+                  <p className="text-xs font-bold text-salma-primary group-hover:text-salma-accent transition-colors">
+                    {item.label}
+                  </p>
+                  <p className="text-[10px] text-salma-text-muted leading-tight mt-1">{item.desc}</p>
+                </Link>
+              ))}
+            </div>
+          </DropdownPanel>
+        );
+      })()}
+
+      {/* ── CAS À PROPOS ──────────────────────────────────────────────── */}
+      {isOpen && type === "about" && (() => {
+        const d = data as NavAbout;
+        return (
+          <DropdownPanel align="left">
+            <div className="p-2 space-y-1">
+              <Link href="/a-propos"
+                className="group flex items-start gap-3 p-4 rounded-xl hover:bg-salma-bg border border-transparent hover:border-salma-border transition-all"
+                onClick={() => setIsOpen(false)}
+              >
+                <span className="text-xl">🏢</span>
+                <div>
+                  <p className="text-xs font-bold text-salma-primary group-hover:text-salma-accent transition-colors">{d.agency_label}</p>
+                  <p className="text-[10px] text-salma-text-muted mt-1">{d.agency_desc}</p>
+                </div>
+              </Link>
+              <Link href="/a-propos#mission"
+                className="group flex items-start gap-3 p-4 rounded-xl hover:bg-salma-bg border border-transparent hover:border-salma-border transition-all"
+                onClick={() => setIsOpen(false)}
+              >
+                <span className="text-xl">🎯</span>
+                <div>
+                  <p className="text-xs font-bold text-salma-primary group-hover:text-salma-accent transition-colors">{d.mission_label}</p>
+                  <p className="text-[10px] text-salma-text-muted mt-1">{d.mission_desc}</p>
+                </div>
+              </Link>
+              <Link href="/confidentialite"
+                className="group flex items-start gap-3 p-4 rounded-xl hover:bg-salma-bg border border-transparent hover:border-salma-border transition-all"
+                onClick={() => setIsOpen(false)}
+              >
+                <span className="text-xl">🛡️</span>
+                <div>
+                  <p className="text-xs font-bold text-salma-primary group-hover:text-salma-accent transition-colors">{d.privacy_label}</p>
+                  <p className="text-[10px] text-salma-text-muted mt-1">{d.privacy_desc}</p>
+                </div>
+              </Link>
+            </div>
+            <div className="px-4 pb-3 pt-1 border-t border-salma-border/50">
+              <Link href="/a-propos"
+                className="text-[10px] font-bold text-salma-gold hover:text-salma-gold-light transition-colors flex items-center gap-1"
+                onClick={() => setIsOpen(false)}
+              >
+                {d.cta} →
+              </Link>
+            </div>
+          </DropdownPanel>
+        );
+      })()}
+
+      {/* ── CAS CONTACT (isAction) ────────────────────────────────────── */}
+      {isOpen && isAction && (() => {
+        const d = data as NavContact;
+        return (
+          <DropdownPanel align="right">
+            <div className="bg-salma-primary px-5 py-4 rounded-t-2xl">
+              <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-salma-gold">{d.title}</p>
+              <p className="text-xs text-white/60 mt-0.5">Réponse en moins de 24h</p>
+            </div>
+            <div className="p-2 space-y-1">
+              <Link href="/contact"
+                className="group flex items-center gap-4 p-4 hover:bg-salma-primary hover:text-white rounded-xl transition-all duration-150"
+                onClick={() => setIsOpen(false)}
+              >
+                <span className="text-xl">📅</span>
+                <div>
+                  <p className="text-xs font-bold">{d.rdv_label}</p>
+                  <p className="text-[10px] opacity-60 group-hover:opacity-80">{d.rdv_desc}</p>
+                </div>
+              </Link>
+              <a href="https://wa.me/237699450984" target="_blank" rel="noopener noreferrer"
+                className="flex items-center gap-4 p-4 hover:bg-green-500 hover:text-white rounded-xl transition-all duration-150 group"
+                onClick={() => setIsOpen(false)}
+              >
+                <span className="text-xl">💬</span>
+                <div>
+                  <p className="text-xs font-bold text-salma-primary group-hover:text-white">{d.whatsapp_label}</p>
+                  <p className="text-[10px] text-salma-text-muted group-hover:text-white/80">{d.whatsapp_desc}</p>
+                </div>
+              </a>
+            </div>
+            <div className="bg-salma-bg px-4 py-4 border-t border-salma-border rounded-b-2xl">
+              <p className="text-[10px] font-bold text-salma-primary mb-1">{d.newsletter_title}</p>
+              <p className="text-[9px] text-salma-text-muted mb-3 leading-snug">{d.newsletter_desc}</p>
+              <div className="flex gap-2">
+                <input
+                  type="email"
+                  placeholder={d.newsletter_placeholder}
+                  className="flex-1 bg-white border border-salma-border rounded-lg px-3 py-2 text-[10px] outline-none focus:border-salma-gold transition-colors"
+                />
+                <button className="bg-salma-gold text-salma-primary px-3 py-2 rounded-lg text-[10px] font-bold hover:bg-salma-gold-light transition-colors">
+                  {d.newsletter_btn}
+                </button>
+              </div>
+            </div>
+          </DropdownPanel>
+        );
+      })()}
+    </div>
+  );
+}
+
+// =============================================================================
+//  Sous-composant : Panel générique avec animation d'entrée
+// =============================================================================
+function DropdownPanel({
+  children,
+  align = "left",
+  wide = false,
+}: {
+  children: React.ReactNode;
+  align?: "left" | "right";
+  wide?: boolean;
+}) {
+  return (
+    <div
+      className={`
+        absolute top-[80px]
+        ${align === "right" ? "right-0" : "left-0"}
+        ${wide ? "w-[380px]" : "w-[300px]"}
+        bg-white border border-salma-border rounded-2xl
+        shadow-[0_20px_50px_rgba(27,54,93,0.15)]
+        overflow-hidden
+        animate-[dropdownReveal_0.2s_ease-out_forwards]
+        origin-top
+      `}
+    >
+      {children}
+    </div>
+  );
+}
+
+// END OF FILE: src/components/layout/nav/NavDropdown.tsx
+>>>>>>> a3c58bd73b58397488b474a30305072da73c049d
 
 
 // FILE: src/components/layout/ConditionalLayout.tsx
@@ -12346,13 +13227,23 @@ async function apiFetch<T>(endpoint: string, options: FetchOptions = {}): Promis
   }
 }
 
-function extractErrorMessage(data: Record<string, unknown>, status: number): string {
+// Fichier : src/lib/api-client.ts
+
+function extractErrorMessage(data: Record<string, any>, status: number): string {
   if (typeof data?.detail === "string") return data.detail;
   if (typeof data?.message === "string") return data.message;
-  if (status === 401) return "Non authentifié. Veuillez vous connecter.";
-  if (status === 403) return "Accès refusé. Vous n'avez pas les permissions nécessaires.";
+
+  if (status === 400 || status === 422) {
+    const firstKey = Object.keys(data)[0];
+    if (firstKey && Array.isArray(data[firstKey])) {
+      return `${firstKey}: ${data[firstKey][0]}`;
+    }
+    return "Données invalides. Vérifiez le formulaire.";
+  }
+
+  if (status === 401) return "Identifiants incorrects ou session expirée.";
+  if (status === 403) return "Accès refusé. Vous n'avez pas les permissions.";
   if (status === 404) return "Ressource introuvable.";
-  if (status === 422 || status === 400) return "Données invalides. Vérifiez le formulaire.";
   if (status >= 500) return "Erreur serveur. Contactez l'administrateur.";
   return `Erreur inattendue (${status})`;
 }
@@ -12595,15 +13486,27 @@ export const authRepository = {
    * Connexion → retourne les tokens + profil
    */
   login: async (payload: LoginPayload): Promise<LoginResponse> => {
-    const response = await api.post<LoginResponse>(`${BASE}/login`, payload);
-    
-    // 1. Stockage Client (localStorage) pour les futurs appels API
-    tokenStorage.set(response.access, response.refresh);
-
-    // 2. Stockage Cookie pour le Middleware Next.js (Protection des routes serveur)
+    tokenStorage.clear();
     if (typeof document !== "undefined") {
+      document.cookie = "salma_auth=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC;";
+    }
+
+    const cleanPayload = {
+      ...payload,
+      email: payload.email.trim().toLowerCase()
+    };
+
+    const response = await api.post<LoginResponse>(`${BASE}/login`, cleanPayload);
+    
+    tokenStorage.set(response.access, response.refresh);
+    if (typeof document !== "undefined") {
+<<<<<<< HEAD
   document.cookie = `salma_auth=${response.access}; path=/; max-age=86400; SameSite=Lax`;
 }
+=======
+      document.cookie = `salma_auth=${response.access}; path=/; max-age=86400; SameSite=Lax`;
+    }
+>>>>>>> a3c58bd73b58397488b474a30305072da73c049d
     return response;
   },
 
@@ -13854,6 +14757,7 @@ import HeroDecorations from "./HeroDecroration";
 import type { HeroSlideData, NavContent, HeroSlideCMS } from "@/types";
 
 /**
+<<<<<<< HEAD
  * Config de design par slide.
  * bgImage : chemin vers l'image de fond dans /public/images/hero/
  * Si bgImage est défini, le gradient sert de fallback et l'overlay est ajouté.
@@ -13877,6 +14781,15 @@ const SLIDE_DESIGN_CONFIG = [
     deco: "circle-center",
     bgImage: "/images/hero/hero-slide-3.jpg",
   },
+=======
+ * Palettes de design pour les fonds de slides.
+ * Ces données sont purement visuelles et ne sont pas gérées par le CMS.
+ */
+const SLIDE_DESIGN_CONFIG = [
+  { gradient: "from-white via-white to-white", accent: "from-transparent to-transparent", deco: "circle-top-right" },
+  { gradient: "from-[#EDF3FC] via-[#E5EEF9] to-[#DCE9F7]", accent: "from-[#1B365D]/4 to-transparent", deco: "circle-bottom-left" },
+  { gradient: "from-[#CCDDF0] via-[#C2D5EC] to-[#B8CCE8]", accent: "from-[#1B365D]/6 to-transparent", deco: "circle-center" },
+>>>>>>> a3c58bd73b58397488b474a30305072da73c049d
 ];
 
 export default function HeroCarousel() {
@@ -13890,13 +14803,24 @@ export default function HeroCarousel() {
   // Chargement des données via le Switcher typé
   useEffect(() => {
     cmsSwitcher.getScopeContent<NavContent>("layout", locale).then((data) => {
+<<<<<<< HEAD
       const rawSlides = data.hero_carousel?.slides ?? [];
 
+=======
+      // On récupère les slides bruts du CMS
+      const rawSlides = data.hero_carousel?.slides ?? [];
+      
+      // On les enrichit avec la config de design (gradient, deco, etc.)
+>>>>>>> a3c58bd73b58397488b474a30305072da73c049d
       const enrichedSlides: HeroSlideData[] = rawSlides.map((s: HeroSlideCMS, i: number) => ({
         ...s,
         ...SLIDE_DESIGN_CONFIG[i % SLIDE_DESIGN_CONFIG.length],
       })) as HeroSlideData[];
+<<<<<<< HEAD
 
+=======
+      
+>>>>>>> a3c58bd73b58397488b474a30305072da73c049d
       setSlides(enrichedSlides);
     });
   }, [locale]);
@@ -13923,7 +14847,10 @@ export default function HeroCarousel() {
   }
 
   const activeSlide = slides[current];
+<<<<<<< HEAD
   const hasBgImage = !!activeSlide.bgImage;
+=======
+>>>>>>> a3c58bd73b58397488b474a30305072da73c049d
 
   return (
     <section
@@ -13932,6 +14859,7 @@ export default function HeroCarousel() {
       onMouseLeave={() => setPaused(false)}
       aria-label="Présentation SALMA"
     >
+<<<<<<< HEAD
       {/* ── Background layer ─────────────────────────────────────────── */}
 
       {/* Gradient de fallback (toujours présent) */}
@@ -13962,6 +14890,18 @@ export default function HeroCarousel() {
       {/* Contenu du slide actif */}
       <div className="relative z-10 flex-1 flex items-center">
         <HeroSlide slide={activeSlide} animating={animating} hasBgImage={hasBgImage} />
+=======
+      {/* Background dynamique */}
+      <div className={`absolute inset-0 bg-gradient-to-br ${activeSlide.gradient} transition-all duration-700`} />
+      <div className={`absolute inset-0 bg-gradient-to-tr ${activeSlide.accent} opacity-60`} />
+      
+      {/* Éléments décoratifs flottants */}
+      <HeroDecorations type={activeSlide.deco} />
+
+      {/* Contenu du slide actif */}
+      <div className="relative z-10 flex-1 flex items-center">
+        <HeroSlide slide={activeSlide} animating={animating} />
+>>>>>>> a3c58bd73b58397488b474a30305072da73c049d
       </div>
 
       {/* Barre de navigation et progression */}
@@ -13972,7 +14912,10 @@ export default function HeroCarousel() {
         onPrev={prev}
         onNext={next}
         onGoTo={goTo}
+<<<<<<< HEAD
         hasBgImage={hasBgImage}
+=======
+>>>>>>> a3c58bd73b58397488b474a30305072da73c049d
       />
     </section>
   );
@@ -13993,6 +14936,7 @@ interface Props {
   onPrev: () => void;
   onNext: () => void;
   onGoTo: (i: number) => void;
+<<<<<<< HEAD
   /** Si true, les contrôles sont sur fond image sombre → style clair */
   hasBgImage?: boolean;
 }
@@ -14009,16 +14953,29 @@ export default function HeroControls({ total, current, paused, onPrev, onNext, o
   const progressBg = hasBgImage ? "bg-white/20" : "bg-salma-border";
   const counterText = hasBgImage ? "text-white/60" : "text-salma-text-muted";
 
+=======
+}
+
+export default function HeroControls({ total, current, paused, onPrev, onNext, onGoTo }: Props) {
+>>>>>>> a3c58bd73b58397488b474a30305072da73c049d
   return (
     <>
       {/* Flèche gauche */}
       <button
         onClick={onPrev}
+<<<<<<< HEAD
         className={`hidden lg:flex absolute left-6 top-1/2 -translate-y-1/2 z-20
           w-11 h-11 rounded-full backdrop-blur-sm
           ${arrowCls} border
           items-center justify-center
           transition-all duration-150`}
+=======
+        className="hidden lg:flex absolute left-6 top-1/2 -translate-y-1/2 z-20
+          w-11 h-11 rounded-full backdrop-blur-sm
+          bg-salma-primary/8 border border-salma-primary/15 text-salma-primary
+          items-center justify-center
+          hover:bg-salma-primary/15 transition-all duration-150"
+>>>>>>> a3c58bd73b58397488b474a30305072da73c049d
         aria-label="Slide précédent"
       >
         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -14029,11 +14986,19 @@ export default function HeroControls({ total, current, paused, onPrev, onNext, o
       {/* Flèche droite */}
       <button
         onClick={onNext}
+<<<<<<< HEAD
         className={`hidden lg:flex absolute right-6 top-1/2 -translate-y-1/2 z-20
           w-11 h-11 rounded-full backdrop-blur-sm
           ${arrowCls} border
           items-center justify-center
           transition-all duration-150`}
+=======
+        className="hidden lg:flex absolute right-6 top-1/2 -translate-y-1/2 z-20
+          w-11 h-11 rounded-full backdrop-blur-sm
+          bg-salma-primary/8 border border-salma-primary/15 text-salma-primary
+          items-center justify-center
+          hover:bg-salma-primary/15 transition-all duration-150"
+>>>>>>> a3c58bd73b58397488b474a30305072da73c049d
         aria-label="Slide suivant"
       >
         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -14045,7 +15010,11 @@ export default function HeroControls({ total, current, paused, onPrev, onNext, o
       <div className="relative z-20 flex flex-col items-center gap-3 pb-8 pt-2">
         {/* Barre de progression */}
         {!paused && (
+<<<<<<< HEAD
           <div className={`w-40 h-px ${progressBg} rounded-full overflow-hidden`}>
+=======
+          <div className="w-40 h-px bg-salma-border rounded-full overflow-hidden">
+>>>>>>> a3c58bd73b58397488b474a30305072da73c049d
             <div
               key={current}
               className="h-full bg-salma-gold rounded-full"
@@ -14066,14 +15035,22 @@ export default function HeroControls({ total, current, paused, onPrev, onNext, o
               className={`transition-all duration-300 rounded-full
                 ${i === current
                   ? "w-7 h-2 bg-salma-gold"
+<<<<<<< HEAD
                   : `w-2 h-2 ${bulletInactive}`
+=======
+                  : "w-2 h-2 bg-salma-primary/20 hover:bg-salma-primary/40"
+>>>>>>> a3c58bd73b58397488b474a30305072da73c049d
                 }`}
             />
           ))}
         </div>
 
         {/* X/Y mobile */}
+<<<<<<< HEAD
         <p className={`lg:hidden text-[10px] font-bold uppercase tracking-widest ${counterText}`}>
+=======
+        <p className="lg:hidden text-[10px] font-bold uppercase tracking-widest text-salma-text-muted">
+>>>>>>> a3c58bd73b58397488b474a30305072da73c049d
           {current + 1} / {total}
         </p>
       </div>
@@ -14331,6 +15308,7 @@ import type { HeroSlideData } from "@/types";
 interface Props {
   slide: HeroSlideData;
   animating: boolean;
+<<<<<<< HEAD
   /** Si true, le slide est sur fond image sombre → texte blanc */
   hasBgImage?: boolean;
 }
@@ -14346,6 +15324,13 @@ export default function HeroSlide({ slide, animating, hasBgImage = false }: Prop
     ? "bg-white/15 border-white/25 text-white"
     : "bg-salma-primary/8 border-salma-primary/15 text-salma-primary";
 
+=======
+}
+
+export default function HeroSlide({ slide, animating }: Props) {
+  const fade = animating ? "opacity-0 translate-y-3" : "opacity-100 translate-y-0";
+
+>>>>>>> a3c58bd73b58397488b474a30305072da73c049d
   return (
     <div className="max-w-7xl mx-auto px-6 lg:px-12 w-full py-20 lg:py-0
       grid grid-cols-1 lg:grid-cols-2 gap-12 items-center"
@@ -14354,15 +15339,24 @@ export default function HeroSlide({ slide, animating, hasBgImage = false }: Prop
       <div>
         {/* Badge */}
         <div className={`inline-flex items-center gap-2 px-4 py-2 rounded-full
+<<<<<<< HEAD
           ${badgeBg} border
           text-xs font-bold tracking-wide mb-8
+=======
+          bg-salma-primary/8 border border-salma-primary/15
+          text-salma-primary text-xs font-bold tracking-wide mb-8
+>>>>>>> a3c58bd73b58397488b474a30305072da73c049d
           transition-all duration-500 ${fade}`}
         >
           {slide.badge}
         </div>
 
         {/* Titre */}
+<<<<<<< HEAD
         <h1 className={`text-4xl lg:text-6xl font-serif font-bold ${textPrimary}
+=======
+        <h1 className={`text-4xl lg:text-6xl font-serif font-bold text-salma-primary
+>>>>>>> a3c58bd73b58397488b474a30305072da73c049d
           leading-tight mb-4 whitespace-pre-line
           transition-all duration-500 delay-75 ${fade}`}
         >
@@ -14371,7 +15365,11 @@ export default function HeroSlide({ slide, animating, hasBgImage = false }: Prop
         </h1>
 
         {/* Sous-titre */}
+<<<<<<< HEAD
         <p className={`${textMuted} text-base lg:text-lg leading-relaxed
+=======
+        <p className={`text-salma-text-muted text-base lg:text-lg leading-relaxed
+>>>>>>> a3c58bd73b58397488b474a30305072da73c049d
           max-w-xl mb-8
           transition-all duration-500 delay-100 ${fade}`}
         >
@@ -14389,9 +15387,13 @@ export default function HeroSlide({ slide, animating, hasBgImage = false }: Prop
               transition-all duration-200 active:scale-[0.97]
               ${cta.variant === "gold"
                 ? "bg-salma-gold text-salma-primary shadow-[0_4px_16px_rgba(201,168,76,0.35)] hover:bg-salma-gold-light"
+<<<<<<< HEAD
                 : hasBgImage
                   ? "bg-white text-salma-primary hover:bg-white/90"
                   : "bg-salma-primary text-white hover:bg-salma-primary-light"
+=======
+                : "bg-salma-primary text-white hover:bg-salma-primary-light"
+>>>>>>> a3c58bd73b58397488b474a30305072da73c049d
               }`}
             >
               {cta.label}
@@ -14405,10 +15407,17 @@ export default function HeroSlide({ slide, animating, hasBgImage = false }: Prop
         >
           {slide.stats.map((stat, i) => (
             <div key={i} className="flex flex-col">
+<<<<<<< HEAD
               <span className={`text-2xl font-serif font-bold ${textGold} leading-none`}>
                 {stat.value}
               </span>
               <span className={`text-[10px] font-bold uppercase tracking-widest ${textMuted} mt-1`}>
+=======
+              <span className="text-2xl font-serif font-bold text-salma-gold leading-none">
+                {stat.value}
+              </span>
+              <span className="text-[10px] font-bold uppercase tracking-widest text-salma-text-muted mt-1">
+>>>>>>> a3c58bd73b58397488b474a30305072da73c049d
                 {stat.label}
               </span>
             </div>
@@ -15044,10 +16053,14 @@ export default function StatsCounter({ kpi }: Props) {
     </section>
   );
 }
-// END OF FILE: src/sections/visitor/StatsCounter.tsx
 
 // END OF FILE: src/sections/visitor/StatsCounter.tsx
 
+<<<<<<< HEAD
+// END OF FILE: src/sections/visitor/StatsCounter.tsx
+
+=======
+>>>>>>> a3c58bd73b58397488b474a30305072da73c049d
 
 // FILE: src/sections/visitor/SuccessStories.tsx
 -----------------------------------------------

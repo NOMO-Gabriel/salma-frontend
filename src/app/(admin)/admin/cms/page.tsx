@@ -1,3 +1,4 @@
+export const dynamic = "force-dynamic";
 import { cmsAdminRepository } from "@/repositories/cms.repository";
 import AdminCmsClient from "@/components/admin/AdminCmsClient";
 

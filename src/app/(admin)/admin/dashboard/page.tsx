@@ -5,6 +5,7 @@
 //  ✅ Ajoute   : KPI temps réel, graphique activité, contacts récents
 // ==============================================================================
 
+export const dynamic = "force-dynamic";
 import { Suspense } from "react";
 import AdminDashboardClient from "@/components/admin/AdminDashboardClient";
 import { 
