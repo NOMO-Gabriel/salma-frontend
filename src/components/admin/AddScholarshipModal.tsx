@@ -28,10 +28,11 @@ export default function AddScholarshipModal({ isOpen, onClose, onSave, scholarsh
   const [activeTab, setActiveTab] = useState<TabType>("info");
   const [loading, setLoading] = useState(false);
   
-  const [form, setForm] = useState<UpdateScholarshipPayload>({
+  const [form, setForm] = useState<UpdateScholarshipPayload & { image_id?: string }>({
     titre_fr: "", titre_en: "", organisme_fr: "", organisme_en: "",
     description_fr: "", description_en: "", pays_destination: "chine",
-    niveau: "master", statut: "publie", type_couverture: "complete"
+    niveau: "master", statut: "publie", type_couverture: "complete",
+    image_id: ""
   });
   const [visibility, setVisibility] = useState<FieldVisibilityMap>({});
 
@@ -51,18 +52,38 @@ export default function AddScholarshipModal({ isOpen, onClose, onSave, scholarsh
   }, [scholarshipId, isOpen]);
 
   const handleFinalSave = async () => {
+    if (!form.titre_fr || !form.description_fr) {
+      alert(locale === 'fr' ? "Veuillez remplir les champs obligatoires (*)" : "Please fill required fields (*)");
+      return;
+    }
+
     setLoading(true);
     try {
-      if (scholarshipId) {
-        await scholarshipDictionary.admin.patch(scholarshipId, form);
-        await scholarshipDictionary.admin.saveVisibility(scholarshipId, visibility);
+      let currentId = scholarshipId;
+
+      if (currentId) {
+        // Mode Édition
+        await scholarshipDictionary.admin.patch(currentId, form);
+        await scholarshipDictionary.admin.saveVisibility(currentId, visibility);
       } else {
-        await scholarshipDictionary.admin.create(form as CreateScholarshipPayload); 
+        // Mode Création
+        const newBourse = await scholarshipDictionary.admin.create(form as CreateScholarshipPayload);
+        currentId = newBourse.id;
       }
+
+      // Gestion de l'image (si un ID est fourni)
+      if (form.image_id && currentId) {
+        const { scholarshipAdminRepository } = await import("@/repositories/scholarship.repository");
+        await scholarshipAdminRepository.addImage(currentId, {
+          media_id: form.image_id,
+          est_principale: true
+        });
+      }
+
       onSave();
       onClose();
-    } catch {
-      alert(common.errorSave);
+    } catch (err: any) {
+      alert(err.message || common.errorSave);
     } finally {
       setLoading(false);
     }
@@ -102,30 +123,76 @@ export default function AddScholarshipModal({ isOpen, onClose, onSave, scholarsh
           ) : (
             <>
               {activeTab === "info" && (
-                <div className="grid grid-cols-2 gap-8">
-                  {/* SECTION FRANÇAIS */}
-                  <div className="space-y-4">
-                    <h3 className="text-xs font-black text-salma-gold uppercase">{common.french}</h3>
-                    <div className="space-y-2">
-                      <label className="text-[10px] font-bold text-salma-text-muted uppercase">{t.fields.titleFr}</label>
-                      <input 
-                        value={form.titre_fr} 
-                        onChange={e => setForm({...form, titre_fr: e.target.value})} 
-                        placeholder={t.fields.titleFr} 
-                        className="w-full p-4 rounded-xl border border-salma-border bg-salma-bg" 
-                      />
+                <div className="space-y-1">
+                      <label className="text-[10px] font-black text-salma-gold uppercase tracking-widest">{t.fields.photos}</label>
+                      <div className="flex flex-col gap-2">
+                        <textarea 
+                          value={form.image_id} 
+                          onChange={e => setForm({...form, image_id: e.target.value})} 
+                          placeholder={t.fields.photosPlaceholder} 
+                          className="w-full p-3 rounded-xl border border-slate-200 text-xs font-mono bg-slate-50 h-20 resize-none" 
+                        />
+                        <div className="flex justify-between items-center">
+                          <p className="text-[9px] text-slate-400 italic">{t.fields.imageNote}</p>
+                          <Link href="/admin/medias" target="_blank">
+                            <SalmaButton variant="ghost" size="sm">Médiathèque ↗</SalmaButton>
+                          </Link>
+                        </div>
+                      </div>
                     </div>
-                    <div className="space-y-2">
-                      <label className="text-[10px] font-bold text-salma-text-muted uppercase">{t.fields.descFr}</label>
-                      <textarea 
-                        value={form.description_fr} 
-                        onChange={e => setForm({...form, description_fr: e.target.value})} 
-                        placeholder={t.fields.descFr} 
-                        rows={5} 
-                        className="w-full p-4 rounded-xl border border-salma-border bg-salma-bg" 
-                      />
+
+                    {/* Colonne Droite (EN) */}
+                    <div className="space-y-4">
+                      <SalmaBadge variant="neutral" label={common.english} size="sm" />
+                      <div className="space-y-1">
+                        <label className="text-[10px] font-black text-slate-400 uppercase tracking-tighter">{t.fields.titleEn}</label>
+                        <input value={form.titre_en} onChange={e => setForm({...form, titre_en: e.target.value})} className="w-full p-3 rounded-xl border border-slate-200 focus:border-salma-gold outline-none text-sm" />
+                      </div>
+                      <div className="space-y-1">
+                        <label className="text-[10px] font-black text-slate-400 uppercase tracking-tighter">{t.fields.descEn}</label>
+                        <textarea value={form.description_en} onChange={e => setForm({...form, description_en: e.target.value})} rows={4} className="w-full p-3 rounded-xl border border-slate-200 focus:border-salma-gold outline-none text-sm" />
+                      </div>
                     </div>
                   </div>
+
+                  {/* Ligne Média & Config */}
+                  <div className="pt-6 border-t border-slate-100 grid grid-cols-2 gap-8">
+                    <div className="space-y-1">
+                      <label className="text-[10px] font-black text-salma-gold uppercase tracking-widest">{t.fields.image}</label>
+                      <div className="flex gap-2">
+                        <input 
+                          value={form.image_id} 
+                          onChange={e => setForm({...form, image_id: e.target.value})} 
+                          placeholder="ex: 550e8400-e29b..." 
+                          className="flex-1 p-3 rounded-xl border border-slate-200 text-xs font-mono bg-slate-50" 
+                        />
+                        <Link href="/admin/medias" target="_blank">
+                          <SalmaButton variant="outline" size="sm">Médiathèque ↗</SalmaButton>
+                        </Link>
+                      </div>
+                      <p className="text-[9px] text-slate-400 italic">{t.fields.imageNote}</p>
+                    </div>
+                    
+                    <div className="grid grid-cols-2 gap-4">
+                       <div className="space-y-1">
+                        <label className="text-[10px] font-black text-slate-400 uppercase tracking-tighter">{t.fields.destination}</label>
+                        <select value={form.pays_destination} onChange={e => setForm({...form, pays_destination: e.target.value as any})} className="w-full p-3 rounded-xl border border-slate-200 text-sm bg-white">
+                          <option value="chine">🇨🇳 Chine</option>
+                          <option value="allemagne">🇩🇪 Allemagne</option>
+                        </select>
+                      </div>
+                      <div className="space-y-1">
+                        <label className="text-[10px] font-black text-slate-400 uppercase tracking-tighter">{t.fields.level}</label>
+                        <select value={form.niveau} onChange={e => setForm({...form, niveau: e.target.value as any})} className="w-full p-3 rounded-xl border border-slate-200 text-sm bg-white">
+                          <option value="licence">Licence</option>
+                          <option value="master">Master</option>
+                          <option value="doctorat">Doctorat</option>
+                        </select>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
 
                   {/* SECTION ANGLAIS */}
                   <div className="space-y-4">

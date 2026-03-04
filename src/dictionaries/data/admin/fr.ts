@@ -139,7 +139,9 @@ export const adminFr = {
       thLevel: "Niveau",
       thDeadline: "Deadline",
       thStatus: "Statut",
-      thPublished: "Publié",
+      thVisibility: "Visibilité Site", // Changé
+      thEmailAlert: "Alerte Email", // Changé
+      visibilityTooltip: "Si activé, la bourse est visible par les visiteurs sur le site public.", // Ajouté
     },
     filters: {
       searchPlaceholder: "Rechercher une bourse...",
@@ -172,6 +174,13 @@ export const adminFr = {
         langEn: "Exigence langue (EN)",
         isFeatured: "Mettre en avant",
         isFeaturedDesc: "Afficher en priorité sur la page d'accueil",
+        image: "ID de l'image principale", // Ajouté
+        imageNote: "Copiez l'ID depuis la médiathèque",
+        photos: "Galerie Photos",
+        photosPlaceholder: "ID des images (séparés par des virgules)",imageSource: "Source de l'image",
+        uploadNew: "Téléverser une photo",
+        selectLibrary: "Choisir dans la médiathèque",
+        selectedImage: "Image sélectionnée",
       },
       visibilityNote: "⚠️ Contrôlez ce que les visiteurs voient sur la vitrine.",
       visibilityWarning: "Recommandé : masqué sur la vitrine",
@@ -202,6 +211,9 @@ export const adminFr = {
       thSubscriber: "Abonné",
       thDestination: "Destination",
       thSource: "Source",
+      thActions: "Actions",
+      btnPreview: "Aperçu",
+      btnAnnounce: "Diffuser Alerte",
     },
     announcements: {
       btnDetails: "Détails",
@@ -309,5 +321,12 @@ export const adminFr = {
       thConversions: "Conversions",
       thEfficiency: "Efficacité"
     }
-  }
+  },
+  announcementModal: {
+    title: "Diffuser une alerte bourse",
+    subtitle: "Cette annonce sera envoyée par email aux abonnés.",
+    labelSubject: "Sujet de l'email",
+    labelContent: "Message de l'annonce",
+    btnSend: "Envoyer l'alerte maintenant",
+  },
 };

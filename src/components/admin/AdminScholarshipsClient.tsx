@@ -1,18 +1,25 @@
 "use client";
 // src/components/admin/AdminScholarshipsClient.tsx
-
+import { useLanguage } from "@/hooks/useLanguage";
+import SalmaBadge from "@/components/ui/SalmaBadge";
 import { useState, useCallback, useTransition } from "react";
 import { scholarshipAdminRepository } from "@/repositories/scholarship.repository";
 import { toFieldVisibilityMap } from "@/types/api/scholarship.types";
+import { mediaRepository } from "@/repositories/media.repository";
+import MediaPicker from "./MediaPicker";
+import Image from "next/image";
+import { getMediaUrl } from "@/lib/api-client";
 import type {
   ScholarshipAdmin,
   CreateScholarshipPayload,
 } from "@/types/api/scholarship.types";
+import ScholarshipPreviewModal from "./ScholarshipPreviewModal";
+import QuickAnnouncementModal from "./QuickAnnouncementModal";
 
 // ---------------------------------------------------------------------------
 //  Helpers
 // ---------------------------------------------------------------------------
-
+/*
 function StatusBadge({ status }: { status: string }) {
   const map: Record<string, string> = {
     publie: "bg-emerald-100 text-emerald-700 border-emerald-200",
@@ -31,6 +38,7 @@ function StatusBadge({ status }: { status: string }) {
     </span>
   );
 }
+*/
 
 function Flag({ country }: { country: string }) {
   return <>{country === "chine" ? "🇨🇳" : country === "allemagne" ? "🇩🇪" : "🌍"}</>;
@@ -56,6 +64,7 @@ const EMPTY_FORM: Partial<CreateScholarshipPayload> = {
   exigence_langue_fr: "",
   exigence_langue_en: "",
   est_mise_en_avant: false,    // FIX : nom exact (pas est_en_avant)
+  image_id: "",
 };
 
 const FIELD_VISIBILITY_DEFAULTS: Record<string, boolean> = {
@@ -84,8 +93,9 @@ function ScholarshipModal({
 }: {
   scholarship: ScholarshipAdmin | null;
   onClose: () => void;
-  onSave: (data: CreateScholarshipPayload, visibility: Record<string, boolean>) => Promise<void>;
+  onSave: (data: any, visibility: Record<string, boolean>) => Promise<void>;
 }) {
+  const { dictionary } = useLanguage(); // Ajouté pour corriger la ReferenceError
   const [form, setForm] = useState<Partial<CreateScholarshipPayload>>(
     scholarship
       ? {
@@ -104,6 +114,7 @@ function ScholarshipModal({
           exigence_langue_fr: scholarship.exigence_langue_fr || "",
           exigence_langue_en: scholarship.exigence_langue_en || "",
           est_mise_en_avant: scholarship.est_mise_en_avant, // FIX
+          image_id: scholarship.image_principale?.id || "",
         }
       : EMPTY_FORM
   );
@@ -118,6 +129,9 @@ function ScholarshipModal({
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
   const [activeTab, setActiveTab] = useState<"info" | "visibility" | "avanced">("info");
+  const [showLibrary, setShowLibrary] = useState(false);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(scholarship?.image_principale?.url_fichier || null);
+  const [isUploading, setIsUploading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -125,9 +139,8 @@ function ScholarshipModal({
     setSaving(true);
     setError("");
     try {
-      // FIX : field_visibility n'existe pas dans CreateScholarshipPayload
-      // On envoie le formulaire ET la map de visibilité
-      await onSave(form as CreateScholarshipPayload, visibility);
+      // On passe tout le formulaire (incluant image_id) au parent
+      await onSave(form, visibility);
       onClose();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Une erreur est survenue.");
@@ -162,6 +175,19 @@ function ScholarshipModal({
             </svg>
           </button>
         </div>
+
+        {/* Tabs */}
+        {/* APERÇU PHOTO EN HAUT */}
+        {previewUrl && (
+          <div className="relative w-full h-40 bg-salma-primary overflow-hidden border-b border-salma-gold/20">
+            <Image src={getMediaUrl(previewUrl) || ""} alt="Preview" fill className="object-cover opacity-60" />
+            <div className="absolute inset-0 bg-gradient-to-t from-white via-transparent to-transparent" />
+            <button 
+              onClick={() => { setPreviewUrl(null); set("image_id", ""); }}
+              className="absolute top-4 right-4 bg-red-500 text-white p-2 rounded-full shadow-lg hover:bg-red-600 transition-colors"
+            >✕</button>
+          </div>
+        )}
 
         {/* Tabs */}
         <div className="flex gap-1 px-8 pt-4 pb-0 border-b border-slate-100 bg-slate-50/50">
@@ -297,6 +323,61 @@ function ScholarshipModal({
                     </div>
                   </div>
                 </div>
+
+                {/* --- SÉLECTEUR D'IMAGE INTELLIGENT --- */}
+                <div className="pt-6 border-t border-slate-100 space-y-4">
+                  <label className="block text-[10px] font-black text-salma-gold uppercase tracking-[0.2em]">
+                    {dictionary.admin.scholarships.modal.fields.imageSource}
+                  </label>
+                  
+                  <div className="flex gap-4">
+                    {/* Option 1 : Upload */}
+                    <label className="flex-1 cursor-pointer group">
+                      <div className="flex flex-col items-center justify-center p-6 border-2 border-dashed border-slate-200 rounded-2xl group-hover:border-salma-gold transition-all bg-slate-50/50">
+                        <span className="text-2xl mb-2">{isUploading ? "⏳" : "📤"}</span>
+                        <span className="text-xs font-bold text-slate-500 group-hover:text-salma-primary">
+                          {isUploading ? "Upload..." : dictionary.admin.scholarships.modal.fields.uploadNew}
+                        </span>
+                        <input 
+                          type="file" 
+                          className="hidden" 
+                          accept="image/*"
+                          onChange={async (e) => {
+                            const file = e.target.files?.[0];
+                            if (!file) return;
+                            setIsUploading(true);
+                            try {
+                              const res = await mediaRepository.upload({ fichier: file });
+                              set("image_id", res.id);
+                              setPreviewUrl(res.url_fichier);
+                            } finally { setIsUploading(false); }
+                          }}
+                        />
+                      </div>
+                    </label>
+
+                    {/* Option 2 : Bibliothèque */}
+                    <button 
+                      type="button"
+                      onClick={() => setShowLibrary(!showLibrary)}
+                      className={`flex-1 flex flex-col items-center justify-center p-6 border-2 rounded-2xl transition-all ${showLibrary ? 'border-salma-gold bg-salma-gold/5' : 'border-slate-200 bg-slate-50/50 hover:border-salma-primary'}`}
+                    >
+                      <span className="text-2xl mb-2">🖼️</span>
+                      <span className="text-xs font-bold text-slate-500">{dictionary.admin.scholarships.modal.fields.selectLibrary}</span>
+                    </button>
+                  </div>
+
+                  {/* Grille de la bibliothèque (affichée si bouton cliqué) */}
+                  {showLibrary && (
+                    <div className="animate-in slide-in-from-top-2 duration-300">
+                      <MediaPicker onSelect={(m) => {
+                        set("image_id", m.id);
+                        setPreviewUrl(m.url_fichier);
+                        setShowLibrary(false);
+                      }} />
+                    </div>
+                  )}
+                </div>
               </>
             )}
 
@@ -426,6 +507,8 @@ interface Props {
 }
 
 export default function AdminScholarshipsClient({ initialData }: Props) {
+  const { dictionary, locale } = useLanguage();
+  const statusLabels = dictionary.admin.statusLabels;
   const [scholarships, setScholarships] = useState(initialData.results);
   const [total, setTotal] = useState(initialData.count);
   const [search, setSearch] = useState("");
@@ -435,6 +518,8 @@ export default function AdminScholarshipsClient({ initialData }: Props) {
   const [modalOpen, setModalOpen] = useState(false);
   const [editingScholarship, setEditingScholarship] = useState<ScholarshipAdmin | null>(null);
   const [deleteId, setDeleteId] = useState<string | null>(null);
+  const [previewBourse, setPreviewBourse] = useState<ScholarshipAdmin | null>(null);
+  const [announceBourse, setAnnounceBourse] = useState<ScholarshipAdmin | null>(null);
   const [isPending, startTransition] = useTransition();
 
   const PAGE_SIZE = 20;
@@ -457,36 +542,40 @@ export default function AdminScholarshipsClient({ initialData }: Props) {
     });
   }, [search, filterCountry, filterStatus]);
 
-  const handleSave = async (payload: CreateScholarshipPayload, visibility: Record<string, boolean>) => {
+  const handleSave = async (payload: any, visibility: Record<string, boolean>) => {
     try {
       let bourseId = editingScholarship?.id;
+      const { image_id, ...scholarshipData } = payload;
 
       if (editingScholarship) {
-        await scholarshipAdminRepository.update(editingScholarship.id, payload);
+        await scholarshipAdminRepository.update(editingScholarship.id, scholarshipData);
       } else {
-        const newBourse = await scholarshipAdminRepository.create(payload);
+        const newBourse = await scholarshipAdminRepository.create(scholarshipData);
         bourseId = newBourse.id;
       }
 
-      if (bourseId && bourseId !== "undefined") {
-        // On prépare le tableau d'objets attendu par le backend
+      if (bourseId) {
+        // 1. Mise à jour de la visibilité
         const visibilityPayload = Object.entries(visibility).map(([nom, val]) => ({
           nom_du_champ: nom,
           est_visible: val
         }));
-
-        console.log("Données envoyées au serveur :", visibilityPayload);
-        
         await scholarshipAdminRepository.bulkUpdateVisibility(bourseId, visibilityPayload);
-      } else {
-        console.error("Erreur : ID de bourse manquant pour la visibilité");
+
+        // 2. Liaison de l'image (si un ID est fourni)
+        if (image_id) {
+          await scholarshipAdminRepository.addImage(bourseId, {
+            media_id: image_id,
+            est_principale: true
+          });
+        }
       }
 
       fetchData(page);
-      alert("Bourse enregistrée avec succès !");
-    } catch (err) {
+      alert(locale === 'fr' ? "Bourse enregistrée avec succès !" : "Scholarship saved successfully!");
+    } catch (err: any) {
       console.error(err);
-      alert("Erreur lors de la sauvegarde complète.");
+      alert(err.message || "Erreur lors de la sauvegarde.");
     }
   };
 
@@ -502,23 +591,34 @@ export default function AdminScholarshipsClient({ initialData }: Props) {
 
   const handleDuplicate = async (s: ScholarshipAdmin) => {
     try {
-      await scholarshipAdminRepository.duplicate(s.id);
-      // On rafraîchit la liste à la page 1 pour voir la copie (souvent en haut)
+      // On prépare les données de la copie
+      const { id, date_creation, date_modification, visibilites, images, ...copyData } = s;
+      const payload = {
+        ...copyData,
+        titre_fr: `${s.titre_fr} (Copie)`,
+        titre_en: `${s.titre_en} (Copy)`,
+        statut: "EN_ATTENTE" // La copie est créée en attente par sécurité
+      };
+      
+      await scholarshipAdminRepository.create(payload as any);
       fetchData(1);
-    } catch {
-      alert("Erreur lors de la duplication de la bourse.");
+      alert(locale === 'fr' ? "Bourse dupliquée avec succès !" : "Scholarship duplicated successfully!");
+    } catch (err: any) {
+      alert(err.message || "Erreur lors de la duplication.");
     }
   };
 
   // FIX : toggle via statut (pas est_publie)
   const handleQuickToggle = async (s: ScholarshipAdmin) => {
     try {
+      // Mapping : En ligne = OUVERT, Hors ligne = EN_ATTENTE
+      const newStatus = s.statut === "OUVERT" ? "EN_ATTENTE" : "OUVERT";
       await scholarshipAdminRepository.patch(s.id, {
-        statut: s.statut === "publie" ? "brouillon" : "publie",
+        statut: newStatus,
       });
       fetchData(page);
-    } catch{
-      alert("Erreur lors du changement de statut rapide.");
+    } catch (err: any) {
+      alert(err.message || "Erreur de statut.");
     }
   };
 
@@ -528,6 +628,7 @@ export default function AdminScholarshipsClient({ initialData }: Props) {
   };
 
   return (
+    <>
     <div className="space-y-5 max-w-[1400px]">
       {/* Header */}
       <div className="flex items-center justify-between flex-wrap gap-4">
@@ -588,8 +689,11 @@ export default function AdminScholarshipsClient({ initialData }: Props) {
                 <th className="px-4 py-4 text-[10px] font-bold uppercase tracking-widest text-slate-400">Pays</th>
                 <th className="px-4 py-4 text-[10px] font-bold uppercase tracking-widest text-slate-400">Niveau</th>
                 <th className="px-4 py-4 text-[10px] font-bold uppercase tracking-widest text-slate-400">Deadline</th>
-                <th className="px-4 py-4 text-[10px] font-bold uppercase tracking-widest text-slate-400">Statut</th>
-                <th className="px-4 py-4 text-[10px] font-bold uppercase tracking-widest text-slate-400">Publié</th>
+                <th className="px-4 py-4 text-[10px] font-bold uppercase tracking-widest text-slate-400">{dictionary.admin.scholarships.table.thStatus}</th>
+                <th className="px-4 py-4 text-[10px] font-bold uppercase tracking-widest text-slate-400">{dictionary.admin.scholarships.table.thEmailAlert}</th>
+                <th className="px-4 py-4 text-[10px] font-bold uppercase tracking-widest text-slate-400" title={dictionary.admin.scholarships.table.visibilityTooltip}>
+                  {dictionary.admin.scholarships.table.thVisibility} ⓘ
+                </th>
                 <th className="px-6 py-4 text-[10px] font-bold uppercase tracking-widest text-slate-400 text-right">Actions</th>
               </tr>
             </thead>
@@ -634,18 +738,31 @@ export default function AdminScholarshipsClient({ initialData }: Props) {
                         ? new Date(s.date_limite).toLocaleDateString("fr-FR", { day: "numeric", month: "short", year: "2-digit" })
                         : <span className="text-slate-300">—</span>}
                     </td>
-                    <td className="px-4 py-4"><StatusBadge status={s.statut} /></td>
-                    {/* FIX : toggle via statut === "publie" */}
+                    <td className="px-4 py-4">
+                      <SalmaBadge status={s.statut as any} statusLabels={statusLabels} size="sm" dot />
+                    </td>
+                    <td className="px-4 py-4">
+                      <button 
+                        onClick={() => setAnnounceBourse(s)}
+                        className="flex items-center gap-2 px-3 py-1.5 bg-salma-gold/10 text-salma-gold-dark rounded-lg text-[10px] font-black uppercase hover:bg-salma-gold hover:text-white transition-all whitespace-nowrap"
+                      >
+                        📢 {dictionary.admin.scholarships.table.btnAnnounce}
+                      </button>
+                    </td>
                     <td className="px-4 py-4">
                       <button
                         onClick={() => handleQuickToggle(s)}
-                        className={`relative w-9 h-5 rounded-full transition-colors ${s.statut === "publie" ? "bg-[#1B365D]" : "bg-slate-200"}`}
+                        title={dictionary.admin.scholarships.table.visibilityTooltip}
+                        className={`relative w-9 h-5 rounded-full transition-all duration-300 ${s.statut === "OUVERT" ? "bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.4)]" : "bg-slate-200"}`}
                       >
-                        <span className={`absolute top-0.5 left-0.5 w-4 h-4 bg-white rounded-full shadow transition-transform ${s.statut === "publie" ? "translate-x-4" : ""}`} />
+                        <span className={`absolute top-0.5 left-0.5 w-4 h-4 bg-white rounded-full shadow transition-transform duration-300 ${s.statut === "OUVERT" ? "translate-x-4" : ""}`} />
                       </button>
                     </td>
                     <td className="px-6 py-4">
                       <div className="flex items-center justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                        <button onClick={() => setPreviewBourse(s)} className="p-1.5 rounded-lg text-slate-400 hover:text-emerald-500 hover:bg-emerald-50 transition-colors" title={dictionary.admin.scholarships.table.btnPreview}>
+                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>
+                        </button>
                         <button onClick={() => { setEditingScholarship(s); setModalOpen(true); }} className="p-1.5 rounded-lg text-slate-400 hover:text-[#1B365D] hover:bg-[#1B365D]/5 transition-colors" title="Modifier">
                           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5} className="w-4 h-4">
                             <path strokeLinecap="round" strokeLinejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931z" />
@@ -707,5 +824,13 @@ export default function AdminScholarshipsClient({ initialData }: Props) {
         </div>
       )}
     </div>
+    {/* MODALS DE SUPPORT */}
+      {previewBourse && (
+        <ScholarshipPreviewModal bourse={previewBourse} onClose={() => setPreviewBourse(null)} />
+      )}
+      {announceBourse && (
+        <QuickAnnouncementModal bourse={announceBourse} onClose={() => setAnnounceBourse(null)} />
+      )}
+  </>
   );
 }
