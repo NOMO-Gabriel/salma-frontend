@@ -69,9 +69,8 @@ export const scholarshipDictionary = {
         ordre_affichage: found.ordre_affichage,
         est_mise_en_avant: found.est_mise_en_avant,
         domaines: found.domaines || [],
-        // FIX : Ajout du champ manquant
         date_limite: found.date_limite || null, 
-        // Autres champs obligatoires
+        image_principale: found.image_principale || null, 
         description_fr: found.description_fr || "Découvrez cette opportunité d'excellence pour votre mobilité internationale.",
         description_en: found.description_en || "Discover this excellence opportunity for your international mobility.",
         exigence_langue_fr: found.exigence_langue_fr || "",

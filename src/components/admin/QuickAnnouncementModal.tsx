@@ -2,18 +2,15 @@
 
 import { useState } from "react";
 import { useLanguage } from "@/hooks/useLanguage";
-import { ScholarshipAdmin } from "@/types";
+import type { ScholarshipAdmin } from "@/types";
 import SalmaButton from "../ui/SalmaButton";
 import { newsletterDictionary } from "@/dictionaries/data";
 
 export default function QuickAnnouncementModal({ bourse, onClose }: { bourse: ScholarshipAdmin, onClose: () => void }) {
   const { dictionary, locale } = useLanguage();
-  const t = dictionary.admin.announcementModal;
-  const [loading, setLoading] = useState(false);
-
-  // Sécurité : Si le dictionnaire n'est pas encore chargé ou la clé manquante
-  if (!t) return null;
   
+  // HOOKS AU SOMMET (Obligatoire)
+  const [loading, setLoading] = useState(false);
   const [form, setForm] = useState({
     titre_fr: `Nouvelle opportunité : ${bourse.titre_fr}`,
     titre_en: `New Opportunity: ${bourse.titre_en}`,
@@ -21,23 +18,26 @@ export default function QuickAnnouncementModal({ bourse, onClose }: { bourse: Sc
     contenu_en: `We are pleased to announce a new scholarship for ${bourse.pays_destination}. \n\nCheck the details on our website!`,
   });
 
+  const t = dictionary.admin.announcementModal;
+
+  if (!t) return null;
+
   const handleSend = async () => {
     setLoading(true);
     try {
-      // 1. Créer l'annonce
       const annonce = await newsletterDictionary.admin.createAnnouncement({
         ...form,
         bourses_ids: [bourse.id],
         statut: "BROUILLON"
       });
       
-      // 2. Envoyer l'annonce
       await newsletterDictionary.admin.sendAnnouncement(annonce.id);
       
       alert(locale === 'fr' ? "Alerte diffusée avec succès !" : "Alert broadcasted successfully!");
       onClose();
-    } catch (err: any) {
-      alert(err.message || "Erreur lors de la diffusion");
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "Erreur lors de la diffusion";
+      alert(msg);
     } finally {
       setLoading(false);
     }

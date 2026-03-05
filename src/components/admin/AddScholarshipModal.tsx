@@ -1,15 +1,21 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import Link from "next/link";
 import { useLanguage } from "@/hooks/useLanguage";
 import { scholarshipDictionary } from "@/dictionaries/data";
+import SalmaBadge from "../ui/SalmaBadge";
+import SalmaButton from "../ui/SalmaButton";
 import { 
   SCHOLARSHIP_VISIBILITY_FIELDS, 
   type UpdateScholarshipPayload, 
   type FieldVisibilityMap, 
-  type CreateScholarshipPayload 
+  type CreateScholarshipPayload,
+  type ScholarshipLevel,
+  type ScholarshipCountry,
+  type ScholarshipStatus,
+  type ScholarshipCoverage
 } from "@/types";
-import SalmaButton from "../ui/SalmaButton";
 
 interface Props {
   isOpen: boolean;
@@ -21,7 +27,7 @@ interface Props {
 type TabType = "info" | "visibility" | "options";
 
 export default function AddScholarshipModal({ isOpen, onClose, onSave, scholarshipId }: Props) {
-  const { dictionary } = useLanguage();
+  const { dictionary, locale } = useLanguage();
   const t = dictionary.admin.scholarships.modal;
   const common = dictionary.admin.common;
 
@@ -31,7 +37,7 @@ export default function AddScholarshipModal({ isOpen, onClose, onSave, scholarsh
   const [form, setForm] = useState<UpdateScholarshipPayload & { image_id?: string }>({
     titre_fr: "", titre_en: "", organisme_fr: "", organisme_en: "",
     description_fr: "", description_en: "", pays_destination: "chine",
-    niveau: "master", statut: "publie", type_couverture: "complete",
+    niveau: "master", statut: "brouillon", type_couverture: "complete",
     image_id: ""
   });
   const [visibility, setVisibility] = useState<FieldVisibilityMap>({});
@@ -62,16 +68,13 @@ export default function AddScholarshipModal({ isOpen, onClose, onSave, scholarsh
       let currentId = scholarshipId;
 
       if (currentId) {
-        // Mode Édition
         await scholarshipDictionary.admin.patch(currentId, form);
         await scholarshipDictionary.admin.saveVisibility(currentId, visibility);
       } else {
-        // Mode Création
         const newBourse = await scholarshipDictionary.admin.create(form as CreateScholarshipPayload);
         currentId = newBourse.id;
       }
 
-      // Gestion de l'image (si un ID est fourni)
       if (form.image_id && currentId) {
         const { scholarshipAdminRepository } = await import("@/repositories/scholarship.repository");
         await scholarshipAdminRepository.addImage(currentId, {
@@ -82,8 +85,9 @@ export default function AddScholarshipModal({ isOpen, onClose, onSave, scholarsh
 
       onSave();
       onClose();
-    } catch (err: any) {
-      alert(err.message || common.errorSave);
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : String(common.errorSave);
+      alert(msg);
     } finally {
       setLoading(false);
     }
@@ -123,21 +127,18 @@ export default function AddScholarshipModal({ isOpen, onClose, onSave, scholarsh
           ) : (
             <>
               {activeTab === "info" && (
-                <div className="space-y-1">
-                      <label className="text-[10px] font-black text-salma-gold uppercase tracking-widest">{t.fields.photos}</label>
-                      <div className="flex flex-col gap-2">
-                        <textarea 
-                          value={form.image_id} 
-                          onChange={e => setForm({...form, image_id: e.target.value})} 
-                          placeholder={t.fields.photosPlaceholder} 
-                          className="w-full p-3 rounded-xl border border-slate-200 text-xs font-mono bg-slate-50 h-20 resize-none" 
-                        />
-                        <div className="flex justify-between items-center">
-                          <p className="text-[9px] text-slate-400 italic">{t.fields.imageNote}</p>
-                          <Link href="/admin/medias" target="_blank">
-                            <SalmaButton variant="ghost" size="sm">Médiathèque ↗</SalmaButton>
-                          </Link>
-                        </div>
+                <div className="space-y-8">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    {/* Colonne Gauche (FR) */}
+                    <div className="space-y-4">
+                      <SalmaBadge variant="info" label={common.french} size="sm" />
+                      <div className="space-y-1">
+                        <label className="text-[10px] font-black text-slate-400 uppercase tracking-tighter">{t.fields.titleFr}</label>
+                        <input value={form.titre_fr} onChange={e => setForm({...form, titre_fr: e.target.value})} className="w-full p-3 rounded-xl border border-slate-200 focus:border-salma-gold outline-none text-sm" required />
+                      </div>
+                      <div className="space-y-1">
+                        <label className="text-[10px] font-black text-slate-400 uppercase tracking-tighter">{t.fields.descFr}</label>
+                        <textarea value={form.description_fr} onChange={e => setForm({...form, description_fr: e.target.value})} rows={4} className="w-full p-3 rounded-xl border border-slate-200 focus:border-salma-gold outline-none text-sm" />
                       </div>
                     </div>
 
@@ -155,35 +156,28 @@ export default function AddScholarshipModal({ isOpen, onClose, onSave, scholarsh
                     </div>
                   </div>
 
-                  {/* Ligne Média & Config */}
-                  <div className="pt-6 border-t border-slate-100 grid grid-cols-2 gap-8">
+                  <div className="pt-6 border-t border-slate-100 grid grid-cols-1 md:grid-cols-2 gap-8">
                     <div className="space-y-1">
                       <label className="text-[10px] font-black text-salma-gold uppercase tracking-widest">{t.fields.image}</label>
                       <div className="flex gap-2">
-                        <input 
-                          value={form.image_id} 
-                          onChange={e => setForm({...form, image_id: e.target.value})} 
-                          placeholder="ex: 550e8400-e29b..." 
-                          className="flex-1 p-3 rounded-xl border border-slate-200 text-xs font-mono bg-slate-50" 
-                        />
+                        <input value={form.image_id} onChange={e => setForm({...form, image_id: e.target.value})} placeholder="ID du média..." className="flex-1 p-3 rounded-xl border border-slate-200 text-xs font-mono bg-slate-50" />
                         <Link href="/admin/medias" target="_blank">
                           <SalmaButton variant="outline" size="sm">Médiathèque ↗</SalmaButton>
                         </Link>
                       </div>
-                      <p className="text-[9px] text-slate-400 italic">{t.fields.imageNote}</p>
                     </div>
                     
                     <div className="grid grid-cols-2 gap-4">
-                       <div className="space-y-1">
+                      <div className="space-y-1">
                         <label className="text-[10px] font-black text-slate-400 uppercase tracking-tighter">{t.fields.destination}</label>
-                        <select value={form.pays_destination} onChange={e => setForm({...form, pays_destination: e.target.value as any})} className="w-full p-3 rounded-xl border border-slate-200 text-sm bg-white">
+                        <select value={form.pays_destination} onChange={e => setForm({...form, pays_destination: e.target.value as ScholarshipCountry})} className="w-full p-3 rounded-xl border border-slate-200 text-sm bg-white">
                           <option value="chine">🇨🇳 Chine</option>
                           <option value="allemagne">🇩🇪 Allemagne</option>
                         </select>
                       </div>
                       <div className="space-y-1">
                         <label className="text-[10px] font-black text-slate-400 uppercase tracking-tighter">{t.fields.level}</label>
-                        <select value={form.niveau} onChange={e => setForm({...form, niveau: e.target.value as any})} className="w-full p-3 rounded-xl border border-slate-200 text-sm bg-white">
+                        <select value={form.niveau} onChange={e => setForm({...form, niveau: e.target.value as ScholarshipLevel})} className="w-full p-3 rounded-xl border border-slate-200 text-sm bg-white">
                           <option value="licence">Licence</option>
                           <option value="master">Master</option>
                           <option value="doctorat">Doctorat</option>
@@ -194,52 +188,16 @@ export default function AddScholarshipModal({ isOpen, onClose, onSave, scholarsh
                 </div>
               )}
 
-                  {/* SECTION ANGLAIS */}
-                  <div className="space-y-4">
-                    <h3 className="text-xs font-black text-salma-gold uppercase">{common.english}</h3>
-                    <div className="space-y-2">
-                      <label className="text-[10px] font-bold text-salma-text-muted uppercase">{t.fields.titleEn}</label>
-                      <input 
-                        value={form.titre_en} 
-                        onChange={e => setForm({...form, titre_en: e.target.value})} 
-                        placeholder={t.fields.titleEn} 
-                        className="w-full p-4 rounded-xl border border-salma-border bg-salma-bg" 
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <label className="text-[10px] font-bold text-salma-text-muted uppercase">{t.fields.descEn}</label>
-                      <textarea 
-                        value={form.description_en} 
-                        onChange={e => setForm({...form, description_en: e.target.value})} 
-                        placeholder={t.fields.descEn} 
-                        rows={5} 
-                        className="w-full p-4 rounded-xl border border-salma-border bg-salma-bg" 
-                      />
-                    </div>
-                  </div>
-                </div>
-              )}
-
               {activeTab === "visibility" && (
                 <div className="space-y-6">
-                  <div className="p-4 bg-blue-50 border border-blue-100 rounded-xl text-blue-800 text-sm">
-                    {t.visibilityNote}
-                  </div>
+                  <div className="p-4 bg-blue-50 border border-blue-100 rounded-xl text-blue-800 text-sm">{t.visibilityNote}</div>
                   <div className="grid grid-cols-2 gap-4">
                     {SCHOLARSHIP_VISIBILITY_FIELDS.map(field => (
                       <label key={field} className="flex items-center justify-between p-4 bg-salma-bg rounded-xl border border-salma-border cursor-pointer hover:border-salma-gold transition-colors">
                         <div className="flex flex-col">
                           <span className="text-sm font-bold text-salma-primary">{field.replace(/_/g, ' ')}</span>
-                          {(field === 'details_montant_fr' || field === 'details_montant_en') && (
-                            <span className="text-[9px] text-red-500 font-medium">{t.visibilityWarning}</span>
-                          )}
                         </div>
-                        <input 
-                          type="checkbox" 
-                          checked={visibility[field] ?? true} 
-                          onChange={e => setVisibility({...visibility, [field]: e.target.checked})}
-                          className="w-5 h-5 accent-salma-gold"
-                        />
+                        <input type="checkbox" checked={visibility[field] ?? true} onChange={e => setVisibility({...visibility, [field]: e.target.checked})} className="w-5 h-5 accent-salma-gold" />
                       </label>
                     ))}
                   </div>
@@ -253,13 +211,16 @@ export default function AddScholarshipModal({ isOpen, onClose, onSave, scholarsh
                       <p className="font-bold text-salma-primary">{t.fields.isFeatured}</p>
                       <p className="text-xs text-salma-text-muted">{t.fields.isFeaturedDesc}</p>
                     </div>
-                    <input 
-                      type="checkbox" 
-                      checked={form.est_mise_en_avant} 
-                      onChange={e => setForm({...form, est_mise_en_avant: e.target.checked})}
-                      className="w-6 h-6 accent-salma-gold"
-                    />
+                    <input type="checkbox" checked={form.est_mise_en_avant} onChange={e => setForm({...form, est_mise_en_avant: e.target.checked})} className="w-6 h-6 accent-salma-gold" />
                   </label>
+                  <div className="space-y-1">
+                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-tighter">{t.fields.status}</label>
+                    <select value={form.statut} onChange={e => setForm({...form, statut: e.target.value as ScholarshipStatus})} className="w-full p-3 rounded-xl border border-slate-200 text-sm bg-white">
+                      <option value="publie">Publié</option>
+                      <option value="brouillon">Brouillon</option>
+                      <option value="archive">Archivé</option>
+                    </select>
+                  </div>
                 </div>
               )}
             </>
@@ -267,9 +228,7 @@ export default function AddScholarshipModal({ isOpen, onClose, onSave, scholarsh
         </div>
 
         <div className="p-8 border-t border-salma-border flex justify-end gap-4 bg-salma-bg/30">
-          <button onClick={onClose} className="px-8 py-3 text-salma-text-muted font-bold uppercase text-xs tracking-widest">
-            {common.cancel}
-          </button>
+          <button onClick={onClose} className="px-8 py-3 text-salma-text-muted font-bold uppercase text-xs tracking-widest">{common.cancel}</button>
           <SalmaButton onClick={handleFinalSave} variant="primary" disabled={loading}>
             {loading ? t.saving : (scholarshipId ? t.btnUpdate : t.btnCreate)}
           </SalmaButton>

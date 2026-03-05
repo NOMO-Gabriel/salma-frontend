@@ -1,11 +1,14 @@
 "use client";
-import { ScholarshipAdmin } from "@/types";
+import { ScholarshipAdmin,ScholarshipStatus } from "@/types";
 import SalmaBadge from "../ui/SalmaBadge";
 import Image from "next/image";
 import { getMediaUrl } from "@/lib/api-client";
+import { useLanguage } from "@/hooks/useLanguage";
 
 export default function ScholarshipPreviewModal({ bourse, onClose }: { bourse: ScholarshipAdmin, onClose: () => void }) {
-  // Récupération de l'image principale
+ const { dictionary } = useLanguage();
+  const statusLabels = dictionary.admin.statusLabels;
+
   const mainImage = bourse.images?.find(img => img.est_principale)?.media.url_fichier 
                  || bourse.image_principale?.url_fichier;
   return (
@@ -13,7 +16,8 @@ export default function ScholarshipPreviewModal({ bourse, onClose }: { bourse: S
       <div className="bg-white rounded-[2.5rem] w-full max-w-2xl max-h-[85vh] overflow-y-auto shadow-2xl border border-salma-border">
         <div className="p-8">
           <div className="flex justify-between items-start mb-6">
-            <SalmaBadge status={bourse.statut as any} size="md" dot />
+            {/* FIX : Typage correct du statut */}
+            <SalmaBadge status={bourse.statut as ScholarshipStatus} statusLabels={statusLabels} size="md" dot />
             <button onClick={onClose} className="text-2xl text-slate-300 hover:text-salma-primary">✕</button>
           </div>
           {mainImage && (

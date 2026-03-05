@@ -108,10 +108,12 @@ export interface ScholarshipPublicDetail {
   domaines: ScholarshipField[];
   avantages: ScholarshipBenefit[];
   criteres: ScholarshipEligibility[];
+  image_principale: MediaAssetMinimal | null;
   images: ScholarshipImage[];
   visibilites: FieldVisibility[];       // → utiliser toFieldVisibilityMap()
   date_creation: string;
   date_modification: string;
+  
 }
 
 // --- Modèle principal — Admin complet (CRUD) --------------------------------
@@ -141,6 +143,7 @@ export interface CreateScholarshipPayload {
   lien_officiel?: string;
   est_mise_en_avant?: boolean;
   ordre_affichage?: number;
+  image_id?: string; 
 }
 
 export type UpdateScholarshipPayload = Partial<CreateScholarshipPayload>;
