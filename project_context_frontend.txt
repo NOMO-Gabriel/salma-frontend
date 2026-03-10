@@ -1,6 +1,6 @@
 ﻿Next.js Project Context
-Generated On: 2026-03-04 12:29:19
-Root: C:\Users\hp\Documents\stage gabriel\SALMA\salma-frontend
+Generated On: 2026-03-04 16:05:18
+Root: E:\AG_Technologie\Salma\salma-frontend
 ===============================================
 
 // FILE: docs/data/bourses.md
@@ -5826,10 +5826,9 @@ export default function ConditionalLayout({
 // =============================================================================
 //  Topbar.tsx — SALMA · Barre d'information pré-header
 //
-//  ✅ Contenu via cmsSwitcher (frLayout.footer.contact + frLayout.topbar)
+//  ✅ Contenu via cmsSwitcher (frLayout.footer.contact)
 //  ✅ Disparaît au scroll bas, réapparaît au scroll haut
-//  ✅ Desktop : adresse | téléphone · email · horaires | réseaux
-//  ✅ Mobile  : téléphone cliquable + WhatsApp pill
+//  ✅ Zéro texte en dur (horaires inclus)
 // =============================================================================
 
 import { useEffect, useRef, useState } from "react";
@@ -5837,7 +5836,7 @@ import { useLanguage } from "@/hooks/useLanguage";
 import { cmsSwitcher } from "@/dictionaries/data/cms-switcher";
 
 // =============================================================================
-//  Types
+//  Types (Synchronisés avec le dictionnaire layout)
 // =============================================================================
 interface TopbarContent {
   footer: {
@@ -5845,10 +5844,8 @@ interface TopbarContent {
       address: string;
       phones: string;
       email: string;
+      hours: string;
     };
-  };
-  topbar?: {
-    hours?: string;
   };
 }
 
@@ -5915,29 +5912,24 @@ const SOCIAL_LINKS = [
   { label: "Instagram", href: "https://instagram.com", letter: "ig" },
 ];
 
-// =============================================================================
-//  Composant principal
-// =============================================================================
 export default function Topbar() {
   const { locale } = useLanguage();
   const hidden = useScrollDirection();
   const [topbarContent, setTopbarContent] = useState<TopbarContent | null>(null);
 
-  // Charge le contenu depuis le cmsSwitcher (scope "layout")
   useEffect(() => {
     cmsSwitcher
-      .getScopeContent("layout", locale)
-      .then((data) => setTopbarContent(data as TopbarContent));
+      .getScopeContent<TopbarContent>("layout", locale)
+      .then((data) => setTopbarContent(data));
   }, [locale]);
 
-  // Valeurs de fallback si le contenu n'est pas encore chargé
-  const address  = topbarContent?.footer?.contact?.address ?? "";
-  const phones   = topbarContent?.footer?.contact?.phones  ?? "";
-  const email    = topbarContent?.footer?.contact?.email   ?? "";
-  // Les horaires sont optionnels — on les met dans topbar.hours si besoin
-  const hours    = locale === "fr" ? "Lun – Sam · 8h – 18h" : "Mon – Sat · 8am – 6pm";
+  // Fallbacks sécurisés
+  const contact = topbarContent?.footer?.contact;
+  const address  = contact?.address ?? "";
+  const phones   = contact?.phones  ?? "";
+  const email    = contact?.email   ?? "";
+  const hours    = contact?.hours   ?? "";
 
-  // Extrait le premier numéro de téléphone pour le lien tel:
   const firstPhone = phones.split("/")[0].trim().replace(/\s/g, "");
 
   return (
@@ -5956,7 +5948,6 @@ export default function Topbar() {
         {/* ── DESKTOP ─────────────────────────────────────────────────────── */}
         <div className="hidden lg:flex items-center justify-between h-9 gap-4">
 
-          {/* Gauche : adresse */}
           {address && (
             <div className="flex items-center gap-1.5 flex-shrink-0">
               <span className="text-salma-gold">{Icon.location}</span>
@@ -5964,7 +5955,6 @@ export default function Topbar() {
             </div>
           )}
 
-          {/* Centre : téléphone · email · horaires */}
           <div className="flex items-center gap-5">
             {phones && (
               <a
@@ -5992,15 +5982,17 @@ export default function Topbar() {
               </a>
             )}
 
-            <span className="w-px h-3 bg-salma-border" aria-hidden="true" />
-
-            <div className="flex items-center gap-1.5 text-salma-text-muted">
-              {Icon.clock}
-              <span className="text-[10px] font-medium tracking-wide">{hours}</span>
-            </div>
+            {hours && (
+              <>
+                <span className="w-px h-3 bg-salma-border" aria-hidden="true" />
+                <div className="flex items-center gap-1.5 text-salma-text-muted">
+                  {Icon.clock}
+                  <span className="text-[10px] font-medium tracking-wide">{hours}</span>
+                </div>
+              </>
+            )}
           </div>
 
-          {/* Droite : réseaux sociaux */}
           <div className="flex items-center gap-2 flex-shrink-0">
             {SOCIAL_LINKS.map(({ label, href, letter }) => (
               <a
@@ -6514,7 +6506,8 @@ import type { ChatbotCTA, ChatbotSuggestion } from "@/types/api/chatbot.types";
 // — Constantes ------------------------------------------------------------------
 
 const DEFAULT_WHATSAPP = "237699450984";
-const IS_STATIC = process.env.NEXT_PUBLIC_STATIC_CONTENT === "true";
+const ENABLE_DYNAMIC = process.env.NEXT_PUBLIC_ENABLE_DYNAMIC_ACTIONS === "true";
+
 
 // — Sous-composant : Bulle de message ------------------------------------------
 
@@ -6692,7 +6685,7 @@ export default function ChatbotWidget({
   const resolveAnswer = useCallback(
     async (question: string): Promise<ChatbotMessage> => {
       // Étape 1 : Tentative API (sauf mode statique)
-      if (!IS_STATIC) {
+      if (ENABLE_DYNAMIC) {
         try {
           const response = await chatbotRepository.query({
             message: question,
@@ -10742,6 +10735,7 @@ export const enLayout = {
       address: "Montée Anne rouge, Kadji Building, Yaoundé",
       phones: "+237 6 99 45 09 84 / 6 51 74 03 28",
       email: "secretariatagtechnologies@gmail.com",
+      hours: "Mon – Sat · 8am – 6pm",
     },
     rights: "© 2026 SALMA by AG Technologies. All rights reserved.",
   },
@@ -10990,6 +10984,7 @@ export const frLayout = {
       address: "Montée Anne rouge, Immeuble Kadji, Yaoundé",
       phones: "+237 6 99 45 09 84 / 6 51 74 03 28",
       email: "secretariatagtechnologies@gmail.com",
+      hours: "Lun – Sam · 8h – 18h",
     },
     rights: "© 2026 SALMA by AG Technologies. Tous droits réservés.",
   },
@@ -14707,7 +14702,7 @@ import type { ContactFormLabels, CreateContactPayload } from "@/types";
 
 // — Constantes ------------------------------------------------------------------
 
-const IS_STATIC = process.env.NEXT_PUBLIC_STATIC_CONTENT === "true";
+const ENABLE_DYNAMIC = process.env.NEXT_PUBLIC_ENABLE_DYNAMIC_ACTIONS === "true";
 const WHATSAPP_URL = "https://wa.me/237699450984";
 
 // — Composant principal ---------------------------------------------------------
@@ -14727,7 +14722,7 @@ export default function ContactForm({ labels: t }: Props) {
     e.preventDefault();
 
     // Mode statique → pas d'appel API, message WhatsApp
-    if (IS_STATIC) {
+    if (!ENABLE_DYNAMIC) {
       setStatus("static_error");
       return;
     }
@@ -17572,6 +17567,7 @@ export interface FooterTexts {
     address: string;
     phones: string;
     email: string;
+    hours: string;
   };
   rights: string;
 }
@@ -19174,6 +19170,43 @@ export default config;
 // END OF FILE: postcss.config.mjs
 
 
+// FILE: prompt_audit.md
+-----------------------------------------------
+
+# ROLE
+Tu es un Expert Fullstack Senior (Next.js 15 / Django DRF) spécialisé dans l'architecture de données et l'internationalisation (i18n). Ton rôle est d'assister l'équipe SALMA dans l'audit de parité entre le Frontend et le Backend pour le système CMS.
+
+# CONTEXTE TECHNIQUE
+Le projet SALMA utilise un système de contenu hybride :
+1. **Frontend (Next.js 15)** : Utilise un `cmsSwitcher` qui bascule entre des dictionnaires statiques (`src/dictionaries/data/static/`) et une API Django selon la variable `NEXT_PUBLIC_STATIC_CONTENT`.
+2. **Backend (Django)** : Un seeder modulaire (`apps/core_commands/management/commands/seeders/ui_client/`) alimente les tables `SiteConfig` (clés globales) et `ContentBlock` (clés par page).
+3. **Règle d'Or** : Zéro texte en dur. Tout doit être traduit (FR/EN) et typé en TypeScript strict.
+
+# TA MISSION
+Auditer le projet **composant par composant** pour garantir que :
+1. Les **clés de traduction** appelées dans le code `.tsx` existent dans les types (`.types.ts`).
+2. Ces clés sont présentes dans les **dictionnaires statiques** (`fr.ts` / `en.ts`).
+3. Ces clés sont correctement préparées dans le **seeder backend** (`layout.py` ou `pages/*.py`).
+4. Le mapping est cohérent (Attention : le backend utilise souvent des clés plates `nav_title` là où le front attend des objets imbriqués `nav: { title: "" }`).
+
+# PROTOCOLE DE TRAVAIL (ÉTAPE PAR ÉTAPE)
+Pour chaque composant soumis par l'utilisateur :
+1. **Analyse du Code** : Liste toutes les clés de contenu dynamique détectées.
+2. **Vérification du Typage** : Vérifie si l'interface TypeScript correspondante est complète.
+3. **Vérification du Seeder** : Compare avec les dictionnaires du seeder backend fournis.
+4. **Rapport d'Audit** : Affiche un bilan (✅ OK, ❌ MANQUANT, ⚠️ INCOHÉRENCE DE STRUCTURE).
+5. **Correction** : Propose le code exact pour corriger les fichiers manquants ou erronés.
+
+# RÈGLE DE CLÔTURE OBLIGATOIRE
+À la fin de CHAQUE réponse, tu dois impérativement ajouter ce rappel :
+"📌 **N'oubliez pas de cocher la case correspondante dans le fichier `todo_audit_cms.md` !**"
+
+---
+
+
+// END OF FILE: prompt_audit.md
+
+
 // FILE: prompt_livraison.md
 -----------------------------------------------
 # 🚀 PROMPT DE CONTINUITÉ — PHASE DE FINITIONS (Projet SALMA)
@@ -19717,7 +19750,7 @@ CHANGEMENT MAJEUR: le chemin d'import a changé
 ### 🛠 PHASE 0 : Composants Globaux (Layout)
 *Ces éléments apparaissent sur toutes les pages. Ils utilisent généralement le scope `layout` ou `common`.*
 
-- [ ] **Topbar** (Infos de contact, réseaux)
+- [x] **Topbar** (Infos de contact, réseaux)
 - [ ] **Navbar** (Libellés des menus, dropdowns)
 - [ ] **Footer** (Slogan, liens, coordonnées, copyright)
 - [ ] **NewsletterForm** (Placeholders, textes de succès/erreur)
